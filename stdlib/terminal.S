@@ -3,11 +3,12 @@
 # a0 - a5 arguments
 # a7 - EID - Extension ID
 # a6 - FID - function ID - not needed
-.global write_byte
-.global read_byte
+    .global write_byte
+    .global read_byte
+    .global remove_byte
+# letter in
 write_byte:
     addi    a7, zero, 1
-    add x0, x0, x0
     ecall
     jalr    zero, 0(ra)
 
@@ -17,6 +18,16 @@ read_byte:
     repeat_read:
         ecall
         beq     a0, t1, repeat_read
+    addi    a7, zero, 1
+    ecall
+    jalr    zero, 0(ra)
+remove_byte:
+    addi    a7, zero, 1
+    addi    a0, zero, 8 // backspace - go one letter left
+    ecall
+    addi    a0, zero, 32 // space - to clear it
+    ecall
+    addi    a0, zero, 8 // go back again
     ecall
     jalr    zero, 0(ra)
 

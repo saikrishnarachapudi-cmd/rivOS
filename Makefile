@@ -8,7 +8,7 @@ LIBS = stdlib/stdlib.o
 #---------------------------
 .PHONY: libs $(SUBDIRS) build
 
-build: all buildK
+build: libs buildK
 libs: $(SUBDIRS)
 
 $(SUBDIRS):
