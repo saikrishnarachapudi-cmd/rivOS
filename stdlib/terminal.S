@@ -6,6 +6,7 @@
     .global write_byte
     .global read_byte
     .global remove_byte
+    .global write_string
 # letter in
 write_byte:
     addi    a7, zero, 1
@@ -28,6 +29,14 @@ remove_byte:
     addi    a0, zero, 32 // space - to clear it
     ecall
     addi    a0, zero, 8 // go back again
+    ecall
+    jalr    zero, 0(ra)
+# number of bytes in a0
+# base address low in a1
+# base address high in a2
+write_string:
+    li  a7, 0x4442434E
+    li  a6, 0
     ecall
     jalr    zero, 0(ra)
 
