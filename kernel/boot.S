@@ -1,8 +1,8 @@
-    .global boot
+    .global kernel_main
     .data
     message: .ascii "Hello world"
     .text
-boot:
+kernel_main:
     addi    a0, zero, 67
     jal     ra, write_byte
     addi    a0, zero, 67

@@ -5,30 +5,25 @@ CFLAGS  := -std=c11 -O2 -g3 -Wall -Wextra \
            -fno-stack-protector -ffreestanding -nostdlib \
            -march=rv32imac_zicsr -Iinclude
 
-TARGET  := kernel.elf
-MAPFILE := kernel.map
-LDSCRIPT:= kernel.ld
+LIBNAMES = terminal
+LIBFILES = terminal/terminal.o
+#---------------------------
+.PHONY: libs $(SUBDIRS) build
+
+build: libs buildK
+libs: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C -k $@
 
 # Object files
 OBJS    := kernel/boot.o user/terminal.o
 
-.PHONY: all build run start clean
-
-all: build
-
-build: $(TARGET)
-
-# Link all objects into the final ELF
-$(TARGET): $(OBJS) $(LDSCRIPT)
-	$(CC) $(CFLAGS) $(OBJS) -Wl,-T$(LDSCRIPT) -Wl,-Map=$(MAPFILE) -o $@
-
-# Pattern rule to assemble/compile .S files into .o
-%.o: %.S
-	$(CC) $(CFLAGS) -c $< -o $@
-
-run: start
-start: $(TARGET)
+# Build the kernel
+buildK: kernel.S
+	$(CC) $(CFLAGS) kernel.S $(LIBS) -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf
+run: kernel.elf
 	$(QEMU) -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel $(TARGET)
 
 clean:
-	rm -f $(OBJS) $(TARGET) $(MAPFILE)
+	rm -f kernel.elf kernel.map
