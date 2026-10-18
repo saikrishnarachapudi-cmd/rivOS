@@ -7,6 +7,7 @@
     .global read_byte
     .global remove_byte
     .global write_string
+    .global read_string
 # letter in
 write_byte:
     addi    a7, zero, 1
@@ -31,14 +32,28 @@ remove_byte:
     addi    a0, zero, 8 // go back again
     ecall
     jalr    zero, 0(ra)
+
 # number of bytes in a0
 # base address low in a1
 # base address high in a2
 write_string:
     li  a7, 0x4442434E
     li  a6, 0
+    li a2,0
     ecall
     jalr    zero, 0(ra)
+
+# maximum number of bytes to read in a0
+# base address low in a1
+# base address high in a2
+# a0(error status)=0 if successfull reading
+# a1 number of bits read
+read_string:
+    li  a7, 0x4442434E
+    li  a6, 1
+    li a2,0
+    ecall
+    jalr zero, 0(ra)
 
 # sbi_call:
 # ecall
