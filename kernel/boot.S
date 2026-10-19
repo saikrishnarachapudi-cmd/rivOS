@@ -5,10 +5,15 @@ message:
     .ascii "Hello world"
 msg_len = . - message
 
-    .section .bss
-    .align 2
-sec_code:
-    .space 16               
+
+.section .bss
+    .align 4
+
+    sec_code:
+        .space 16    
+
+    process_table:
+        .space MAX_PROCS * PROC_SIZE    
 
     .section .text
 boot:
@@ -26,6 +31,9 @@ boot:
     li a0, msg_len   
     la   a1, message       
     jal  ra, write_string
+
+process_creation:
+
 
 input:
     li   a0, 16

@@ -1,6 +1,7 @@
 .section .text
     .global switchcontext
 
+#a1 - new process sp address
 switchcontext:
         addi sp, sp, -13 * 4 
         sw ra,  0  * 4(sp)
