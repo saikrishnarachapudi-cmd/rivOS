@@ -12,6 +12,7 @@ sec_code:
 
     .section .text
 boot:
+
     addi a0, zero, 67
     jal  ra, write_byte
     addi a0, zero, 67
@@ -27,20 +28,26 @@ boot:
     jal  ra, write_string
 
 input:
-   
-    addi a0, zero, 16        
-    la   a1, sec_code         
+    li   a0, 16
+    la   a1, sec_code
     jal  ra, read_string
 
-    
-    bnez a0, input       
-    beqz a1, input       
+    # a0 = SBI error status
+    # a1 = number of bytes read
 
-   
-    mv   a0, a1              
-    la   a1, sec_code         
+    bnez a0, input       # Retry if error
+    beqz a1, input       # Retry if no bytes read
+
+    # Print the input buffer
+    mv   t0, a1          # Save number of bytes read
+    mv   a0, t0          # Length for write_string
+    la   a1, sec_code    # Address of input buffer
     jal  ra, write_string
+    # optional: newline
+    addi a0, zero, 10
+    jal  ra, write_byte
 
+    
 L1:
     wfi
     jal  x0, L1
