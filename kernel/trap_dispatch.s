@@ -7,6 +7,8 @@
 #sstatus: What was the CPU's privilege and interrupt state?
 #sie / sip: Which supervisor interrupts are enabled or pending?
 
+#t5-interrupt
+#t6 - code
 trap_dispatch:
     csrr t0,sepc
     csrr t1,sstatus
@@ -17,5 +19,5 @@ trap_dispatch:
     srli t5,t2,31
     li a0,1
     beq t5,a0,time
-    
+
 time:
