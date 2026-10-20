@@ -1,3 +1,4 @@
+.include "struct.inc"
 .global boot
 
     .section .rodata
@@ -12,8 +13,13 @@ msg_len = . - message
     sec_code:
         .space 16    
 
+    .global process_table
     process_table:
-        .space MAX_PROCS * PROC_SIZE    
+        .space proc_max * proc_size    
+
+    .global proc_stacks
+    proc_stacks:
+        .space proc_max * stack_size
 
     .section .text
 boot:
@@ -33,6 +39,8 @@ boot:
     jal  ra, write_string
 
 process_creation:
+    jal ra, proc_create
+    ##incomplete
 
 
 input:

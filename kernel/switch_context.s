@@ -2,6 +2,7 @@
     .global switchcontext
 
 #a1 - new process sp address
+#a0- current process sp address
 switchcontext:
         addi sp, sp, -13 * 4 
         sw ra,  0  * 4(sp)

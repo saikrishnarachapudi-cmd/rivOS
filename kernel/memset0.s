@@ -1,11 +1,11 @@
 .section .text
-    .global memset
+    .global memset0
 
 #a0-dest address
 #a1-char ascii value
 #a2-no.of bytes
 
-memset:
+memset0:
     addi t0,a0,0
 
 loop:

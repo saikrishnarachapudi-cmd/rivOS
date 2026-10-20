@@ -1,4 +1,4 @@
-.equ stack_size, 8*1024
+.equ stack_size, 8*1024 #8kb
 
 #constants
 .equ proc_max, 8
@@ -12,3 +12,8 @@
 .equ proc_satp, 12
 
 .equ proc_size, 16
+
+.equ proc_unused,    0
+.equ proc_ready,     1
+.equ proc_running,   2
+.equ proc_blocked,   3
