@@ -20,3 +20,5 @@
 
 #scheduler time
 .equ cycles, 100000
+.equ time_eid, 0x54494D45
+.equ time_fid, 0
