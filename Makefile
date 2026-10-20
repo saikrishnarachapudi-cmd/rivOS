@@ -9,13 +9,8 @@ TARGET  := kernel.elf
 MAPFILE := kernel.map
 LDSCRIPT:= kernel.ld
 
-# Object files (boot.o must stay first)
-OBJS    := kernel/boot.o \
-           kernel/terminal.o \
-           kernel/proc_crea.o \
-           kernel/mem_cpy.o \
-           kernel/memset0.o \
-           kernel/switch_context.o
+# Object files
+OBJS    := kernel/boot.o user/terminal.o
 
 .PHONY: all build run start clean
 
@@ -27,11 +22,8 @@ build: $(TARGET)
 $(TARGET): $(OBJS) $(LDSCRIPT)
 	$(CC) $(CFLAGS) $(OBJS) -Wl,-T$(LDSCRIPT) -Wl,-Map=$(MAPFILE) -o $@
 
-# Assemble both .S and .s files (the include dir holds struct.inc)
-%.o: %.S include/struct.inc
-	$(CC) $(CFLAGS) -c $< -o $@
-
-%.o: %.s include/struct.inc
+# Pattern rule to assemble/compile .S files into .o
+%.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: start
