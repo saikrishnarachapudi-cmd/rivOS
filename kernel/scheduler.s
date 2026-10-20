@@ -14,12 +14,7 @@ outer_loop:
     jal ra, switch_context
     li t1, cycles    #reset, t1=cycles
 
-inner_loop:
-    beqz t1, inner_end   # t1==0
-    addi t1, t1, -1    # t2--
-    j inner_loop            
-
-inner_end:
+    jal ra,sbi_timer
     addi t0,t0,proc_size
     addi t2, t2, -1    # t2--
     j outer_loop            
