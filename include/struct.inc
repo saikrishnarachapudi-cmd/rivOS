@@ -17,3 +17,6 @@
 .equ proc_ready,     1
 .equ proc_running,   2
 .equ proc_blocked,   3
+
+#scheduler time
+.equ cycles, 100000
