@@ -37,13 +37,14 @@ create:
     add t1, t1, t4
     sw t1, proc_sp(t0)
     mv a1, t1
+    jalr zero, 0(ra)
     
 full:
     addi sp, sp, -8
     sw ra, 0(sp)
     li a0, len
     la a1, m
-    jal a, write_string
+    jal ra, write_string
     li a0, -1
     lw ra, 0(sp)
     addi sp, sp, 8
