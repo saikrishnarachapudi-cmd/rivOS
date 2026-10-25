@@ -26,4 +26,4 @@ panic:
     lw a0,8(sp)
     jal ra, write_string
     addi sp,sp,12
-    jal zero,0(ra)
+    jalr zero,0(ra)

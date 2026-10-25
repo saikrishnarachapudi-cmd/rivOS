@@ -3,7 +3,7 @@
 
 #a1 - new process sp address
 #a0- current process sp address
-switchcontext:
+switch_context:
         addi sp, sp, -13 * 4 
         sw ra,  0  * 4(sp)
         sw s0,  1  * 4(sp)

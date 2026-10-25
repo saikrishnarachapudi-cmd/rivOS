@@ -23,20 +23,29 @@ msg_len = . - message
 
     .section .text
 boot:
+    la   sp, __stack_top
+
+bss_zeroing:    
+    la a0, __bss
+    li a1, 0 
+    la a2, __bss_end
+    sub a2, a2, a0
+    jal ra, memset0
+bss_zero_end:
 
     addi a0, zero, 67
-    jal  ra, write_byte
+    jal ra, write_byte
     addi a0, zero, 67
-    jal  ra, write_byte
+    jal ra, write_byte
     addi a0, zero, 67
-    jal  ra, write_byte
-    jal  ra, remove_byte
+    jal ra, write_byte
+    jal ra, remove_byte
     addi a0, zero, 32
-    jal  ra, write_byte
+    jal ra, write_byte
 
     li a0, msg_len   
-    la   a1, message       
-    jal  ra, write_string
+    la a1, message       
+    jal ra, write_string
     jal ra, main ##main function
 
 process_creation:

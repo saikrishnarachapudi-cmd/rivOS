@@ -23,4 +23,4 @@ li a7,time_eid
 
 ecall
 
-jalr zero,(ra)
+jalr zero,0(ra)

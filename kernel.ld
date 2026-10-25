@@ -22,4 +22,6 @@ SECTIONS {
     }
     . = ALIGN(4);
     . += 256 * 1024;     /* 256KB */
+
+    __stack_top = .;
 }
