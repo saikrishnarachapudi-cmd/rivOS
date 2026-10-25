@@ -6,7 +6,7 @@
 .align 2
 
 .global trap_entry
-.extern trap_dispatch
+
 
 # Trap frame layout: 160 bytes
 # x1-x31: offsets 0-120
@@ -75,7 +75,7 @@ trap_entry:
 
     # Pass pointer to trap frame to the dispatcher
     mv a0, sp
-    call trap_dispatch
+    jal ra, trap_dispatch
 
     # Dispatcher returns the frame to resume in a0.
     

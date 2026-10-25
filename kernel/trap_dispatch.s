@@ -7,8 +7,8 @@
 #sstatus: What was the CPU's privilege and interrupt state?
 #sie / sip: Which supervisor interrupts are enabled or pending?
 
-#t5-interrupt
-#t6 - code
+#t5-interrupt,  scause >> 31;
+#t6 - code , scause & 0x7fffffffU;
 trap_dispatch:
     csrr t0,sepc
     csrr t1,sstatus
@@ -18,6 +18,25 @@ trap_dispatch:
 
     srli t5,t2,31
     li a0,1
-    beq t5,a0,time
+    slli a0,a0,31
+    addi a0,a0,-1
+    and t6, t2, a0
+    li a1,8
+    beq t2,a1,env_u
+    li a0,1
+    slli a0,a0,30
+    addi a0,a0,5
+    beq a0,t2,timer
+    li a0,2
+    beq t2,a0,illegal_inst
 
-time:
+timer:
+    
+    jalr zero,0(ra)
+
+illegal_inst:
+
+    jalr zero,0(ra)
+    
+env_u:
+    jalr zero,0(ra)

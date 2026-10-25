@@ -1,7 +1,10 @@
 .include "struct.inc"
-.section .text
     .global scheduler
+    .global resume
 
+.section .text
+    
+scheduler:
     la t0,proc_stacks
     li t2, proc_max
 
@@ -15,6 +18,7 @@ outer_loop:
     li t1, cycles    #reset, t1=cycles
 
     jal ra,sbi_timer
+resume:
     addi t0,t0,proc_size
     addi t2, t2, -1    # t2--
     j outer_loop            

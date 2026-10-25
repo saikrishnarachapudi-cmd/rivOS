@@ -37,6 +37,7 @@ boot:
     li a0, msg_len   
     la   a1, message       
     jal  ra, write_string
+    jal ra, main ##main function
 
 process_creation:
     jal ra, proc_create
