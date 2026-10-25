@@ -2,7 +2,7 @@
     .global memset0
 
 #a0-dest address
-#a1-char ascii value
+#a1-byte value
 #a2-no.of bytes
 
 memset0:
@@ -10,8 +10,9 @@ memset0:
 
 loop:
     beq a2,zero,exit
-    sw zero,0(t0)
+    sb zero,0(t0)
     addi t0,t0,1
+    addi a2,a2,-1
     beq zero,zero,loop
 
 exit:
