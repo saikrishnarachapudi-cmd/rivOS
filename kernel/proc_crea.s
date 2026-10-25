@@ -36,7 +36,20 @@ create:
     mul t4, t4, t5
     add t1, t1, t4
     sw t1, proc_sp(t0)
+    mv t5, t1
+    
+zero_frame:
+    sw zero, 0(t5)
+    addi t5, t5, 4
+    addi t4, t4, -1
+    bnez t4, zero_frame
+    sw a0, 0(t1)
+
+    sw t1, proc_sp(t0)
     mv a1, t1
+    mv a0, t3
+    mv a1, t1
+
     jalr zero, 0(ra)
     
 full:

@@ -1,5 +1,5 @@
 .section .text
-    .global switchcontext
+    .global switch_context
 
 #a1 - new process sp address
 #a0- current process sp address

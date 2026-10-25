@@ -12,7 +12,7 @@ outer_loop:
     beqz t2, outer_end   # t2==0
     lw t3, proc_state(t0)
     li t4, proc_ready
-    bne t3,t4,inner_end
+    bne t3,t4,resume
     lw a0, proc_sp(t0)
     jal ra, switch_context
     li t1, cycles    #reset, t1=cycles

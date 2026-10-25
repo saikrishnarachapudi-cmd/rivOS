@@ -4,7 +4,7 @@
     .section .rodata
 message:
     .ascii "Hello world"
-msg_len = . - message
+    .equ msg_len, 11
 
 
 .section .bss
