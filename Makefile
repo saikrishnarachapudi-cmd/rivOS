@@ -6,7 +6,8 @@ LD       := ld.lld
 CFLAGS   := --target=riscv32-unknown-elf \
             -std=c11 -O2 -g3 -Wall -Wextra \
             -fno-stack-protector -ffreestanding -nostdlib \
-            -march=rv32imac_zicsr -Iinclude
+            -march=rv32imac_zicsr -Iinclude \
+			-g 
 
 ASFLAGS  := --target=riscv32-unknown-elf \
             -g3 -march=rv32imac_zicsr -Iinclude

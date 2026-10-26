@@ -19,11 +19,11 @@ message:
 
     .global proc_stacks
     proc_stacks:
-        .space proc_max * stack_size
+        .space (proc_max+1) * stack_size
 
     .section .text
 boot:
-    la   sp, __stack_top
+    la sp, __stack_top
 
 bss_zeroing:    
     la a0, __bss

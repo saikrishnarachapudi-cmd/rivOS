@@ -19,6 +19,6 @@
 .equ proc_blocked,   3
 
 #scheduler time
-.equ cycles, 1000000
+.equ cycles, 1000
 .equ time_eid, 0x54494D45
 .equ time_fid, 0
