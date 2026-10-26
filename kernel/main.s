@@ -3,7 +3,7 @@
 
 main:
     addi sp, sp, -16
-    sw   ra, 0(sp)
+    sw ra, 0(sp)
 
     la   a0, first_proc
     jal  ra, proc_create 

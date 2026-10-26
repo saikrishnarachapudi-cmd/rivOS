@@ -21,7 +21,7 @@ message:
     proc_stacks:
         .space (proc_max+1) * stack_size
 
-    .section .text
+    .section .text.boot
 boot:
     la sp, __stack_top
 
