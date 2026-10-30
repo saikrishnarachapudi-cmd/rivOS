@@ -1,19 +1,15 @@
 .section .text
 .global main
-
+.text
 main:
-    addi sp, sp, -16
-    sw ra, 0(sp)
-
-    la   a0, first_proc
-    jal  ra, proc_create 
-
-    la   a0, second_proc
-    jal  ra, proc_create
+    unimp
+    jal x0, L1
+L1:
+    wfi
+    jal  x0, L1
 
     
 sched_loop:
     jal  ra, scheduler 
     j  sched_loop
-    
     

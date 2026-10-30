@@ -1,8 +1,14 @@
 .global enter_exception # kernel_entry in tutorial
 #http://debrouxl.github.io/gcc4ti/gnuasm.html#SEC74
+.data
+.word 17
+EXCEPTION: .ascii "entered exception"
+.word 11
+FILE_NAME: .ascii "exception.S"
 .balign 4
+.text
 enter_exception:
-    #csrw  sscratch,  sp # sscratch = sp
+    csrw  sscratch,  sp # sscratch = sp
     /*
     Regenerate it with
 logO = ""
@@ -42,8 +48,8 @@ for(var i=1;i<32;i++){
     sw x29, 4*28(sp)
     sw x30, 4*29(sp)
     sw x31, 4*30(sp)
-    # saving the sp original seperately instead of the changed value
-    addi a0, sp, 4*31 # original sp in a0
+
+    csrr a0, sscratch
     sw a0, 4*1(sp)
 
     jal ra, handle_trap
@@ -55,7 +61,6 @@ for(var i=1;i<32;i++){
 }
     */
     lw x1, 4*0(sp)
-	lw x2, 4*1(sp)
 	lw x3, 4*2(sp)
 	lw x4, 4*3(sp)
 	lw x5, 4*4(sp)
@@ -85,10 +90,24 @@ for(var i=1;i<32;i++){
 	lw x29, 4*28(sp)
 	lw x30, 4*29(sp)
 	lw x31, 4*30(sp)
+	lw x2, 4*1(sp)
     sret
 
 handle_trap:
-    
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    la a0, EXCEPTION
+    la a1, FILE_NAME
+    addi a2, x0, 100
+    jal ra, panic
+    csrr t0, sepc
+    addi t0, t0, 4
+    csrw sepc, t0
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    jalr x0, 0(ra)
+
+
 
 
 
