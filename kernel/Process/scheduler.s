@@ -1,28 +1,65 @@
 .include "struct.inc"
     .global scheduler
     .global resume
+.section .bss
+    sched_sp: .space 4
+    current_proc: .space 4
+
 
 .section .text
     
 scheduler:
-    la t0,proc_stacks
-    li t2, proc_max
+    csrci sstatus, 2 ##neglecting the interrupts in this stage 
+    addi sp,sp,-12
+    sw ra,0(sp)
+    sw s0, 4(sp) ##current_proc_number
+    sw s1, 8(sp)  ##no.of processes that are not yet seen
+
+    la s0, process_table
+    li s1, proc_max
 
 outer_loop:
-    beqz t2, outer_end   # t2==0
-    lw t3, proc_state(t0)
+    beqz s1, scheduler   # t2==0
+    lw t3, proc_state(s0)
     li t4, proc_ready
     bne t3,t4,resume
-    lw a0, proc_sp(t0)
-    jal ra, switch_context
-    li t1, cycles    #reset, t1=cycles
 
-    jal ra,sbi_timer
+    la t0, current_proc
+    sw s0, 0(t0)
+    li t4, proc_running
+    sw t4, proc_state(s0)
+#context switching from scheduler to process
+    la a0, sched_sp
+    addi a1, s0, proc_sp
+    jal  ra, switch_context
+    
+    #back
+    lw t0, current_proc
+    sw zero, 0(t0)
+    li t4, proc_ready
+    sw t4, proc_state(t0)
+
 resume:
-    addi t0,t0,proc_size
-    addi t2, t2, -1    # t2--
+    addi s0,s0,proc_size
+    addi s1, s1, -1    # t2--
     j outer_loop            
 
+#context switching from process to scheduler
+sched_switch:
+    la t0, current_proc
+    lw t0, 0(t0)
+    addi a0, t0, proc_sp
+    la  a1, sched_sp
+    jal ra, switch_context
+
 outer_end:
+    lw   ra, 0(sp)
+    lw   s0, 4(sp)
+    lw   s1, 8(sp)
+    addi sp, sp, 12
+    ret
+
+
+
 
 

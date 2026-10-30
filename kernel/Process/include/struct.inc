@@ -1,5 +1,5 @@
 .equ stack_size, 8*1024 #8kb
-
+#proc_size = process table entry size
 #constants
 .equ proc_max, 8
 .equ page_size, 4*1024

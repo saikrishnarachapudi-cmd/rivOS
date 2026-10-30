@@ -25,6 +25,10 @@ message:
 boot:
     la sp, __stack_top
 
+    #trap vector(when a trap occurs , opensbi will trasfer control to the address present in stvec)
+    la t0, trap_entry
+    csrw stvec, t0
+    
 bss_zeroing:    
     la a0, __bss
     li a1, 0 

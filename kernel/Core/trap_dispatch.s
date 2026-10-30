@@ -31,7 +31,10 @@ trap_dispatch:
     beq t2,a0,illegal_inst
 
 timer:
+    la t0, current_proc_sp
+    lw a0, (t0)
     
+    jal zero, switch_context
     jalr zero,0(ra)
 
 illegal_inst:
@@ -39,4 +42,5 @@ illegal_inst:
     jalr zero,0(ra)
     
 env_u:
+
     jalr zero,0(ra)

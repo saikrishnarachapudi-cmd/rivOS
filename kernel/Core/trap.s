@@ -14,6 +14,12 @@
 # sstatus:offset 128
 # scause: offset 132
 # stval:  offset 136
+#scause: Why did the trap happen?
+#sepc: At which instruction did it happen?
+#stval: What additional trap-specific information is available?
+#sstatus: What was the CPU's privilege and interrupt state?
+#sie / sip: Which supervisor interrupts are enabled or pending?
+
 
 trap_entry:
     
