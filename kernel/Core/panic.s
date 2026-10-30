@@ -1,29 +1,45 @@
-#caller should send the message address in a0,file name address in a1,line no address a2
+#caller should send the message address in a0,
+#file name address in a1,
+##line number integer in  a2
 .section .rodata
+.word 15
 m1: .ascii "panic_message: "
-
-m2:  .ascii "file_name: "
-
-m3:.ascii "line_number: "
+.word 12
+m2:  .ascii " file_name: "
+.word 14
+m3:.ascii " line_number: "
 
 .section .text
 .global panic
 panic:
-    addi sp,sp,-12
+    addi sp,sp,-16
     sw a0,0(sp)
     sw a1,4(sp)
     sw a2,8(sp)
-    la a0,m1
+    sw ra,12(sp)
+    
+    addi a0, x0, -1;
+    la a1,m1
     jal ra, write_string
-    lw a0,0(sp)
+    
+    addi a0, x0, -1;
+    lw a1,0(sp)
     jal ra, write_string
-    la a0,m2
+    
+    addi a0, x0, -1;
+    la a1,m2
     jal ra, write_string
-    lw a0,4(sp)
+    
+    addi a0, x0, -1;
+    lw a1,4(sp)
     jal ra, write_string
-    la a0,m3
+
+    addi a0, x0, -1;
+    la a1,m3
     jal ra, write_string
+    
     lw a0,8(sp)
-    jal ra, write_string
-    addi sp,sp,12
-    jalr zero,0(ra)
+    jal ra, printInt
+    lw ra, 12(sp)
+    addi sp,sp,16
+    jalr x0,0(ra)
