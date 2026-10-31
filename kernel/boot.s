@@ -35,38 +35,10 @@ bss_zeroing:
 bss_zero_end:
 
     jal ra, main ##main function
-    
+
     la t0, enter_exception
     csrw stvec, t0
     
     jal x0, L1
 
-process_creation:
-    jal ra, proc_create
-    ##incomplete
 
-
-input:
-    li   a0, 16
-    la   a1, sec_code
-    jal  ra, read_string
-
-    # a0 = SBI error status
-    # a1 = number of bytes read
-
-    bnez a0, input       # Retry if error
-    beqz a1, input       # Retry if no bytes read
-
-    # Print the input buffer
-    mv   t0, a1          # Save number of bytes read
-    mv   a0, t0          # Length for write_string
-    la   a1, sec_code    # Address of input buffer
-    jal  ra, write_string
-    # optional: newline
-    addi a0, zero, 10
-    jal  ra, write_byte
-
-    
-L1:
-    wfi
-    jal  x0, L1

@@ -39,7 +39,6 @@ outer_loop:
     
     #back
     lw t0, next_proc
-    sw zero, 0(t0)
     li t4, proc_ready
     sw t4, proc_state(t0)
 
