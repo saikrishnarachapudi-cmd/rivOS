@@ -36,5 +36,5 @@ switch_context:
         lw s9,  10 * 4(sp)
         lw s10, 11 * 4(sp)
         lw s11, 12 * 4(sp)
-        addi sp, sp, 13 * 4
+        addi sp, sp, 52
         ret

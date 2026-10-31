@@ -33,9 +33,12 @@ bss_zeroing:
     sub a2, a2, a0
     jal ra, memset0
 bss_zero_end:
+
+    jal ra, main ##main function
+    
     la t0, enter_exception
     csrw stvec, t0
-    jal ra, main ##main function
+    
     jal x0, L1
 
 process_creation:

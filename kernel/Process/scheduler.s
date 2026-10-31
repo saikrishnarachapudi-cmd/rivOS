@@ -51,18 +51,17 @@ resume:
 
 #context switching from process to scheduler
 sched_switch:
+    addi sp, sp, -4
+    sw ra, 0(sp)
     la t0, next_proc
     lw t0, 0(t0)
     addi a0, t0, proc_sp
     la  a1, sched_sp
     jal ra, switch_context
-
-outer_end:
-    lw   ra, 0(sp)
-    lw   s0, 4(sp)
-    lw   s1, 8(sp)
-    addi sp, sp, 12
+    lw ra, 0(sp)
+    addi sp, sp, 4
     ret
+
 
 
 
