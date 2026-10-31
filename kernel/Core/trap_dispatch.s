@@ -1,47 +1,32 @@
 .section .text
 .global trap_dispatch
 
-#scause: Why did the trap happen?
-#sepc: At which instruction did it happen?
-#stval: What additional trap-specific information is available?
-#sstatus: What was the CPU's privilege and interrupt state?
-#sie / sip: Which supervisor interrupts are enabled or pending?
-
-#t5-interrupt,  scause >> 31;
-#t6 - code , scause & 0x7fffffffU;
+# a0 = pointer to the trap frame (built by trap_entry)
+# scause is at 132(frame)
+# returns a0 = frame to resume (same frame)
+#
+# Only the supervisor timer interrupt is handled:
+# re-arm the timer, then give the CPU back to the scheduler.
+# sched_switch returns here when this process is scheduled again.
 trap_dispatch:
-    csrr t0,sepc
-    csrr t1,sstatus
-    csrr t2,scause
-    csrr t3,stval
-    csrr t4, sie
+    addi sp, sp, -16
+    sw   ra, 0(sp)
+    sw   s0, 4(sp)
+    mv   s0, a0                 # s0 = frame (survives the context switch)
 
-    srli t5,t2,31
-    li a0,1
-    slli a0,a0,31
-    addi a0,a0,-1
-    and t6, t2, a0
-    li a1,8
-    beq t2,a1,env_u
-    li a0,1
-    slli a0,a0,30
-    addi a0,a0,5
-    beq a0,t2,timer
-    li a0,2
-    beq t2,a0,illegal_inst
+    lw   t2, 132(s0)            # scause
+    li   t1, 0x80000005         # interrupt bit | 5 = supervisor timer
+    bne  t2, t1, halt           # anything else is not handled
 
-timer:
-    jal ra, sbi_timer
-    la t0, current_proc
-    lw a0, (t0)
-    
-    jal zero, switch_context
-    jalr zero,0(ra)
+    jal  ra, sbi_timer          # re-arm timer (clears pending STIP)
+    jal  ra, sched_switch       # returns when rescheduled
 
-illegal_inst:
+    mv   a0, s0                 # resume the same frame
+    lw   s0, 4(sp)
+    lw   ra, 0(sp)
+    addi sp, sp, 16
+    jalr zero, 0(ra)
 
-    jalr zero,0(ra)
-    
-env_u:
-
-    jalr zero,0(ra)
+halt:
+    wfi
+    j    halt

@@ -38,7 +38,7 @@ outer_loop:
     jal  ra, switch_context
     
     #back
-    lw t0, current_proc
+    lw t0, next_proc
     sw zero, 0(t0)
     li t4, proc_ready
     sw t4, proc_state(t0)
@@ -51,7 +51,7 @@ resume:
 
 #context switching from process to scheduler
 sched_switch:
-    la t0, current_proc
+    la t0, next_proc
     lw t0, 0(t0)
     addi a0, t0, proc_sp
     la  a1, sched_sp

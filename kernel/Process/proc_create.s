@@ -20,8 +20,9 @@ proc_create:
 check:
     beq t2,zero,full
     lw t1, proc_state(t0)
-    beq t1,zero, create               
-    addi t0, t0, proc_size
+    beq t1,zero, create     
+    li t5, proc_size          
+    add t0, t0, t5
     addi t3, t3, 1
     addi t2, t2, -1
     jal x0, check
@@ -74,5 +75,5 @@ full:
 
 proc_start:
     csrsi sstatus, 2
-    jal zero, (s0)
+    jalr zero, (s0)
 
