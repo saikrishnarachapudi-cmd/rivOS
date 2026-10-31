@@ -31,7 +31,8 @@ trap_dispatch:
     beq t2,a0,illegal_inst
 
 timer:
-    la t0, current_proc_sp
+    jal ra, sbi_timer
+    la t0, current_proc
     lw a0, (t0)
     
     jal zero, switch_context

@@ -1,5 +1,7 @@
 .include "struct.inc"
 ###returns the new process sp in a1.
+#ra = proc_start 
+#s0 = entry point
 .section .rodata
     m:
     .ascii "out of space for another process"
@@ -29,29 +31,36 @@ create:
     li t1, proc_ready
     sw t1, proc_state(t0)     
 
-    # stack top = proc_stacks + (pid + 1) * stack_size
+#stack top: proc_stacks + (pid + 1) * stack_size
     la t1, proc_stacks
     addi t4, t3, 1
     li t5, stack_size
     mul t4, t4, t5
-    add t1, t1, t4
-    sw t1, proc_sp(t0)
-    mv t5, t1
-    
+    add t1, t1, t4        # t1 = top of stack
+
+    #t4-stack size
+    li t4, stack_size
+    srli t4, t4, 2 
+    mv t5, t1       
+
 zero_frame:
-    sw zero, 0(t5)
-    addi t5, t5, 4
-    addi t4, t4, -1
+    addi t5, t5, -4 
+    sw zero, 0(t5) 
+    addi t4, t4, -1  
     bnez t4, zero_frame
-    sw a0, 0(t1)
 
+    #switch_context frame
+    addi t1, t1, -52
+    la t2, proc_start
+    sw t2, 0(t1)      #ra = proc_start
+    sw a0, 4(t1)      #s0 = entry point
     sw t1, proc_sp(t0)
-    mv a1, t1
-    mv a0, t3
-    mv a1, t1
-
-    jalr zero, 0(ra)
+      
     
+    mv a0, t3 
+    mv a1, t1 
+    jalr zero, 0(ra)         
+
 full:
     addi sp, sp, -8
     sw ra, 0(sp)
@@ -62,3 +71,8 @@ full:
     lw ra, 0(sp)
     addi sp, sp, 8
     jalr zero, 0(ra)
+
+proc_start:
+    csrsi sstatus, 2
+    jal zero, (s0)
+

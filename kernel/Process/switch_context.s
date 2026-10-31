@@ -1,10 +1,10 @@
 .section .text
     .global switch_context
 
-#a1 - new process sp address
-#a0- current process sp address
+#a1 - new process sp address (next process sp)
+#a0- current process sp address (schedulers sp)
 switch_context:
-        addi sp, sp, -13 * 4 
+        addi sp, sp, -52
         sw ra,  0  * 4(sp)
         sw s0,  1  * 4(sp)
         sw s1,  2  * 4(sp)

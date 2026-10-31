@@ -10,8 +10,10 @@
 .equ proc_state,4
 .equ proc_sp, 8
 .equ proc_satp, 12
+.equ kp_stack, 16
 
-.equ proc_size, 16
+.equ proc_size, 4112
+
 
 .equ proc_unused,    0
 .equ proc_ready,     1
