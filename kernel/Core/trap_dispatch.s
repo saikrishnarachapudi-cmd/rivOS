@@ -34,11 +34,15 @@ trap_dispatch:
     li a1,8
     beq t2,a1,env_u
     li a0,1
-    slli a0,a0,30
+    slli a0,a0,31
     addi a0,a0,5
     beq a0,t2,timer
     li a0,2
     beq t2,a0,illegal_inst
+
+else:
+    #other exception
+    jal zero, done    
 
 timer:
     jal ra, sbi_timer
