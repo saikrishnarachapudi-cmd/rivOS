@@ -5,443 +5,446 @@ Disassembly of section .text:
 
 80400000 <boot>:
 ;     la sp, __stack_top
-80400000: 00052117     	auipc	sp, 0x52
-80400004: 67010113     	addi	sp, sp, 0x670
+80400000: 0005b117     	auipc	sp, 0x5b
+80400004: 83010113     	addi	sp, sp, -0x7d0
 ;     la t0, trap_entry
 80400008: 00000297     	auipc	t0, 0x0
-8040000c: 15828293     	addi	t0, t0, 0x158
+8040000c: 15428293     	addi	t0, t0, 0x154
 ;     csrw stvec, t0
 80400010: 10529073     	csrw	stvec, t0
 
 80400014 <bss_zeroing>:
 ;     la a0, __bss
 80400014: 00000517     	auipc	a0, 0x0
-80400018: 5bc50513     	addi	a0, a0, 0x5bc
+80400018: 77c50513     	addi	a0, a0, 0x77c
 ;     li a1, 0 
 8040001c: 4581         	li	a1, 0x0
 ;     la a2, __bss_end
-8040001e: 00012617     	auipc	a2, 0x12
-80400022: 65260613     	addi	a2, a2, 0x652
+8040001e: 0001b617     	auipc	a2, 0x1b
+80400022: 81260613     	addi	a2, a2, -0x7ee
 ;     sub a2, a2, a0
 80400026: 8e09         	sub	a2, a2, a0
 ;     jal ra, memset0
-80400028: 384000ef     	jal	0x804003ac <memset0>
+80400028: 3f4000ef     	jal	0x8040041c <memset0>
 
 8040002c <bss_zero_end>:
+;     jal ra, printMem
+8040002c: 510000ef     	jal	0x8040053c <printMem>
 ;     jal ra, main ##main function
-8040002c: 458000ef     	jal	0x80400484 <main>
-;     jal x0, L1
-80400030: a03d         	j	0x8040005e <L1>
+80400030: 4c4000ef     	jal	0x804004f4 <main>
 
-80400032 <process_creation>:
-;     jal ra, proc_create
-80400032: 1e0000ef     	jal	0x80400212 <proc_create>
-
-80400036 <input>:
-;     li   a0, 16
-80400036: 4541         	li	a0, 0x10
-;     la   a1, sec_code
-80400038: 00000597     	auipc	a1, 0x0
-8040003c: 5a858593     	addi	a1, a1, 0x5a8
-;     jal  ra, read_string
-80400040: 0ca000ef     	jal	0x8040010a <read_string>
-;     bnez a0, input       # Retry if error
-80400044: f96d         	bnez	a0, 0x80400036 <input>
-;     beqz a1, input       # Retry if no bytes read
-80400046: d9e5         	beqz	a1, 0x80400036 <input>
-;     mv   t0, a1          # Save number of bytes read
-80400048: 82ae         	mv	t0, a1
-;     mv   a0, t0          # Length for write_string
-8040004a: 8516         	mv	a0, t0
-;     la   a1, sec_code    # Address of input buffer
-8040004c: 00000597     	auipc	a1, 0x0
-80400050: 59458593     	addi	a1, a1, 0x594
-;     jal  ra, write_string
-80400054: 09c000ef     	jal	0x804000f0 <write_string>
-;     addi a0, zero, 10
-80400058: 4529         	li	a0, 0xa
-;     jal  ra, write_byte
-8040005a: 05a000ef     	jal	0x804000b4 <write_byte>
-
-8040005e <L1>:
-;     wfi
-8040005e: 10500073     	wfi
-;     jal  x0, L1
-80400062: bff5         	j	0x8040005e <L1>
-
-80400064 <panic>:
+80400034 <panic>:
 ;     addi sp,sp,-16
-80400064: 1141         	addi	sp, sp, -0x10
+80400034: 1141         	addi	sp, sp, -0x10
 ;     sw a0,0(sp)
-80400066: c02a         	sw	a0, 0x0(sp)
+80400036: c02a         	sw	a0, 0x0(sp)
 ;     sw a1,4(sp)
-80400068: c22e         	sw	a1, 0x4(sp)
+80400038: c22e         	sw	a1, 0x4(sp)
 ;     sw a2,8(sp)
-8040006a: c432         	sw	a2, 0x8(sp)
+8040003a: c432         	sw	a2, 0x8(sp)
 ;     sw ra,12(sp)
-8040006c: c606         	sw	ra, 0xc(sp)
+8040003c: c606         	sw	ra, 0xc(sp)
 ;     addi a0, x0, -1;
-8040006e: 557d         	li	a0, -0x1
+8040003e: 557d         	li	a0, -0x1
 ;     la a1,m1
-80400070: 00000597     	auipc	a1, 0x0
-80400074: 4d858593     	addi	a1, a1, 0x4d8
+80400040: 00000597     	auipc	a1, 0x0
+80400044: 66858593     	addi	a1, a1, 0x668
 ;     jal ra, write_string
-80400078: 078000ef     	jal	0x804000f0 <write_string>
+80400048: 078000ef     	jal	0x804000c0 <write_string>
 ;     addi a0, x0, -1;
-8040007c: 557d         	li	a0, -0x1
+8040004c: 557d         	li	a0, -0x1
 ;     lw a1,0(sp)
-8040007e: 4582         	lw	a1, 0x0(sp)
+8040004e: 4582         	lw	a1, 0x0(sp)
 ;     jal ra, write_string
-80400080: 070000ef     	jal	0x804000f0 <write_string>
+80400050: 070000ef     	jal	0x804000c0 <write_string>
 ;     addi a0, x0, -1;
-80400084: 557d         	li	a0, -0x1
+80400054: 557d         	li	a0, -0x1
 ;     la a1,m2
-80400086: 00000597     	auipc	a1, 0x0
-8040008a: 4d558593     	addi	a1, a1, 0x4d5
+80400056: 00000597     	auipc	a1, 0x0
+8040005a: 66558593     	addi	a1, a1, 0x665
 ;     jal ra, write_string
-8040008e: 062000ef     	jal	0x804000f0 <write_string>
+8040005e: 062000ef     	jal	0x804000c0 <write_string>
 ;     addi a0, x0, -1;
-80400092: 557d         	li	a0, -0x1
+80400062: 557d         	li	a0, -0x1
 ;     lw a1,4(sp)
-80400094: 4592         	lw	a1, 0x4(sp)
+80400064: 4592         	lw	a1, 0x4(sp)
 ;     jal ra, write_string
-80400096: 05a000ef     	jal	0x804000f0 <write_string>
+80400066: 05a000ef     	jal	0x804000c0 <write_string>
 ;     addi a0, x0, -1;
-8040009a: 557d         	li	a0, -0x1
+8040006a: 557d         	li	a0, -0x1
 ;     la a1,m3
-8040009c: 00000597     	auipc	a1, 0x0
-804000a0: 4cf58593     	addi	a1, a1, 0x4cf
+8040006c: 00000597     	auipc	a1, 0x0
+80400070: 65f58593     	addi	a1, a1, 0x65f
 ;     jal ra, write_string
-804000a4: 04c000ef     	jal	0x804000f0 <write_string>
+80400074: 04c000ef     	jal	0x804000c0 <write_string>
 ;     lw a0,8(sp)
-804000a8: 4522         	lw	a0, 0x8(sp)
+80400078: 4522         	lw	a0, 0x8(sp)
 ;     jal ra, printInt
-804000aa: 336000ef     	jal	0x804003e0 <printInt>
+8040007a: 3d6000ef     	jal	0x80400450 <printInt>
 ;     lw ra, 12(sp)
-804000ae: 40b2         	lw	ra, 0xc(sp)
+8040007e: 40b2         	lw	ra, 0xc(sp)
 ;     addi sp,sp,16
-804000b0: 0141         	addi	sp, sp, 0x10
+80400080: 0141         	addi	sp, sp, 0x10
 ;     jalr x0,0(ra)
-804000b2: 8082         	ret
+80400082: 8082         	ret
 
-804000b4 <write_byte>:
+80400084 <write_byte>:
 ;     li      a7, 0x4442434E
-804000b4: 444248b7     	lui	a7, 0x44424
-804000b8: 34e88893     	addi	a7, a7, 0x34e
+80400084: 444248b7     	lui	a7, 0x44424
+80400088: 34e88893     	addi	a7, a7, 0x34e
 ;     li      a6,     2
-804000bc: 4809         	li	a6, 0x2
+8040008c: 4809         	li	a6, 0x2
 ;     ecall
-804000be: 00000073     	ecall
+8040008e: 00000073     	ecall
 ;     jalr    zero, 0(ra)
-804000c2: 8082         	ret
+80400092: 8082         	ret
 
-804000c4 <read_byte>:
+80400094 <read_byte>:
 ;     addi    a7, zero, 2
-804000c4: 4889         	li	a7, 0x2
+80400094: 4889         	li	a7, 0x2
 ;     addi    t1, zero, -1
-804000c6: 537d         	li	t1, -0x1
+80400096: 537d         	li	t1, -0x1
 
-804000c8 <repeat_read>:
+80400098 <repeat_read>:
 ;         ecall
-804000c8: 00000073     	ecall
+80400098: 00000073     	ecall
 ;         beq     a0, t1, repeat_read
-804000cc: fe650ee3     	beq	a0, t1, 0x804000c8 <repeat_read>
+8040009c: fe650ee3     	beq	a0, t1, 0x80400098 <repeat_read>
 ;     addi    a7, zero, 1
-804000d0: 4885         	li	a7, 0x1
+804000a0: 4885         	li	a7, 0x1
 ;     ecall
-804000d2: 00000073     	ecall
+804000a2: 00000073     	ecall
 ;     jalr    zero, 0(ra)
-804000d6: 8082         	ret
+804000a6: 8082         	ret
 
-804000d8 <remove_byte>:
+804000a8 <remove_byte>:
 ;     addi    a7, zero, 1
-804000d8: 4885         	li	a7, 0x1
+804000a8: 4885         	li	a7, 0x1
 ;     addi    a0, zero, 8 // backspace - go one letter left
-804000da: 4521         	li	a0, 0x8
+804000aa: 4521         	li	a0, 0x8
 ;     ecall
-804000dc: 00000073     	ecall
+804000ac: 00000073     	ecall
 ;     addi    a0, zero, 32 // space - to clear it
-804000e0: 02000513     	li	a0, 0x20
+804000b0: 02000513     	li	a0, 0x20
 ;     ecall
-804000e4: 00000073     	ecall
+804000b4: 00000073     	ecall
 ;     addi    a0, zero, 8 // go back again
-804000e8: 4521         	li	a0, 0x8
+804000b8: 4521         	li	a0, 0x8
 ;     ecall
-804000ea: 00000073     	ecall
+804000ba: 00000073     	ecall
 ;     jalr    zero, 0(ra)
-804000ee: 8082         	ret
+804000be: 8082         	ret
 
-804000f0 <write_string>:
+804000c0 <write_string>:
 ;     li  a7, 0x4442434E
-804000f0: 444248b7     	lui	a7, 0x44424
-804000f4: 34e88893     	addi	a7, a7, 0x34e
+804000c0: 444248b7     	lui	a7, 0x44424
+804000c4: 34e88893     	addi	a7, a7, 0x34e
 ;     bge a0, x0, len_in_reg
-804000f8: 00055463     	bgez	a0, 0x80400100 <len_in_reg>
+804000c8: 00055463     	bgez	a0, 0x804000d0 <len_in_reg>
 ;     lw a0, -4(a1)
-804000fc: ffc5a503     	lw	a0, -0x4(a1)
+804000cc: ffc5a503     	lw	a0, -0x4(a1)
 
-80400100 <len_in_reg>:
+804000d0 <len_in_reg>:
 ;         li  a6,     0
-80400100: 4801         	li	a6, 0x0
+804000d0: 4801         	li	a6, 0x0
 ;         li a2,  0
-80400102: 4601         	li	a2, 0x0
+804000d2: 4601         	li	a2, 0x0
 ;         ecall
-80400104: 00000073     	ecall
+804000d4: 00000073     	ecall
 ;         jalr    zero, 0(ra)
-80400108: 8082         	ret
+804000d8: 8082         	ret
 
-8040010a <read_string>:
+804000da <read_string>:
 ;     li  a7, 0x4442434E
-8040010a: 444248b7     	lui	a7, 0x44424
-8040010e: 34e88893     	addi	a7, a7, 0x34e
+804000da: 444248b7     	lui	a7, 0x44424
+804000de: 34e88893     	addi	a7, a7, 0x34e
 ;     li  a6, 1
-80400112: 4805         	li	a6, 0x1
+804000e2: 4805         	li	a6, 0x1
 ;     li a2,0
-80400114: 4601         	li	a2, 0x0
+804000e4: 4601         	li	a2, 0x0
 ;     ecall
-80400116: 00000073     	ecall
+804000e6: 00000073     	ecall
 ;     jalr zero, 0(ra)
-8040011a: 8082         	ret
+804000ea: 8082         	ret
 
-8040011c <trap_dispatch>:
+804000ec <trap_dispatch>:
+;     addi sp, sp, -8
+804000ec: 1161         	addi	sp, sp, -0x8
+;     sw   ra, 0(sp)
+804000ee: c006         	sw	ra, 0x0(sp)
+;     sw   s0, 4(sp)
+804000f0: c222         	sw	s0, 0x4(sp)
+;     mv   s0, a0
+804000f2: 842a         	mv	s0, a0
 ;     csrr t0,sepc
-8040011c: 141022f3     	csrr	t0, sepc
+804000f4: 141022f3     	csrr	t0, sepc
 ;     csrr t1,sstatus
-80400120: 10002373     	csrr	t1, sstatus
+804000f8: 10002373     	csrr	t1, sstatus
 ;     csrr t2,scause
-80400124: 142023f3     	csrr	t2, scause
+804000fc: 142023f3     	csrr	t2, scause
 ;     csrr t3,stval
-80400128: 14302e73     	csrr	t3, stval
+80400100: 14302e73     	csrr	t3, stval
 ;     csrr t4, sie
-8040012c: 10402ef3     	csrr	t4, sie
+80400104: 10402ef3     	csrr	t4, sie
 ;     srli t5,t2,31
-80400130: 01f3df13     	srli	t5, t2, 0x1f
-;     addi a0, x0, 1
-80400134: 4505         	li	a0, 0x1
-;     slli a0,a0,31
-80400136: 057e         	slli	a0, a0, 0x1f
-;     addi a0,a0,-1
-80400138: 157d         	addi	a0, a0, -0x1
-;     and t6, t2, a0
-8040013a: 00a3ffb3     	and	t6, t2, a0
-;     li a1,8
-8040013e: 45a1         	li	a1, 0x8
-;     beq t2,a1,env_u
-80400140: 00b38e63     	beq	t2, a1, 0x8040015c <env_u>
+80400108: 01f3df13     	srli	t5, t2, 0x1f
 ;     li a0,1
-80400144: 4505         	li	a0, 0x1
+8040010c: 4505         	li	a0, 0x1
+;     slli a0,a0,31
+8040010e: 057e         	slli	a0, a0, 0x1f
+;     addi a0,a0,-1
+80400110: 157d         	addi	a0, a0, -0x1
+;     and t6, t2, a0
+80400112: 00a3ffb3     	and	t6, t2, a0
+;     li a1,8
+80400116: 45a1         	li	a1, 0x8
+;     beq t2,a1,env_u
+80400118: 02b38663     	beq	t2, a1, 0x80400144 <env_u>
+;     li a0,1
+8040011c: 4505         	li	a0, 0x1
 ;     slli a0,a0,30
-80400146: 057a         	slli	a0, a0, 0x1e
+8040011e: 057a         	slli	a0, a0, 0x1e
 ;     addi a0,a0,5
-80400148: 0515         	addi	a0, a0, 0x5
+80400120: 0515         	addi	a0, a0, 0x5
 ;     beq a0,t2,timer
-8040014a: 00750563     	beq	a0, t2, 0x80400154 <timer>
+80400122: 00750563     	beq	a0, t2, 0x8040012c <timer>
 ;     li a0,2
-8040014e: 4509         	li	a0, 0x2
+80400126: 4509         	li	a0, 0x2
 ;     beq t2,a0,illegal_inst
-80400150: 00a38563     	beq	t2, a0, 0x8040015a <illegal_inst>
+80400128: 00a38763     	beq	t2, a0, 0x80400136 <illegal_inst>
 
-80400154 <timer>:
-;     jal zero, switch_context
-80400154: 1ec0006f     	j	0x80400340 <switch_context>
+8040012c <timer>:
+;     jal ra, sbi_timer
+8040012c: 1d0000ef     	jal	0x804002fc <sbi_timer>
+;     jal ra, sched_switch
+80400130: 280000ef     	jal	0x804003b0 <sched_switch>
+;     jal ra, done
+80400134: 2831         	jal	0x80400150 <done>
+
+80400136 <illegal_inst>:
+;     addi a0, x0, 67
+80400136: 04300513     	li	a0, 0x43
+;     jal ra, write_byte
+8040013a: f4bff0ef     	jal	0x80400084 <write_byte>
+
+8040013e <loop>:
+;         wfi
+8040013e: 10500073     	wfi
+;         jal x0, loop
+80400142: bff5         	j	0x8040013e <loop>
+
+80400144 <env_u>:
+;     lw t0, 124(s0)
+80400144: 07c42283     	lw	t0, 0x7c(s0)
+;     addi t0, t0, 4
+80400148: 0291         	addi	t0, t0, 0x4
+;     sw t0, 124(s0)
+8040014a: 06542e23     	sw	t0, 0x7c(s0)
+;     j done
+8040014e: a009         	j	0x80400150 <done>
+
+80400150 <done>:
+;     mv a0, s0   
+80400150: 8522         	mv	a0, s0
+;     lw  s0, 4(sp)
+80400152: 4412         	lw	s0, 0x4(sp)
+;     lw  ra, 0(sp)
+80400154: 4082         	lw	ra, 0x0(sp)
+;     addi sp, sp, 8
+80400156: 0121         	addi	sp, sp, 0x8
 ;     jalr zero,0(ra)
 80400158: 8082         	ret
+8040015a: 0001         	nop
 
-8040015a <illegal_inst>:
-;     jalr zero,0(ra)
-8040015a: 8082         	ret
-
-8040015c <env_u>:
-;     jalr zero,0(ra)
-8040015c: 8082         	ret
-8040015e: 0001         	nop
-
-80400160 <trap_entry>:
+8040015c <trap_entry>:
 ;     addi sp, sp, -160
-80400160: 7135         	addi	sp, sp, -0xa0
+8040015c: 7135         	addi	sp, sp, -0xa0
 ;     sw ra,   0(sp)
-80400162: c006         	sw	ra, 0x0(sp)
+8040015e: c006         	sw	ra, 0x0(sp)
 ;     sw t0,  16(sp)
-80400164: c816         	sw	t0, 0x10(sp)
+80400160: c816         	sw	t0, 0x10(sp)
 ;     addi t0, sp, 160
-80400166: 0a010293     	addi	t0, sp, 0xa0
+80400162: 0a010293     	addi	t0, sp, 0xa0
 ;     sw t0,   4(sp)
-8040016a: c216         	sw	t0, 0x4(sp)
+80400166: c216         	sw	t0, 0x4(sp)
 ;     sw gp,   8(sp)
-8040016c: c40e         	sw	gp, 0x8(sp)
+80400168: c40e         	sw	gp, 0x8(sp)
 ;     sw tp,  12(sp)
-8040016e: c612         	sw	tp, 0xc(sp)
+8040016a: c612         	sw	tp, 0xc(sp)
 ;     sw t1,  20(sp)
-80400170: ca1a         	sw	t1, 0x14(sp)
+8040016c: ca1a         	sw	t1, 0x14(sp)
 ;     sw t2,  24(sp)
-80400172: cc1e         	sw	t2, 0x18(sp)
+8040016e: cc1e         	sw	t2, 0x18(sp)
 ;     sw s0,  28(sp)
-80400174: ce22         	sw	s0, 0x1c(sp)
+80400170: ce22         	sw	s0, 0x1c(sp)
 ;     sw s1,  32(sp)
-80400176: d026         	sw	s1, 0x20(sp)
+80400172: d026         	sw	s1, 0x20(sp)
 ;     sw a0,  36(sp)
-80400178: d22a         	sw	a0, 0x24(sp)
+80400174: d22a         	sw	a0, 0x24(sp)
 ;     sw a1,  40(sp)
-8040017a: d42e         	sw	a1, 0x28(sp)
+80400176: d42e         	sw	a1, 0x28(sp)
 ;     sw a2,  44(sp)
-8040017c: d632         	sw	a2, 0x2c(sp)
+80400178: d632         	sw	a2, 0x2c(sp)
 ;     sw a3,  48(sp)
-8040017e: d836         	sw	a3, 0x30(sp)
+8040017a: d836         	sw	a3, 0x30(sp)
 ;     sw a4,  52(sp)
-80400180: da3a         	sw	a4, 0x34(sp)
+8040017c: da3a         	sw	a4, 0x34(sp)
 ;     sw a5,  56(sp)
-80400182: dc3e         	sw	a5, 0x38(sp)
+8040017e: dc3e         	sw	a5, 0x38(sp)
 ;     sw a6,  60(sp)
-80400184: de42         	sw	a6, 0x3c(sp)
+80400180: de42         	sw	a6, 0x3c(sp)
 ;     sw a7,  64(sp)
-80400186: c0c6         	sw	a7, 0x40(sp)
+80400182: c0c6         	sw	a7, 0x40(sp)
 ;     sw s2,  68(sp)
-80400188: c2ca         	sw	s2, 0x44(sp)
+80400184: c2ca         	sw	s2, 0x44(sp)
 ;     sw s3,  72(sp)
-8040018a: c4ce         	sw	s3, 0x48(sp)
+80400186: c4ce         	sw	s3, 0x48(sp)
 ;     sw s4,  76(sp)
-8040018c: c6d2         	sw	s4, 0x4c(sp)
+80400188: c6d2         	sw	s4, 0x4c(sp)
 ;     sw s5,  80(sp)
-8040018e: c8d6         	sw	s5, 0x50(sp)
+8040018a: c8d6         	sw	s5, 0x50(sp)
 ;     sw s6,  84(sp)
-80400190: cada         	sw	s6, 0x54(sp)
+8040018c: cada         	sw	s6, 0x54(sp)
 ;     sw s7,  88(sp)
-80400192: ccde         	sw	s7, 0x58(sp)
+8040018e: ccde         	sw	s7, 0x58(sp)
 ;     sw s8,  92(sp)
-80400194: cee2         	sw	s8, 0x5c(sp)
+80400190: cee2         	sw	s8, 0x5c(sp)
 ;     sw s9,  96(sp)
-80400196: d0e6         	sw	s9, 0x60(sp)
+80400192: d0e6         	sw	s9, 0x60(sp)
 ;     sw s10, 100(sp)
-80400198: d2ea         	sw	s10, 0x64(sp)
+80400194: d2ea         	sw	s10, 0x64(sp)
 ;     sw s11, 104(sp)
-8040019a: d4ee         	sw	s11, 0x68(sp)
+80400196: d4ee         	sw	s11, 0x68(sp)
 ;     sw t3, 108(sp)
-8040019c: d6f2         	sw	t3, 0x6c(sp)
+80400198: d6f2         	sw	t3, 0x6c(sp)
 ;     sw t4, 112(sp)
-8040019e: d8f6         	sw	t4, 0x70(sp)
+8040019a: d8f6         	sw	t4, 0x70(sp)
 ;     sw t5, 116(sp)
-804001a0: dafa         	sw	t5, 0x74(sp)
+8040019c: dafa         	sw	t5, 0x74(sp)
 ;     sw t6, 120(sp)
-804001a2: dcfe         	sw	t6, 0x78(sp)
+8040019e: dcfe         	sw	t6, 0x78(sp)
 ;     csrr t0, sepc
-804001a4: 141022f3     	csrr	t0, sepc
+804001a0: 141022f3     	csrr	t0, sepc
 ;     sw t0, 124(sp)
-804001a8: de96         	sw	t0, 0x7c(sp)
+804001a4: de96         	sw	t0, 0x7c(sp)
 ;     csrr t0, sstatus
-804001aa: 100022f3     	csrr	t0, sstatus
+804001a6: 100022f3     	csrr	t0, sstatus
 ;     sw t0, 128(sp)
-804001ae: c116         	sw	t0, 0x80(sp)
+804001aa: c116         	sw	t0, 0x80(sp)
 ;     csrr t0, scause
-804001b0: 142022f3     	csrr	t0, scause
+804001ac: 142022f3     	csrr	t0, scause
 ;     sw t0, 132(sp)
-804001b4: c316         	sw	t0, 0x84(sp)
+804001b0: c316         	sw	t0, 0x84(sp)
 ;     csrr t0, stval
-804001b6: 143022f3     	csrr	t0, stval
+804001b2: 143022f3     	csrr	t0, stval
 ;     sw t0, 136(sp)
-804001ba: c516         	sw	t0, 0x88(sp)
+804001b6: c516         	sw	t0, 0x88(sp)
 ;     mv a0, sp
-804001bc: 850a         	mv	a0, sp
+804001b8: 850a         	mv	a0, sp
 ;     jal ra, trap_dispatch
-804001be: f5fff0ef     	jal	0x8040011c <trap_dispatch>
+804001ba: f33ff0ef     	jal	0x804000ec <trap_dispatch>
 ;     mv sp, a0
-804001c2: 812a         	mv	sp, a0
+804001be: 812a         	mv	sp, a0
 ;     lw t0, 124(sp)
-804001c4: 52f6         	lw	t0, 0x7c(sp)
+804001c0: 52f6         	lw	t0, 0x7c(sp)
 ;     csrw sepc, t0
-804001c6: 14129073     	csrw	sepc, t0
+804001c2: 14129073     	csrw	sepc, t0
 ;     lw t0, 128(sp)
-804001ca: 428a         	lw	t0, 0x80(sp)
+804001c6: 428a         	lw	t0, 0x80(sp)
 ;     csrw sstatus, t0
-804001cc: 10029073     	csrw	sstatus, t0
+804001c8: 10029073     	csrw	sstatus, t0
 ;     lw ra,   0(sp)
-804001d0: 4082         	lw	ra, 0x0(sp)
+804001cc: 4082         	lw	ra, 0x0(sp)
 ;     lw gp,   8(sp)
-804001d2: 41a2         	lw	gp, 0x8(sp)
+804001ce: 41a2         	lw	gp, 0x8(sp)
 ;     lw tp,  12(sp)
-804001d4: 4232         	lw	tp, 0xc(sp)
+804001d0: 4232         	lw	tp, 0xc(sp)
 ;     lw t1,  20(sp)
-804001d6: 4352         	lw	t1, 0x14(sp)
+804001d2: 4352         	lw	t1, 0x14(sp)
 ;     lw t2,  24(sp)
-804001d8: 43e2         	lw	t2, 0x18(sp)
+804001d4: 43e2         	lw	t2, 0x18(sp)
 ;     lw s0,  28(sp)
-804001da: 4472         	lw	s0, 0x1c(sp)
+804001d6: 4472         	lw	s0, 0x1c(sp)
 ;     lw s1,  32(sp)
-804001dc: 5482         	lw	s1, 0x20(sp)
+804001d8: 5482         	lw	s1, 0x20(sp)
 ;     lw a0,  36(sp)
-804001de: 5512         	lw	a0, 0x24(sp)
+804001da: 5512         	lw	a0, 0x24(sp)
 ;     lw a1,  40(sp)
-804001e0: 55a2         	lw	a1, 0x28(sp)
+804001dc: 55a2         	lw	a1, 0x28(sp)
 ;     lw a2,  44(sp)
-804001e2: 5632         	lw	a2, 0x2c(sp)
+804001de: 5632         	lw	a2, 0x2c(sp)
 ;     lw a3,  48(sp)
-804001e4: 56c2         	lw	a3, 0x30(sp)
+804001e0: 56c2         	lw	a3, 0x30(sp)
 ;     lw a4,  52(sp)
-804001e6: 5752         	lw	a4, 0x34(sp)
+804001e2: 5752         	lw	a4, 0x34(sp)
 ;     lw a5,  56(sp)
-804001e8: 57e2         	lw	a5, 0x38(sp)
+804001e4: 57e2         	lw	a5, 0x38(sp)
 ;     lw a6,  60(sp)
-804001ea: 5872         	lw	a6, 0x3c(sp)
+804001e6: 5872         	lw	a6, 0x3c(sp)
 ;     lw a7,  64(sp)
-804001ec: 4886         	lw	a7, 0x40(sp)
+804001e8: 4886         	lw	a7, 0x40(sp)
 ;     lw s2,  68(sp)
-804001ee: 4916         	lw	s2, 0x44(sp)
+804001ea: 4916         	lw	s2, 0x44(sp)
 ;     lw s3,  72(sp)
-804001f0: 49a6         	lw	s3, 0x48(sp)
+804001ec: 49a6         	lw	s3, 0x48(sp)
 ;     lw s4,  76(sp)
-804001f2: 4a36         	lw	s4, 0x4c(sp)
+804001ee: 4a36         	lw	s4, 0x4c(sp)
 ;     lw s5,  80(sp)
-804001f4: 4ac6         	lw	s5, 0x50(sp)
+804001f0: 4ac6         	lw	s5, 0x50(sp)
 ;     lw s6,  84(sp)
-804001f6: 4b56         	lw	s6, 0x54(sp)
+804001f2: 4b56         	lw	s6, 0x54(sp)
 ;     lw s7,  88(sp)
-804001f8: 4be6         	lw	s7, 0x58(sp)
+804001f4: 4be6         	lw	s7, 0x58(sp)
 ;     lw s8,  92(sp)
-804001fa: 4c76         	lw	s8, 0x5c(sp)
+804001f6: 4c76         	lw	s8, 0x5c(sp)
 ;     lw s9,  96(sp)
-804001fc: 5c86         	lw	s9, 0x60(sp)
+804001f8: 5c86         	lw	s9, 0x60(sp)
 ;     lw s10, 100(sp)
-804001fe: 5d16         	lw	s10, 0x64(sp)
+804001fa: 5d16         	lw	s10, 0x64(sp)
 ;     lw s11, 104(sp)
-80400200: 5da6         	lw	s11, 0x68(sp)
+804001fc: 5da6         	lw	s11, 0x68(sp)
 ;     lw t3, 108(sp)
-80400202: 5e36         	lw	t3, 0x6c(sp)
+804001fe: 5e36         	lw	t3, 0x6c(sp)
 ;     lw t4, 112(sp)
-80400204: 5ec6         	lw	t4, 0x70(sp)
+80400200: 5ec6         	lw	t4, 0x70(sp)
 ;     lw t5, 116(sp)
-80400206: 5f56         	lw	t5, 0x74(sp)
+80400202: 5f56         	lw	t5, 0x74(sp)
 ;     lw t6, 120(sp)
-80400208: 5fe6         	lw	t6, 0x78(sp)
+80400204: 5fe6         	lw	t6, 0x78(sp)
 ;     lw t0,  16(sp)
-8040020a: 42c2         	lw	t0, 0x10(sp)
+80400206: 42c2         	lw	t0, 0x10(sp)
 ;     lw sp, 4(sp)
-8040020c: 4112         	lw	sp, 0x4(sp)
+80400208: 4112         	lw	sp, 0x4(sp)
 ;     sret
-8040020e: 10200073     	sret
+8040020a: 10200073     	sret
 
-80400212 <proc_create>:
+8040020e <proc_create>:
 ;     la t0, process_table        
-80400212: 00000297     	auipc	t0, 0x0
-80400216: 3de28293     	addi	t0, t0, 0x3de
+8040020e: 00000297     	auipc	t0, 0x0
+80400212: 5a228293     	addi	t0, t0, 0x5a2
 ;     li t2, proc_max    
-8040021a: 43a1         	li	t2, 0x8
+80400216: 43a1         	li	t2, 0x8
 ;     li t3, 0  #t3=pid of new process          
-8040021c: 4e01         	li	t3, 0x0
+80400218: 4e01         	li	t3, 0x0
 
-8040021e <check>:
+8040021a <check>:
 ;     beq t2,zero,full
-8040021e: 04038a63     	beqz	t2, 0x80400272 <full>
+8040021a: 06038763     	beqz	t2, 0x80400288 <full>
 ;     lw t1, proc_state(t0)
-80400222: 0042a303     	lw	t1, 0x4(t0)
-;     beq t1,zero, create               
-80400226: 00030663     	beqz	t1, 0x80400232 <create>
-;     addi t0, t0, proc_size
-8040022a: 02c1         	addi	t0, t0, 0x10
+8040021e: 0042a303     	lw	t1, 0x4(t0)
+;     beq t1,zero, create     
+80400222: 00030863     	beqz	t1, 0x80400232 <create>
+;     li t5, proc_size          
+80400226: 6f05         	lui	t5, 0x1
+80400228: 0f41         	addi	t5, t5, 0x10
+;     add t0, t0, t5
+8040022a: 92fa         	add	t0, t0, t5
 ;     addi t3, t3, 1
 8040022c: 0e05         	addi	t3, t3, 0x1
 ;     addi t2, t2, -1
 8040022e: 13fd         	addi	t2, t2, -0x1
 ;     jal x0, check
-80400230: b7fd         	j	0x8040021e <check>
+80400230: b7ed         	j	0x8040021a <check>
 
 80400232 <create>:
 ;     sw t3, proc_pid(t0)
@@ -450,515 +453,767 @@ Disassembly of section .text:
 80400236: 4305         	li	t1, 0x1
 ;     sw t1, proc_state(t0)     
 80400238: 0062a223     	sw	t1, 0x4(t0)
+;     jal ra, map_kernel_pages
+8040023c: 20bd         	jal	0x804002aa <map_kernel_pages>
+;     sw a0, proc_satp(t0)
+8040023e: 00a2a623     	sw	a0, 0xc(t0)
 ;     la t1, proc_stacks
-8040023c: 00000317     	auipc	t1, 0x0
-80400240: 43430313     	addi	t1, t1, 0x434
+80400242: 00008317     	auipc	t1, 0x8
+80400246: 5ee30313     	addi	t1, t1, 0x5ee
 ;     addi t4, t3, 1
-80400244: 001e0e93     	addi	t4, t3, 0x1
+8040024a: 001e0e93     	addi	t4, t3, 0x1
 ;     li t5, stack_size
-80400248: 6f09         	lui	t5, 0x2
+8040024e: 6f09         	lui	t5, 0x2
 ;     mul t4, t4, t5
-8040024a: 03ee8eb3     	mul	t4, t4, t5
-;     add t1, t1, t4
-8040024e: 9376         	add	t1, t1, t4
-;     sw t1, proc_sp(t0)
-80400250: 0062a423     	sw	t1, 0x8(t0)
-;     mv t5, t1
-80400254: 8f1a         	mv	t5, t1
+80400250: 03ee8eb3     	mul	t4, t4, t5
+;     add t1, t1, t4        # t1 = top of stack
+80400254: 9376         	add	t1, t1, t4
+;     li t4, stack_size
+80400256: 6e89         	lui	t4, 0x2
+;     srli t4, t4, 2 
+80400258: 002ede93     	srli	t4, t4, 0x2
+;     mv t5, t1       
+8040025c: 8f1a         	mv	t5, t1
 
-80400256 <zero_frame>:
-;     sw zero, 0(t5)
-80400256: 000f2023     	sw	zero, 0x0(t5)
-;     addi t5, t5, 4
-8040025a: 0f11         	addi	t5, t5, 0x4
-;     addi t4, t4, -1
-8040025c: 1efd         	addi	t4, t4, -0x1
+8040025e <zero_frame>:
+;     addi t5, t5, -4 
+8040025e: 1f71         	addi	t5, t5, -0x4
+;     sw zero, 0(t5) 
+80400260: 000f2023     	sw	zero, 0x0(t5)
+;     addi t4, t4, -1  
+80400264: 1efd         	addi	t4, t4, -0x1
 ;     bnez t4, zero_frame
-8040025e: fe0e9ce3     	bnez	t4, 0x80400256 <zero_frame>
-;     sw a0, 0(t1)
-80400262: 00a32023     	sw	a0, 0x0(t1)
+80400266: fe0e9ce3     	bnez	t4, 0x8040025e <zero_frame>
+;     addi t1, t1, -52
+8040026a: fcc30313     	addi	t1, t1, -0x34
+;     la t2, proc_start
+8040026e: 00000397     	auipc	t2, 0x0
+80400272: 03638393     	addi	t2, t2, 0x36
+;     sw t2, 0(t1)      #ra = proc_start
+80400276: 00732023     	sw	t2, 0x0(t1)
+;     sw a0, 4(t1)      #s0 = entry point
+8040027a: 00a32223     	sw	a0, 0x4(t1)
 ;     sw t1, proc_sp(t0)
-80400266: 0062a423     	sw	t1, 0x8(t0)
-;     mv a1, t1
-8040026a: 859a         	mv	a1, t1
-;     mv a0, t3
-8040026c: 8572         	mv	a0, t3
-;     mv a1, t1
-8040026e: 859a         	mv	a1, t1
-;     jalr zero, 0(ra)
-80400270: 8082         	ret
+8040027e: 0062a423     	sw	t1, 0x8(t0)
+;     mv a0, t3 
+80400282: 8572         	mv	a0, t3
+;     mv a1, t1 
+80400284: 859a         	mv	a1, t1
+;     jalr zero, 0(ra)         
+80400286: 8082         	ret
 
-80400272 <full>:
+80400288 <full>:
 ;     addi sp, sp, -8
-80400272: 1161         	addi	sp, sp, -0x8
+80400288: 1161         	addi	sp, sp, -0x8
 ;     sw ra, 0(sp)
-80400274: c006         	sw	ra, 0x0(sp)
+8040028a: c006         	sw	ra, 0x0(sp)
 ;     li a0, len
-80400276: 02000513     	li	a0, 0x20
+8040028c: 02000513     	li	a0, 0x20
 ;     la a1, m
-8040027a: 00000597     	auipc	a1, 0x0
-8040027e: 2ff58593     	addi	a1, a1, 0x2ff
+80400290: 00000597     	auipc	a1, 0x0
+80400294: 44958593     	addi	a1, a1, 0x449
 ;     jal ra, write_string
-80400282: e6fff0ef     	jal	0x804000f0 <write_string>
+80400298: e29ff0ef     	jal	0x804000c0 <write_string>
 ;     li a0, -1
-80400286: 557d         	li	a0, -0x1
+8040029c: 557d         	li	a0, -0x1
 ;     lw ra, 0(sp)
-80400288: 4082         	lw	ra, 0x0(sp)
+8040029e: 4082         	lw	ra, 0x0(sp)
 ;     addi sp, sp, 8
-8040028a: 0121         	addi	sp, sp, 0x8
+804002a0: 0121         	addi	sp, sp, 0x8
 ;     jalr zero, 0(ra)
-8040028c: 8082         	ret
+804002a2: 8082         	ret
 
-8040028e <sbi_timer>:
-; rdtime t0
-8040028e: c01022f3     	rdtime	t0
-; rdtimeh t1
-80400292: c8102373     	rdtimeh	t1
-; li t2, cycles
-80400296: 3e800393     	li	t2, 0x3e8
-; add t0, t0, t2
-8040029a: 929e         	add	t0, t0, t2
-; sltu t3, t0, t2 
-8040029c: 0072be33     	sltu	t3, t0, t2
-; add t1, t1, t3   # Carry into upper 32 bits
-804002a0: 9372         	add	t1, t1, t3
-; mv a0, t0
-804002a2: 8516         	mv	a0, t0
-; mv a1, t1
-804002a4: 859a         	mv	a1, t1
-; li a6,time_fid
-804002a6: 4801         	li	a6, 0x0
-; li a7,time_eid
-804002a8: 544958b7     	lui	a7, 0x54495
-804002ac: d4588893     	addi	a7, a7, -0x2bb
-; ecall
-804002b0: 00000073     	ecall
-; jalr zero,0(ra)
-804002b4: 8082         	ret
+804002a4 <proc_start>:
+;     csrsi sstatus, 2
+804002a4: 10016073     	csrsi	sstatus, 0x2
+;     jalr zero, (s0)
+804002a8: 8402         	jr	s0
 
-804002b6 <scheduler>:
-;     csrci sstatus, 2 ##neglecting the interrupts in this stage 
-804002b6: 10017073     	csrci	sstatus, 0x2
-;     addi sp,sp,-12
-804002ba: 1151         	addi	sp, sp, -0xc
-;     sw ra,0(sp)
-804002bc: c006         	sw	ra, 0x0(sp)
-;     sw s0, 4(sp) ##current_proc_number
-804002be: c222         	sw	s0, 0x4(sp)
-;     sw s1, 8(sp)  ##no.of processes that are not yet seen
-804002c0: c426         	sw	s1, 0x8(sp)
-;     la s0, process_table
-804002c2: 00000417     	auipc	s0, 0x0
-804002c6: 32e40413     	addi	s0, s0, 0x32e
-;     li s1, proc_max
-804002ca: 44a1         	li	s1, 0x8
-
-804002cc <outer_loop>:
-;     beqz s1, scheduler   # t2==0
-804002cc: e099         	bnez	s1, 0x804002d2 <outer_loop+0x6>
-804002ce: fe9ff06f     	j	0x804002b6 <scheduler>
-;     lw t3, proc_state(s0)
-804002d2: 00442e03     	lw	t3, 0x4(s0)
-;     li t4, proc_ready
-804002d6: 4e85         	li	t4, 0x1
-;     bne t3,t4,resume
-804002d8: 01de0463     	beq	t3, t4, 0x804002e0 <outer_loop+0x14>
-804002dc: 0380006f     	j	0x80400314 <resume>
-;     la t0, current_proc
-804002e0: 00000297     	auipc	t0, 0x0
-804002e4: 2f428293     	addi	t0, t0, 0x2f4
-;     sw s0, 0(t0)
-804002e8: 0082a023     	sw	s0, 0x0(t0)
-;     li t4, proc_running
-804002ec: 4e89         	li	t4, 0x2
-;     sw t4, proc_state(s0)
-804002ee: 01d42223     	sw	t4, 0x4(s0)
-;     la a0, sched_sp
-804002f2: 00000517     	auipc	a0, 0x0
-804002f6: 2de50513     	addi	a0, a0, 0x2de
-;     addi a1, s0, proc_sp
-804002fa: 00840593     	addi	a1, s0, 0x8
-;     jal  ra, switch_context
-804002fe: 042000ef     	jal	0x80400340 <switch_context>
-;     lw t0, current_proc
-80400302: 00000297     	auipc	t0, 0x0
-80400306: 2d22a283     	lw	t0, 0x2d2(t0)
-;     sw zero, 0(t0)
-8040030a: 0002a023     	sw	zero, 0x0(t0)
-;     li t4, proc_ready
-8040030e: 4e85         	li	t4, 0x1
-;     sw t4, proc_state(t0)
-80400310: 01d2a223     	sw	t4, 0x4(t0)
-
-80400314 <resume>:
-;     addi s0,s0,proc_size
-80400314: 0441         	addi	s0, s0, 0x10
-;     addi s1, s1, -1    # t2--
-80400316: 14fd         	addi	s1, s1, -0x1
-;     j outer_loop            
-80400318: bf55         	j	0x804002cc <outer_loop>
-
-8040031a <sched_switch>:
-;     la t0, current_proc
-8040031a: 00000297     	auipc	t0, 0x0
-8040031e: 2ba28293     	addi	t0, t0, 0x2ba
-;     lw t0, 0(t0)
-80400322: 0002a283     	lw	t0, 0x0(t0)
-;     addi a0, t0, proc_sp
-80400326: 00828513     	addi	a0, t0, 0x8
-;     la  a1, sched_sp
-8040032a: 00000597     	auipc	a1, 0x0
-8040032e: 2a658593     	addi	a1, a1, 0x2a6
-;     jal ra, switch_context
-80400332: 00e000ef     	jal	0x80400340 <switch_context>
-
-80400336 <outer_end>:
-;     lw   ra, 0(sp)
-80400336: 4082         	lw	ra, 0x0(sp)
-;     lw   s0, 4(sp)
-80400338: 4412         	lw	s0, 0x4(sp)
-;     lw   s1, 8(sp)
-8040033a: 44a2         	lw	s1, 0x8(sp)
-;     addi sp, sp, 12
-8040033c: 0131         	addi	sp, sp, 0xc
-;     ret
-8040033e: 8082         	ret
-
-80400340 <switch_context>:
-;         addi sp, sp, -13 * 4 
-80400340: fcc10113     	addi	sp, sp, -0x34
-;         sw ra,  0  * 4(sp)
-80400344: c006         	sw	ra, 0x0(sp)
-;         sw s0,  1  * 4(sp)
-80400346: c222         	sw	s0, 0x4(sp)
-;         sw s1,  2  * 4(sp)
-80400348: c426         	sw	s1, 0x8(sp)
-;         sw s2,  3  * 4(sp)
-8040034a: c64a         	sw	s2, 0xc(sp)
-;         sw s3,  4  * 4(sp)
-8040034c: c84e         	sw	s3, 0x10(sp)
-;         sw s4,  5  * 4(sp)
-8040034e: ca52         	sw	s4, 0x14(sp)
-;         sw s5,  6  * 4(sp)
-80400350: cc56         	sw	s5, 0x18(sp)
-;         sw s6,  7  * 4(sp)
-80400352: ce5a         	sw	s6, 0x1c(sp)
-;         sw s7,  8  * 4(sp)
-80400354: d05e         	sw	s7, 0x20(sp)
-;         sw s8,  9  * 4(sp)
-80400356: d262         	sw	s8, 0x24(sp)
-;         sw s9,  10 * 4(sp)
-80400358: d466         	sw	s9, 0x28(sp)
-;         sw s10, 11 * 4(sp)
-8040035a: d66a         	sw	s10, 0x2c(sp)
-;         sw s11, 12 * 4(sp)
-8040035c: d86e         	sw	s11, 0x30(sp)
-;         sw sp, (a0)       
-8040035e: 00252023     	sw	sp, 0x0(a0)
-;         lw sp, (a1)       
-80400362: 0005a103     	lw	sp, 0x0(a1)
-;         lw ra,  0  * 4(sp)  
-80400366: 4082         	lw	ra, 0x0(sp)
-;         lw s0,  1  * 4(sp)
-80400368: 4412         	lw	s0, 0x4(sp)
-;         lw s1,  2  * 4(sp)
-8040036a: 44a2         	lw	s1, 0x8(sp)
-;         lw s2,  3  * 4(sp)
-8040036c: 4932         	lw	s2, 0xc(sp)
-;         lw s3,  4  * 4(sp)
-8040036e: 49c2         	lw	s3, 0x10(sp)
-;         lw s4,  5  * 4(sp)
-80400370: 4a52         	lw	s4, 0x14(sp)
-;         lw s5,  6  * 4(sp)
-80400372: 4ae2         	lw	s5, 0x18(sp)
-;         lw s6,  7  * 4(sp)
-80400374: 4b72         	lw	s6, 0x1c(sp)
-;         lw s7,  8  * 4(sp)
-80400376: 5b82         	lw	s7, 0x20(sp)
-;         lw s8,  9  * 4(sp)
-80400378: 5c12         	lw	s8, 0x24(sp)
-;         lw s9,  10 * 4(sp)
-8040037a: 5ca2         	lw	s9, 0x28(sp)
-;         lw s10, 11 * 4(sp)
-8040037c: 5d32         	lw	s10, 0x2c(sp)
-;         lw s11, 12 * 4(sp)
-8040037e: 5dc2         	lw	s11, 0x30(sp)
-;         addi sp, sp, 13 * 4
-80400380: 03410113     	addi	sp, sp, 0x34
-;         ret
-80400384: 8082         	ret
-80400386: 0000         	unimp
-
-80400388 <memcpy>:
-;     addi t0, a0, 0           
-80400388: 00050293     	mv	t0, a0
-
-8040038c <loop>:
-;     beq a2, zero, exit  
-8040038c: 00060e63     	beqz	a2, 0x804003a8 <exit>
-;     lbu t1, 0(a1)    
-80400390: 0005c303     	lbu	t1, 0x0(a1)
-;     sb t1, 0(t0)        
-80400394: 00628023     	sb	t1, 0x0(t0)
-;     addi t0, t0, 1         
-80400398: 00128293     	addi	t0, t0, 0x1
-;     addi a1, a1, 1       
-8040039c: 00158593     	addi	a1, a1, 0x1
-;     addi a2, a2, -1   
-804003a0: fff60613     	addi	a2, a2, -0x1
-;     jal zero, loop    
-804003a4: fe9ff06f     	j	0x8040038c <loop>
-
-804003a8 <exit>:
-;     jalr    zero, 0(ra)      
-804003a8: 00008067     	ret
-
-804003ac <memset0>:
-804003ac: 00050293     	mv	t0, a0
-
-804003b0 <loop>:
-;     beq a2,zero,exit
-804003b0: 00060a63     	beqz	a2, 0x804003c4 <exit>
-;     sb zero,0(t0)
-804003b4: 00028023     	sb	zero, 0x0(t0)
-;     addi t0,t0,1
-804003b8: 00128293     	addi	t0, t0, 0x1
-;     addi a2,a2,-1
-804003bc: fff60613     	addi	a2, a2, -0x1
-;     beq zero,zero,loop
-804003c0: fe0008e3     	beqz	zero, 0x804003b0 <loop>
-
-804003c4 <exit>:
-;     jalr zero, 0(ra)
-804003c4: 00008067     	ret
-
-804003c8 <printIntU>:
-804003c8: ffc10113     	addi	sp, sp, -0x4
-;     sw ra, 0(sp)// Saving return address as it is changed
-804003cc: 00112023     	sw	ra, 0x0(sp)
-;     addi t0, a0, 0
-804003d0: 00050293     	mv	t0, a0
-;     addi t3, x0, 1
-804003d4: 00100e13     	li	t3, 0x1
-;     addi t4, x0, 10 //always 10
-804003d8: 00a00e93     	li	t4, 0xa
-;     beq x0, x0, power // bypass negative check
-804003dc: 02000463     	beqz	zero, 0x80400404 <power>
-
-804003e0 <printInt>:
+804002aa <map_kernel_pages>:
 ;     addi sp, sp, -4
-804003e0: ffc10113     	addi	sp, sp, -0x4
-;     sw ra, 0(sp)// Saving return address as it is changed
-804003e4: 00112023     	sw	ra, 0x0(sp)
-;     addi t0, a0, 0
-804003e8: 00050293     	mv	t0, a0
-;     addi t3, x0, 1
-804003ec: 00100e13     	li	t3, 0x1
-;     addi t4, x0, 10 //always 10
-804003f0: 00a00e93     	li	t4, 0xa
-;     bge t0, x0, power // continue if positive
-804003f4: 0002d863     	bgez	t0, 0x80400404 <power>
-;     sub t0, x0, t0
-804003f8: 405002b3     	neg	t0, t0
-;     addi a0, x0, 45
-804003fc: 02d00513     	li	a0, 0x2d
-;     jal     ra, write_byte
-80400400: cb5ff0ef     	jal	0x804000b4 <write_byte>
-
-80400404 <power>:
-;         mul t3, t3, t4
-80400404: 03de0e33     	mul	t3, t3, t4
-;         bge t0, t3, power
-80400408: ffc2dee3     	bge	t0, t3, 0x80400404 <power>
-;     div t3, t3, t4
-8040040c: 03de4e33     	div	t3, t3, t4
-
-80400410 <loop>:
-;         bge x0, t3, exit
-80400410: 03c05063     	blez	t3, 0x80400430 <exit>
-;         div t1, t0, t3 // Divide by 10 power
-80400414: 03c2c333     	div	t1, t0, t3
-;         rem t2, t0, t3 //remainder
-80400418: 03c2e3b3     	rem	t2, t0, t3
-;         div t3, t3, t4
-8040041c: 03de4e33     	div	t3, t3, t4
-;         addi t0, t2, 0
-80400420: 00038293     	mv	t0, t2
-;         addi a0, t1, 48 // Find ascii number
-80400424: 03030513     	addi	a0, t1, 0x30
-;         jal     ra, write_byte
-80400428: c8dff0ef     	jal	0x804000b4 <write_byte>
-;         jal x0, loop
-8040042c: fe5ff06f     	j	0x80400410 <loop>
-
-80400430 <exit>:
-;     lw ra, 0(sp)
-80400430: 00012083     	lw	ra, 0x0(sp)
-;     addi sp, sp, 4
-80400434: 00410113     	addi	sp, sp, 0x4
-;     jalr x0, 0(ra)
-80400438: 00008067     	ret
-
-8040043c <printHex>:
-;     addi sp, sp, -4
-8040043c: ffc10113     	addi	sp, sp, -0x4
+804002aa: 1171         	addi	sp, sp, -0x4
 ;     sw ra, 0(sp)
-80400440: 00112023     	sw	ra, 0x0(sp)
-;     addi t1, a0, 0
-80400444: 00050313     	mv	t1, a0
-;     addi t0, x0, 32
-80400448: 02000293     	li	t0, 0x20
-;     addi a0, x0, 48
-8040044c: 03000513     	li	a0, 0x30
-;     jal ra, write_byte
-80400450: c65ff0ef     	jal	0x804000b4 <write_byte>
-;     addi a0, a0, 120
-80400454: 07850513     	addi	a0, a0, 0x78
-;     jal ra, write_byte
-80400458: c5dff0ef     	jal	0x804000b4 <write_byte>
-
-8040045c <loopHex>:
-;         beq t0, x0, exit
-8040045c: fc028ae3     	beqz	t0, 0x80400430 <exit>
-;         addi t0, t0, -4
-80400460: ffc28293     	addi	t0, t0, -0x4
-;         srl a0, t1, t0
-80400464: 00535533     	srl	a0, t1, t0
-;         andi a0, a0, 0xf
-80400468: 00f57513     	andi	a0, a0, 0xf
-;         addi a0, a0, -10
-8040046c: ff650513     	addi	a0, a0, -0xa
-;         blt a0, x0, number
-80400470: 00054463     	bltz	a0, 0x80400478 <number>
-;         addi a0, a0, 39
-80400474: 02750513     	addi	a0, a0, 0x27
-
-80400478 <number>:
-;         addi a0, a0, 58
-80400478: 03a50513     	addi	a0, a0, 0x3a
-;         jal ra, write_byte
-8040047c: c39ff0ef     	jal	0x804000b4 <write_byte>
-;         jal x0, loopHex
-80400480: fddff06f     	j	0x8040045c <loopHex>
-
-80400484 <main>:
-;     jal ra, printMem
-80400484: 024000ef     	jal	0x804004a8 <printMem>
+804002ac: c006         	sw	ra, 0x0(sp)
 ;     addi a0, x0, 1
-80400488: 4505         	li	a0, 0x1
+804002ae: 4505         	li	a0, 0x1
 ;     jal ra, alloc_pages
-8040048a: 06a000ef     	jal	0x804004f4 <alloc_pages>
-;     addi t0, a0, 0
-8040048e: 82aa         	mv	t0, a0
-;     jal ra, printHex
-80400490: fadff0ef     	jal	0x8040043c <printHex>
-;     addi a0, x0, 67
-80400494: 04300513     	li	a0, 0x43
-;     jal ra, write_byte
-80400498: c1dff0ef     	jal	0x804000b4 <write_byte>
+804002b0: 2d8000ef     	jal	0x80400588 <alloc_pages>
+;     addi t2, a0, 0 // process adress table in t2
+804002b4: 83aa         	mv	t2, a0
+;     la t0, __kernel_base
+804002b6: 00000297     	auipc	t0, 0x0
+804002ba: d4a28293     	addi	t0, t0, -0x2b6
+;     la t1, __free_ram_end
+804002be: 0405b317     	auipc	t1, 0x405b
+804002c2: d4230313     	addi	t1, t1, -0x2be
+;     addi t3, x0, 1
+804002c6: 4e05         	li	t3, 0x1
+;     slli t3, t3, 12//Page size in t3
+804002c8: 0e32         	slli	t3, t3, 0xc
 
-8040049c <L1>:
-;     wfi
-8040049c: 10500073     	wfi
-;     jal  x0, L1
-804004a0: bff5         	j	0x8040049c <L1>
+804002ca <start_mapping>:
+;         bge t0, t1, done_map
+804002ca: 0262d063     	bge	t0, t1, 0x804002ea <done_map>
+;         addi a0, t2, 0
+804002ce: 851e         	mv	a0, t2
+;         addi a1, t0, 0
+804002d0: 8596         	mv	a1, t0
+;         addi a2, t0, 0
+804002d2: 8616         	mv	a2, t0
+;         addi a3, x0, 0
+804002d4: 4681         	li	a3, 0x0
+;         ori a3, a3, PAGE_R
+804002d6: 0026e693     	ori	a3, a3, 0x2
+;         ori a3, a3, PAGE_X
+804002da: 0086e693     	ori	a3, a3, 0x8
+;         ori a3, a3, PAGE_W
+804002de: 0046e693     	ori	a3, a3, 0x4
+;         jal ra, map_pages
+804002e2: 2fa000ef     	jal	0x804005dc <map_pages>
+;         add t0, t0, t3
+804002e6: 92f2         	add	t0, t0, t3
+;         jal x0, start_mapping
+804002e8: b7cd         	j	0x804002ca <start_mapping>
 
-804004a2 <sched_loop>:
-;     jal  ra, scheduler 
-804004a2: e15ff0ef     	jal	0x804002b6 <scheduler>
-;     j  sched_loop
-804004a6: bff5         	j	0x804004a2 <sched_loop>
-
-804004a8 <printMem>:
-;     addi sp, sp, -4
-804004a8: 1171         	addi	sp, sp, -0x4
-;     sw ra, 0(sp)
-804004aa: c006         	sw	ra, 0x0(sp)
-;     la a0, __free_ram
-804004ac: 00053517     	auipc	a0, 0x53
-804004b0: b5450513     	addi	a0, a0, -0x4ac
-;     jal ra, printHex
-804004b4: f89ff0ef     	jal	0x8040043c <printHex>
-;     addi a0, x0, 32
-804004b8: 02000513     	li	a0, 0x20
-;     jal ra, write_byte
-804004bc: bf9ff0ef     	jal	0x804000b4 <write_byte>
-;     la a0, freeRamPointer
-804004c0: 00000517     	auipc	a0, 0x0
-804004c4: 0dc50513     	addi	a0, a0, 0xdc
-;     la t0, __free_ram
-804004c8: 00053297     	auipc	t0, 0x53
-804004cc: b3828293     	addi	t0, t0, -0x4c8
-;     sw t0, 0(a0)
-804004d0: 00552023     	sw	t0, 0x0(a0)
-;     addi a0, t0, 0
-804004d4: 8516         	mv	a0, t0
-;     jal ra, printHex
-804004d6: f67ff0ef     	jal	0x8040043c <printHex>
-;     addi a0, x0, 32
-804004da: 02000513     	li	a0, 0x20
-;     jal ra, write_byte
-804004de: bd7ff0ef     	jal	0x804000b4 <write_byte>
-;     la a0, __free_ram_end
-804004e2: 04053517     	auipc	a0, 0x4053
-804004e6: b1e50513     	addi	a0, a0, -0x4e2
-;     jal ra, printHex
-804004ea: f53ff0ef     	jal	0x8040043c <printHex>
+804002ea <done_map>:
+;     addi a0, t2, 0
+804002ea: 851e         	mv	a0, t2
+;     addi t1, x0, 1
+804002ec: 4305         	li	t1, 0x1
+;     slli t1, t1, 31
+804002ee: 037e         	slli	t1, t1, 0x1f
+;     srli a0, a0, 12
+804002f0: 8131         	srli	a0, a0, 0xc
+;     or a0, a0, t1
+804002f2: 00656533     	or	a0, a0, t1
 ;     lw ra, 0(sp)
-804004ee: 4082         	lw	ra, 0x0(sp)
+804002f6: 4082         	lw	ra, 0x0(sp)
 ;     addi sp, sp, 4
-804004f0: 0111         	addi	sp, sp, 0x4
-;     jalr x0, (ra)
-804004f2: 8082         	ret
-
-804004f4 <alloc_pages>:
-;     addi sp , sp, -4
-804004f4: 1171         	addi	sp, sp, -0x4
-;     sw ra, 0(sp)
-804004f6: c006         	sw	ra, 0x0(sp)
-;     addi t0, a0, 0 // number of pages
-804004f8: 82aa         	mv	t0, a0
-;     la t1, freeRamPointer // pointer to freeRamPointer
-804004fa: 00000317     	auipc	t1, 0x0
-804004fe: 0a230313     	addi	t1, t1, 0xa2
-;     lw t2, 0(t0) // freeRamPointer Value
-80400502: 0002a383     	lw	t2, 0x0(t0)
-;     li t3, PAGE_SIZE
-80400506: 6e05         	lui	t3, 0x1
-;     mul t0, t0, t3 // space to alloc in t0
-80400508: 03c282b3     	mul	t0, t0, t3
-;     addi t4, t2, 0 // return value in t4
-8040050c: 8e9e         	mv	t4, t2
-;     add t2, t0, t2 // end address in t2
-8040050e: 9396         	add	t2, t2, t0
-;     la t5, __free_ram_end
-80400510: 04053f17     	auipc	t5, 0x4053
-80400514: af0f0f13     	addi	t5, t5, -0x510
-;     bge t2, t5, error// error if end is out of limit
-80400518: 01e3d563     	bge	t2, t5, 0x80400522 <error>
-;     addi sp, sp, 4
-8040051c: 0111         	addi	sp, sp, 0x4
-;     addi a0, t4, 0
-8040051e: 8576         	mv	a0, t4
+804002f8: 0111         	addi	sp, sp, 0x4
 ;     jalr x0, 0(ra)
-80400520: 8082         	ret
+804002fa: 8082         	ret
 
-80400522 <error>:
-;         la a0, OUT_OF_MEMORY
-80400522: 00000517     	auipc	a0, 0x0
-80400526: 08250513     	addi	a0, a0, 0x82
-;         la a1, FILE_NAME
+804002fc <sbi_timer>:
+; rdtime t0
+804002fc: c01022f3     	rdtime	t0
+; rdtimeh t1
+80400300: c8102373     	rdtimeh	t1
+; li t2, cycles
+80400304: 3e800393     	li	t2, 0x3e8
+; add t0, t0, t2
+80400308: 929e         	add	t0, t0, t2
+; sltu t3, t0, t2 
+8040030a: 0072be33     	sltu	t3, t0, t2
+; add t1, t1, t3   # Carry into upper 32 bits
+8040030e: 9372         	add	t1, t1, t3
+; mv a0, t0
+80400310: 8516         	mv	a0, t0
+; mv a1, t1
+80400312: 859a         	mv	a1, t1
+; li a6,time_fid
+80400314: 4801         	li	a6, 0x0
+; li a7,time_eid
+80400316: 544958b7     	lui	a7, 0x54495
+8040031a: d4588893     	addi	a7, a7, -0x2bb
+; ecall
+8040031e: 00000073     	ecall
+; jalr zero,0(ra)
+80400322: 8082         	ret
+
+80400324 <timer_init>:
+;     addi sp, sp, -16
+80400324: 1141         	addi	sp, sp, -0x10
+;     sw  ra, 0(sp)
+80400326: c006         	sw	ra, 0x0(sp)
+;     jal ra, sbi_timer
+80400328: fd5ff0ef     	jal	0x804002fc <sbi_timer>
+;     li  t0, 0x20
+8040032c: 02000293     	li	t0, 0x20
+;     csrs sie, t0
+80400330: 1042a073     	csrs	sie, t0
+;     lw  ra, 0(sp)
+80400334: 4082         	lw	ra, 0x0(sp)
+;     addi sp, sp, 16
+80400336: 0141         	addi	sp, sp, 0x10
+;     ret
+80400338: 8082         	ret
+
+8040033a <scheduler>:
+;     csrci sstatus, 2 ##neglecting the interrupts in this stage 
+8040033a: 10017073     	csrci	sstatus, 0x2
+;     addi sp,sp,-12
+8040033e: 1151         	addi	sp, sp, -0xc
+;     sw ra,0(sp)
+80400340: c006         	sw	ra, 0x0(sp)
+;     sw s0, 4(sp) 
+80400342: c222         	sw	s0, 0x4(sp)
+;     sw s1, 8(sp)  
+80400344: c426         	sw	s1, 0x8(sp)
+
+80400346 <new_loop>:
+;     la s0, process_table  ##current_proc_number
+80400346: 00000417     	auipc	s0, 0x0
+8040034a: 46a40413     	addi	s0, s0, 0x46a
+;     li s1, proc_max    ##no.of processes that are not yet seen
+8040034e: 44a1         	li	s1, 0x8
+
+80400350 <outer_loop>:
+;     beqz s1, new_loop   # t2==0
+80400350: d8fd         	beqz	s1, 0x80400346 <new_loop>
+;     lw t3, proc_state(s0)
+80400352: 00442e03     	lw	t3, 0x4(s0)
+;     li t4, proc_ready
+80400356: 4e85         	li	t4, 0x1
+;     bne t3,t4,resume
+80400358: 01de0463     	beq	t3, t4, 0x80400360 <outer_loop+0x10>
+8040035c: 04a0006f     	j	0x804003a6 <resume>
+;     sfence.vma
+80400360: 12000073     	sfence.vma
+;     addi a0, x0, 68
+80400364: 04400513     	li	a0, 0x44
+;     jal ra, write_byte
+80400368: d1dff0ef     	jal	0x80400084 <write_byte>
+;     lw a0, proc_satp(s0)
+8040036c: 4448         	lw	a0, 0xc(s0)
+;     csrw satp, a0
+8040036e: 18051073     	csrw	satp, a0
+;     sfence.vma
+80400372: 12000073     	sfence.vma
+;     la t0, next_proc
+80400376: 00000297     	auipc	t0, 0x0
+8040037a: 41e28293     	addi	t0, t0, 0x41e
+;     sw s0, 0(t0)
+8040037e: 0082a023     	sw	s0, 0x0(t0)
+;     li t4, proc_running
+80400382: 4e89         	li	t4, 0x2
+;     sw t4, proc_state(s0)
+80400384: 01d42223     	sw	t4, 0x4(s0)
+;     la a0, sched_sp
+80400388: 00000517     	auipc	a0, 0x0
+8040038c: 40850513     	addi	a0, a0, 0x408
+;     addi a1, s0, proc_sp
+80400390: 00840593     	addi	a1, s0, 0x8
+;     jal  ra, switch_context
+80400394: 042000ef     	jal	0x804003d6 <switch_context>
+;     lw t0, next_proc
+80400398: 00000297     	auipc	t0, 0x0
+8040039c: 3fc2a283     	lw	t0, 0x3fc(t0)
+;     li t4, proc_ready
+804003a0: 4e85         	li	t4, 0x1
+;     sw t4, proc_state(t0)
+804003a2: 01d2a223     	sw	t4, 0x4(t0)
+
+804003a6 <resume>:
+;     li t0, proc_size
+804003a6: 6285         	lui	t0, 0x1
+804003a8: 02c1         	addi	t0, t0, 0x10
+;     add s0,s0,t0
+804003aa: 9416         	add	s0, s0, t0
+;     addi s1, s1, -1    # t2--
+804003ac: 14fd         	addi	s1, s1, -0x1
+;     j outer_loop
+804003ae: b74d         	j	0x80400350 <outer_loop>
+
+804003b0 <sched_switch>:
+;     addi sp, sp, -4
+804003b0: 1171         	addi	sp, sp, -0x4
+;     sw ra, 0(sp)
+804003b2: c006         	sw	ra, 0x0(sp)
+;     la t0, next_proc
+804003b4: 00000297     	auipc	t0, 0x0
+804003b8: 3e028293     	addi	t0, t0, 0x3e0
+;     lw t0, 0(t0)
+804003bc: 0002a283     	lw	t0, 0x0(t0)
+;     addi a0, t0, proc_sp
+804003c0: 00828513     	addi	a0, t0, 0x8
+;     la  a1, sched_sp
+804003c4: 00000597     	auipc	a1, 0x0
+804003c8: 3cc58593     	addi	a1, a1, 0x3cc
+;     jal ra, switch_context
+804003cc: 00a000ef     	jal	0x804003d6 <switch_context>
+;     lw ra, 0(sp)
+804003d0: 4082         	lw	ra, 0x0(sp)
+;     addi sp, sp, 4
+804003d2: 0111         	addi	sp, sp, 0x4
+;     ret
+804003d4: 8082         	ret
+
+804003d6 <switch_context>:
+;         addi sp, sp, -52
+804003d6: fcc10113     	addi	sp, sp, -0x34
+;         sw ra,  0  * 4(sp)
+804003da: c006         	sw	ra, 0x0(sp)
+;         sw s0,  1  * 4(sp)
+804003dc: c222         	sw	s0, 0x4(sp)
+;         sw s1,  2  * 4(sp)
+804003de: c426         	sw	s1, 0x8(sp)
+;         sw s2,  3  * 4(sp)
+804003e0: c64a         	sw	s2, 0xc(sp)
+;         sw s3,  4  * 4(sp)
+804003e2: c84e         	sw	s3, 0x10(sp)
+;         sw s4,  5  * 4(sp)
+804003e4: ca52         	sw	s4, 0x14(sp)
+;         sw s5,  6  * 4(sp)
+804003e6: cc56         	sw	s5, 0x18(sp)
+;         sw s6,  7  * 4(sp)
+804003e8: ce5a         	sw	s6, 0x1c(sp)
+;         sw s7,  8  * 4(sp)
+804003ea: d05e         	sw	s7, 0x20(sp)
+;         sw s8,  9  * 4(sp)
+804003ec: d262         	sw	s8, 0x24(sp)
+;         sw s9,  10 * 4(sp)
+804003ee: d466         	sw	s9, 0x28(sp)
+;         sw s10, 11 * 4(sp)
+804003f0: d66a         	sw	s10, 0x2c(sp)
+;         sw s11, 12 * 4(sp)
+804003f2: d86e         	sw	s11, 0x30(sp)
+;         sw sp, (a0)       
+804003f4: 00252023     	sw	sp, 0x0(a0)
+;         lw sp, (a1)       
+804003f8: 0005a103     	lw	sp, 0x0(a1)
+;         lw ra,  0  * 4(sp)  
+804003fc: 4082         	lw	ra, 0x0(sp)
+;         lw s0,  1  * 4(sp)
+804003fe: 4412         	lw	s0, 0x4(sp)
+;         lw s1,  2  * 4(sp)
+80400400: 44a2         	lw	s1, 0x8(sp)
+;         lw s2,  3  * 4(sp)
+80400402: 4932         	lw	s2, 0xc(sp)
+;         lw s3,  4  * 4(sp)
+80400404: 49c2         	lw	s3, 0x10(sp)
+;         lw s4,  5  * 4(sp)
+80400406: 4a52         	lw	s4, 0x14(sp)
+;         lw s5,  6  * 4(sp)
+80400408: 4ae2         	lw	s5, 0x18(sp)
+;         lw s6,  7  * 4(sp)
+8040040a: 4b72         	lw	s6, 0x1c(sp)
+;         lw s7,  8  * 4(sp)
+8040040c: 5b82         	lw	s7, 0x20(sp)
+;         lw s8,  9  * 4(sp)
+8040040e: 5c12         	lw	s8, 0x24(sp)
+;         lw s9,  10 * 4(sp)
+80400410: 5ca2         	lw	s9, 0x28(sp)
+;         lw s10, 11 * 4(sp)
+80400412: 5d32         	lw	s10, 0x2c(sp)
+;         lw s11, 12 * 4(sp)
+80400414: 5dc2         	lw	s11, 0x30(sp)
+;         addi sp, sp, 52
+80400416: 03410113     	addi	sp, sp, 0x34
+;         ret
+8040041a: 8082         	ret
+
+8040041c <memset0>:
+;     addi t0,a0,0
+8040041c: 00050293     	mv	t0, a0
+
+80400420 <loop>:
+;     beq a2,zero,exit
+80400420: 00060a63     	beqz	a2, 0x80400434 <exit>
+;     sb zero,0(t0)
+80400424: 00028023     	sb	zero, 0x0(t0)
+;     addi t0,t0,1
+80400428: 00128293     	addi	t0, t0, 0x1
+;     addi a2,a2,-1
+8040042c: fff60613     	addi	a2, a2, -0x1
+;     beq zero,zero,loop
+80400430: fe0008e3     	beqz	zero, 0x80400420 <loop>
+
+80400434 <exit>:
+;     jalr zero, 0(ra)
+80400434: 00008067     	ret
+
+80400438 <printIntU>:
+;     addi sp, sp, -4
+80400438: ffc10113     	addi	sp, sp, -0x4
+;     sw ra, 0(sp)// Saving return address as it is changed
+8040043c: 00112023     	sw	ra, 0x0(sp)
+;     addi t0, a0, 0
+80400440: 00050293     	mv	t0, a0
+;     addi t3, x0, 1
+80400444: 00100e13     	li	t3, 0x1
+;     addi t4, x0, 10 //always 10
+80400448: 00a00e93     	li	t4, 0xa
+;     beq x0, x0, power // bypass negative check
+8040044c: 02000463     	beqz	zero, 0x80400474 <power>
+
+80400450 <printInt>:
+;     addi sp, sp, -4
+80400450: ffc10113     	addi	sp, sp, -0x4
+;     sw ra, 0(sp)// Saving return address as it is changed
+80400454: 00112023     	sw	ra, 0x0(sp)
+;     addi t0, a0, 0
+80400458: 00050293     	mv	t0, a0
+;     addi t3, x0, 1
+8040045c: 00100e13     	li	t3, 0x1
+;     addi t4, x0, 10 //always 10
+80400460: 00a00e93     	li	t4, 0xa
+;     bge t0, x0, power // continue if positive
+80400464: 0002d863     	bgez	t0, 0x80400474 <power>
+;     sub t0, x0, t0
+80400468: 405002b3     	neg	t0, t0
+;     addi a0, x0, 45
+8040046c: 02d00513     	li	a0, 0x2d
+;     jal     ra, write_byte
+80400470: c15ff0ef     	jal	0x80400084 <write_byte>
+
+80400474 <power>:
+;         mul t3, t3, t4
+80400474: 03de0e33     	mul	t3, t3, t4
+;         bge t0, t3, power
+80400478: ffc2dee3     	bge	t0, t3, 0x80400474 <power>
+;     div t3, t3, t4
+8040047c: 03de4e33     	div	t3, t3, t4
+
+80400480 <loop>:
+;         bge x0, t3, exit
+80400480: 03c05063     	blez	t3, 0x804004a0 <exit>
+;         div t1, t0, t3 // Divide by 10 power
+80400484: 03c2c333     	div	t1, t0, t3
+;         rem t2, t0, t3 //remainder
+80400488: 03c2e3b3     	rem	t2, t0, t3
+;         div t3, t3, t4
+8040048c: 03de4e33     	div	t3, t3, t4
+;         addi t0, t2, 0
+80400490: 00038293     	mv	t0, t2
+;         addi a0, t1, 48 // Find ascii number
+80400494: 03030513     	addi	a0, t1, 0x30
+;         jal     ra, write_byte
+80400498: bedff0ef     	jal	0x80400084 <write_byte>
+;         jal x0, loop
+8040049c: fe5ff06f     	j	0x80400480 <loop>
+
+804004a0 <exit>:
+;     lw ra, 0(sp)
+804004a0: 00012083     	lw	ra, 0x0(sp)
+;     addi sp, sp, 4
+804004a4: 00410113     	addi	sp, sp, 0x4
+;     jalr x0, 0(ra)
+804004a8: 00008067     	ret
+
+804004ac <printHex>:
+;     addi sp, sp, -4
+804004ac: ffc10113     	addi	sp, sp, -0x4
+;     sw ra, 0(sp)
+804004b0: 00112023     	sw	ra, 0x0(sp)
+;     addi t1, a0, 0
+804004b4: 00050313     	mv	t1, a0
+;     addi t0, x0, 32
+804004b8: 02000293     	li	t0, 0x20
+;     addi a0, x0, 48
+804004bc: 03000513     	li	a0, 0x30
+;     jal ra, write_byte
+804004c0: bc5ff0ef     	jal	0x80400084 <write_byte>
+;     addi a0, a0, 120
+804004c4: 07850513     	addi	a0, a0, 0x78
+;     jal ra, write_byte
+804004c8: bbdff0ef     	jal	0x80400084 <write_byte>
+
+804004cc <loopHex>:
+;         beq t0, x0, exit
+804004cc: fc028ae3     	beqz	t0, 0x804004a0 <exit>
+;         addi t0, t0, -4
+804004d0: ffc28293     	addi	t0, t0, -0x4
+;         srl a0, t1, t0
+804004d4: 00535533     	srl	a0, t1, t0
+;         andi a0, a0, 0xf
+804004d8: 00f57513     	andi	a0, a0, 0xf
+;         addi a0, a0, -10
+804004dc: ff650513     	addi	a0, a0, -0xa
+;         blt a0, x0, number
+804004e0: 00054463     	bltz	a0, 0x804004e8 <number>
+;         addi a0, a0, 39
+804004e4: 02750513     	addi	a0, a0, 0x27
+
+804004e8 <number>:
+;         addi a0, a0, 58
+804004e8: 03a50513     	addi	a0, a0, 0x3a
+;         jal ra, write_byte
+804004ec: b99ff0ef     	jal	0x80400084 <write_byte>
+;         jal x0, loopHex
+804004f0: fddff06f     	j	0x804004cc <loopHex>
+
+804004f4 <main>:
+;     la a0, first_proc
+804004f4: 00000517     	auipc	a0, 0x0
+804004f8: 02050513     	addi	a0, a0, 0x20
+;     jal ra, proc_create
+804004fc: d13ff0ef     	jal	0x8040020e <proc_create>
+;     la a0, second_proc
+80400500: 00000517     	auipc	a0, 0x0
+80400504: 02850513     	addi	a0, a0, 0x28
+;     jal ra, proc_create
+80400508: d07ff0ef     	jal	0x8040020e <proc_create>
+;     jal ra, timer_init
+8040050c: e19ff0ef     	jal	0x80400324 <timer_init>
+
+80400510 <sched_loop>:
+;     jal  ra, scheduler 
+80400510: e2bff0ef     	jal	0x8040033a <scheduler>
+
+80400514 <first_proc>:
+;     li a0, mm_len
+80400514: 4541         	li	a0, 0x10
+;     la a1,mm
+80400516: 00000597     	auipc	a1, 0x0
+8040051a: 1e358593     	addi	a1, a1, 0x1e3
+;     li a2,0
+8040051e: 4601         	li	a2, 0x0
+;     jal ra,write_string
+80400520: ba1ff0ef     	jal	0x804000c0 <write_string>
+;     jal zero,first_proc #infinite loop
+80400524: ff1ff06f     	j	0x80400514 <first_proc>
+
+80400528 <second_proc>:
+;     li a0, mm2_len
+80400528: 4545         	li	a0, 0x11
+;     la a1,mm2
 8040052a: 00000597     	auipc	a1, 0x0
-8040052e: 08b58593     	addi	a1, a1, 0x8b
-;         addi a2, x0, 52
-80400532: 03400613     	li	a2, 0x34
+8040052e: 1df58593     	addi	a1, a1, 0x1df
+;     li a2,0
+80400532: 4601         	li	a2, 0x0
+;     jal ra,write_string
+80400534: b8dff0ef     	jal	0x804000c0 <write_string>
+;     jal zero,second_proc #infinite loop
+80400538: ff1ff06f     	j	0x80400528 <second_proc>
+
+8040053c <printMem>:
+;     addi sp, sp, -4
+8040053c: 1171         	addi	sp, sp, -0x4
+;     sw ra, 0(sp)
+8040053e: c006         	sw	ra, 0x0(sp)
+;     la a0, __free_ram
+80400540: 0005b517     	auipc	a0, 0x5b
+80400544: ac050513     	addi	a0, a0, -0x540
+;     jal ra, printHex
+80400548: f65ff0ef     	jal	0x804004ac <printHex>
+;     addi a0, x0, 32
+8040054c: 02000513     	li	a0, 0x20
+;     jal ra, write_byte
+80400550: b35ff0ef     	jal	0x80400084 <write_byte>
+;     la a0, freeRamPointer
+80400554: 00000517     	auipc	a0, 0x0
+80400558: 1ee50513     	addi	a0, a0, 0x1ee
+;     la t0, __free_ram
+8040055c: 0005b297     	auipc	t0, 0x5b
+80400560: aa428293     	addi	t0, t0, -0x55c
+;     sw t0, 0(a0)
+80400564: 00552023     	sw	t0, 0x0(a0)
+;     addi a0, t0, 0
+80400568: 8516         	mv	a0, t0
+;     jal ra, printHex
+8040056a: f43ff0ef     	jal	0x804004ac <printHex>
+;     addi a0, x0, 32
+8040056e: 02000513     	li	a0, 0x20
+;     jal ra, write_byte
+80400572: b13ff0ef     	jal	0x80400084 <write_byte>
+;     la a0, __free_ram_end
+80400576: 0405b517     	auipc	a0, 0x405b
+8040057a: a8a50513     	addi	a0, a0, -0x576
+;     jal ra, printHex
+8040057e: f2fff0ef     	jal	0x804004ac <printHex>
+;     lw ra, 0(sp)
+80400582: 4082         	lw	ra, 0x0(sp)
+;     addi sp, sp, 4
+80400584: 0111         	addi	sp, sp, 0x4
+;     jalr x0, (ra)
+80400586: 8082         	ret
+
+80400588 <alloc_pages>:
+;     addi sp , sp, -4
+80400588: 1171         	addi	sp, sp, -0x4
+;     sw ra, 0(sp)
+8040058a: c006         	sw	ra, 0x0(sp)
+;     addi t0, a0, 0 // number of pages
+8040058c: 82aa         	mv	t0, a0
+;     la t1, freeRamPointer // pointer to freeRamPointer
+8040058e: 00000317     	auipc	t1, 0x0
+80400592: 1b430313     	addi	t1, t1, 0x1b4
+;     lw t2, 0(t1) // freeRamPointer Value
+80400596: 00032383     	lw	t2, 0x0(t1)
+;     li t3, PAGE_SIZE
+8040059a: 6e05         	lui	t3, 0x1
+;     mul t0, t0, t3 // space to alloc in t0
+8040059c: 03c282b3     	mul	t0, t0, t3
+;     addi t4, t2, 0 // return value in t4
+804005a0: 8e9e         	mv	t4, t2
+;     add t2, t0, t2 // end address in t2
+804005a2: 9396         	add	t2, t2, t0
+;     la t5, __free_ram_end
+804005a4: 0405bf17     	auipc	t5, 0x405b
+804005a8: a5cf0f13     	addi	t5, t5, -0x5a4
+;     bge t2, t5, error// error if end is out of limit
+804005ac: 01e3d863     	bge	t2, t5, 0x804005bc <error>
+;     lw ra, 0(sp)
+804005b0: 4082         	lw	ra, 0x0(sp)
+;     addi sp, sp, 4
+804005b2: 0111         	addi	sp, sp, 0x4
+;     addi a0, t4, 0
+804005b4: 8576         	mv	a0, t4
+;     sw t2, 0(t1)
+804005b6: 00732023     	sw	t2, 0x0(t1)
+;     jalr x0, 0(ra)
+804005ba: 8082         	ret
+
+804005bc <error>:
+;         la a0, OUT_OF_MEMORY
+804005bc: 00000517     	auipc	a0, 0x0
+804005c0: 18e50513     	addi	a0, a0, 0x18e
+;         la a1, FILE_NAME
+804005c4: 00000597     	auipc	a1, 0x0
+804005c8: 19758593     	addi	a1, a1, 0x197
+;         addi a2, x0, 62
+804005cc: 03e00613     	li	a2, 0x3e
 ;         jal ra, panic
-80400536: b2fff0ef     	jal	0x80400064 <panic>
+804005d0: a65ff0ef     	jal	0x80400034 <panic>
 ;         lw ra, 0(sp)
-8040053a: 4082         	lw	ra, 0x0(sp)
+804005d4: 4082         	lw	ra, 0x0(sp)
 ;         addi sp, sp, 4
-8040053c: 0111         	addi	sp, sp, 0x4
+804005d6: 0111         	addi	sp, sp, 0x4
 ;         addi a0, t4, 0
-8040053e: 8576         	mv	a0, t4
+804005d8: 8576         	mv	a0, t4
 ;         jalr x0, 0(ra)
-80400540: 8082         	ret
+804005da: 8082         	ret
+
+804005dc <map_pages>:
+;     srli t0, a1, 12
+804005dc: 00c5d293     	srli	t0, a1, 0xc
+;     srli t1, a2, 12
+804005e0: 00c65313     	srli	t1, a2, 0xc
+;     slli t0, t0, 12
+804005e4: 02b2         	slli	t0, t0, 0xc
+;     slli t1, t1, 12
+804005e6: 0332         	slli	t1, t1, 0xc
+;     bne t0, a1, alignmentError
+804005e8: 08b29763     	bne	t0, a1, 0x80400676 <alignmentError>
+;     bne t1, a2, alignmentError
+804005ec: 08c31563     	bne	t1, a2, 0x80400676 <alignmentError>
+;     srli t2, a1, 22
+804005f0: 0165d393     	srli	t2, a1, 0x16
+;     andi t2, t2, 0x3ff
+804005f4: 3ff3f393     	andi	t2, t2, 0x3ff
+;     addi t3, t3, 4 //PTE width
+804005f8: 0e11         	addi	t3, t3, 0x4
+;     mul t2, t2, t3 //PTE offset
+804005fa: 03c383b3     	mul	t2, t2, t3
+;     add t2, t2, a0
+804005fe: 93aa         	add	t2, t2, a0
+;     lw t4, 0(t2)// PTE in table 1
+80400600: 0003ae83     	lw	t4, 0x0(t2)
+;     andi t5, t4, PAGE_V // to check if valid
+80400604: 001eff13     	andi	t5, t4, 0x1
+;     bne t5, x0, pageExists
+80400608: 040f1563     	bnez	t5, 0x80400652 <pageExists>
+;         addi sp, sp, -44
+8040060c: fd410113     	addi	sp, sp, -0x2c
+;         sw a0, 0(sp)
+80400610: c02a         	sw	a0, 0x0(sp)
+;         sw a1, 4(sp)
+80400612: c22e         	sw	a1, 0x4(sp)
+;         sw a2, 8(sp)
+80400614: c432         	sw	a2, 0x8(sp)
+;         sw a3, 12(sp)
+80400616: c636         	sw	a3, 0xc(sp)
+;         sw ra, 16(sp)
+80400618: c806         	sw	ra, 0x10(sp)
+;         sw t0, 20(sp)
+8040061a: ca16         	sw	t0, 0x14(sp)
+;         sw t1, 24(sp)
+8040061c: cc1a         	sw	t1, 0x18(sp)
+;         sw t2, 28(sp)
+8040061e: ce1e         	sw	t2, 0x1c(sp)
+;         sw t3, 32(sp)
+80400620: d072         	sw	t3, 0x20(sp)
+;         sw t4, 36(sp)
+80400622: d276         	sw	t4, 0x24(sp)
+;         sw t5, 40(sp)
+80400624: d47a         	sw	t5, 0x28(sp)
+;         jal ra, alloc_pages
+80400626: f63ff0ef     	jal	0x80400588 <alloc_pages>
+;         addi t6, a0, 0//t6 has the paddress of the new table
+8040062a: 8faa         	mv	t6, a0
+;         lw a0, 0(sp)
+8040062c: 4502         	lw	a0, 0x0(sp)
+;         lw a1, 4(sp)
+8040062e: 4592         	lw	a1, 0x4(sp)
+;         lw a2, 8(sp)
+80400630: 4622         	lw	a2, 0x8(sp)
+;         lw a3, 12(sp)
+80400632: 46b2         	lw	a3, 0xc(sp)
+;         lw ra, 16(sp)
+80400634: 40c2         	lw	ra, 0x10(sp)
+;         lw t0, 20(sp)
+80400636: 42d2         	lw	t0, 0x14(sp)
+;         lw t1, 24(sp)
+80400638: 4362         	lw	t1, 0x18(sp)
+;         lw t2, 28(sp)
+8040063a: 43f2         	lw	t2, 0x1c(sp)
+;         lw t3, 32(sp)
+8040063c: 5e02         	lw	t3, 0x20(sp)
+;         lw t4, 36(sp)
+8040063e: 5e92         	lw	t4, 0x24(sp)
+;         lw t5, 40(sp)
+80400640: 5f22         	lw	t5, 0x28(sp)
+;         addi sp, sp, 44
+80400642: 02c10113     	addi	sp, sp, 0x2c
+;         srli t6, t6, 12//physical address to
+80400646: 00cfdf93     	srli	t6, t6, 0xc
+;         slli t6, t6, 10//PTE
+8040064a: 0faa         	slli	t6, t6, 0xa
+;         sw t6, 0(t2)
+8040064c: 01f3a023     	sw	t6, 0x0(t2)
+;         addi t4, t6, 0
+80400650: 8efe         	mv	t4, t6
+
+80400652 <pageExists>:
+;         addi t6, a0, 0//vpn0 second level 
+80400652: 8faa         	mv	t6, a0
+;         srli t6, t6, 12//pagetable in t6
+80400654: 00cfdf93     	srli	t6, t6, 0xc
+;         andi t6, t6, 0x3ff
+80400658: 3fffff93     	andi	t6, t6, 0x3ff
+;         srli t4, t4, 10
+8040065c: 00aede93     	srli	t4, t4, 0xa
+;         slli t4, t4, 12// PTE to physical address
+80400660: 0eb2         	slli	t4, t4, 0xc
+;         srli a2, a2, 10
+80400662: 8229         	srli	a2, a2, 0xa
+;         slli a2, a2, 12
+80400664: 0632         	slli	a2, a2, 0xc
+;         ori a2, a2, PAGE_V// physical address to PTE
+80400666: 00166613     	ori	a2, a2, 0x1
+;         or a2, a2, a3
+8040066a: 8e55         	or	a2, a2, a3
+;         mul t6, t6, t3
+8040066c: 03cf8fb3     	mul	t6, t6, t3
+;         lw a2, 0(t6)
+80400670: 000fa603     	lw	a2, 0x0(t6)
+;         jalr x0, 0(ra)
+80400674: 8082         	ret
+
+80400676 <alignmentError>:
+;         addi a0, a1, 0
+80400676: 852e         	mv	a0, a1
+;         jal ra, printHex
+80400678: e35ff0ef     	jal	0x804004ac <printHex>
+;         addi a0, a2, 0
+8040067c: 8532         	mv	a0, a2
+;         jal ra, printHex
+8040067e: e2fff0ef     	jal	0x804004ac <printHex>
+;         la a0, UNALIGNED_ADDR
+80400682: 00000517     	auipc	a0, 0x0
+80400686: 0ea50513     	addi	a0, a0, 0xea
+;         la a1, FILE_NAME
+8040068a: 00000597     	auipc	a1, 0x0
+8040068e: 0d158593     	addi	a1, a1, 0xd1
+;         addi a2, x0, 80
+80400692: 05000613     	li	a2, 0x50
+;         jal ra, panic
+80400696: 99fff0ef     	jal	0x80400034 <panic>
+;         lw ra, 0(sp)
+8040069a: 4082         	lw	ra, 0x0(sp)
+;         addi sp, sp, 4
+8040069c: 0111         	addi	sp, sp, 0x4
+;         addi a0, t4, 0
+8040069e: 8576         	mv	a0, t4
+;         jalr x0, 0(ra)
+804006a0: 8082         	ret

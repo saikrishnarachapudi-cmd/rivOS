@@ -1,6 +1,11 @@
 .section .text
 .global trap_dispatch
-
+.data
+.word 3
+ILLEGAL_INST: .ascii ":An Illegal ins"
+.word 3
+FILE_NAME: .ascii "trap_dispatch.s"
+.text
 #scause: Why did the trap happen?
 #sepc: At which instruction did it happen?
 #stval: What additional trap-specific information is available?
@@ -41,11 +46,19 @@ timer:
     jal ra, done
     
 illegal_inst:
-    lw t0, 124(s0)
-    addi t0, t0, 4
-    sw t0, 124(s0)
-    j done
-    
+    # lw t0, 124(s0)
+    # addi t0, t0, 4
+    # sw t0, 124(s0)
+    # j done
+    # la a0, ILLEGAL_INST
+    # la a1, FILE_NAME
+    # addi a2, x0, 55
+    # jal ra, panic
+    addi a0, x0, 67
+    jal ra, write_byte
+    loop: 
+        wfi
+        jal x0, loop
 env_u:
     lw t0, 124(s0)
     addi t0, t0, 4

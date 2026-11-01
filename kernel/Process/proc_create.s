@@ -27,10 +27,32 @@ check:
     addi t2, t2, -1
     jal x0, check
 
-create:
-    sw t3, proc_pid(t0)
-    li t1, proc_ready
-    sw t1, proc_state(t0)     
+    create:
+        sw t3, proc_pid(t0)
+        li t1, proc_ready
+        sw t1, proc_state(t0)     
+        //---------------------------
+        addi sp, sp, -32
+        sw t0, 0(sp)
+        sw t1, 4(sp)
+        sw t2, 8(sp)
+        sw t3, 12(sp)
+        sw t4, 16(sp)
+        sw t5, 20(sp)
+        sw a0, 24(sp)
+        sw ra, 28(sp)
+        jal ra, map_kernel_pages
+        lw t0, 0(sp)
+        sw a0, proc_satp(t0)
+        lw t1, 4(sp)
+        lw t2, 8(sp)
+        lw t3, 12(sp)
+        lw t4, 16(sp)
+        lw t5, 20(sp)
+        lw a0, 24(sp)
+        lw ra, 28(sp)
+        addi sp, sp, 28
+    //---------------------------
 
 #stack top: proc_stacks + (pid + 1) * stack_size
     la t1, proc_stacks
@@ -77,3 +99,50 @@ proc_start:
     csrsi sstatus, 2
     jalr zero, (s0)
 
+//maps all kernel pages for a process
+// returns satp value in a0
+map_kernel_pages:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    addi a0, x0, 1
+    jal ra, alloc_pages
+    addi t2, a0, 0 // process adress table in t2
+    la t0, __kernel_base
+    la t1, __free_ram_end
+    addi t3, x0, 1
+    slli t3, t3, 12//Page size in t3
+
+    start_mapping:
+        bge t0, t1, done_map
+        addi a0, t2, 0
+        addi a1, t0, 0
+        addi a2, t0, 0
+        addi a3, x0, 0
+        ori a3, a3, PAGE_R
+        ori a3, a3, PAGE_X
+        ori a3, a3, PAGE_W
+        addi sp, sp, -16
+        sw t0, 0(sp)
+        sw t1, 4(sp)
+        sw t2, 8(sp)
+        sw t3, 12(sp)
+
+        jal ra, map_pages
+        lw t0, 0(sp)
+        lw t1, 4(sp)
+        lw t2, 8(sp)
+        lw t3, 12(sp)
+        addi sp, sp, 16
+        add t0, t0, t3
+        jal x0, start_mapping
+    
+    done_map:
+    // calculate satp value for this process
+    addi a0, t2, 0
+    addi t1, x0, 1
+    slli t1, t1, 31
+    srli a0, a0, 12
+    or a0, a0, t1
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    jalr x0, 0(ra)
