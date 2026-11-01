@@ -36,9 +36,6 @@ bss_zero_end:
 
     jal ra, main ##main function
 
-    la t0, enter_exception
-    csrw stvec, t0
-    
-    jal x0, L1
+
 
 

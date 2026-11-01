@@ -13,5 +13,5 @@ main:
     
 sched_loop:
     jal  ra, scheduler 
-    j  sched_loop
+
     
