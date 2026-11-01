@@ -5,6 +5,8 @@
 ILLEGAL_INST: .ascii ":An Illegal ins"
 .word 3
 FILE_NAME: .ascii "trap_dispatch.s"
+.word 29
+m7: .ascii "This exception is not considered"
 .text
 #scause: Why did the trap happen?
 #sepc: At which instruction did it happen?
@@ -42,6 +44,9 @@ trap_dispatch:
 
 else:
     #other exception
+    addi a0, x0, -1
+    la a1,m7
+    jal ra, write_string
     jal zero, done    
 
 timer:
