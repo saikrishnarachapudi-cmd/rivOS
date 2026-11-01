@@ -1,912 +1,847 @@
 
 kernel.elf:	file format elf32-littleriscv
-
-Disassembly of section .text:
-
-80400000 <boot>:
-;     la sp, __stack_top
-80400000: 00052117     	auipc	sp, 0x52
-80400004: 5c010113     	addi	sp, sp, 0x5c0
-
-80400008 <bss_zeroing>:
-;     la a0, __bss
-80400008: 00000517     	auipc	a0, 0x0
-8040000c: 52850513     	addi	a0, a0, 0x528
-;     li a1, 0 
-80400010: 4581         	li	a1, 0x0
-;     la a2, __bss_end
-80400012: 00012617     	auipc	a2, 0x12
-80400016: 5ae60613     	addi	a2, a2, 0x5ae
-;     sub a2, a2, a0
-8040001a: 8e09         	sub	a2, a2, a0
-;     jal ra, memset0
-8040001c: 3cc000ef     	jal	0x804003e8 <memset0>
-
-80400020 <bss_zero_end>:
-;     la t0, enter_exception
-80400020: 00000297     	auipc	t0, 0x0
-80400024: 04428293     	addi	t0, t0, 0x44
-;     csrw stvec, t0
-80400028: 10529073     	csrw	stvec, t0
-;     jal ra, main ##main function
-8040002c: 44c000ef     	jal	0x80400478 <main>
-;     jal x0, L1
-80400030: a03d         	j	0x8040005e <L1>
-
-80400032 <process_creation>:
-;     jal ra, proc_create
-80400032: 274000ef     	jal	0x804002a6 <proc_create>
-
-80400036 <input>:
-;     li   a0, 16
-80400036: 4541         	li	a0, 0x10
-;     la   a1, sec_code
-80400038: 00000597     	auipc	a1, 0x0
-8040003c: 4f858593     	addi	a1, a1, 0x4f8
-;     jal  ra, read_string
-80400040: 164000ef     	jal	0x804001a4 <read_string>
-;     bnez a0, input       # Retry if error
-80400044: f96d         	bnez	a0, 0x80400036 <input>
-;     beqz a1, input       # Retry if no bytes read
-80400046: d9e5         	beqz	a1, 0x80400036 <input>
-;     mv   t0, a1          # Save number of bytes read
-80400048: 82ae         	mv	t0, a1
-;     mv   a0, t0          # Length for write_string
-8040004a: 8516         	mv	a0, t0
-;     la   a1, sec_code    # Address of input buffer
-8040004c: 00000597     	auipc	a1, 0x0
-80400050: 4e458593     	addi	a1, a1, 0x4e4
-;     jal  ra, write_string
-80400054: 13e000ef     	jal	0x80400192 <write_string>
-;     addi a0, zero, 10
-80400058: 4529         	li	a0, 0xa
-;     jal  ra, write_byte
-8040005a: 0fc000ef     	jal	0x80400156 <write_byte>
-
-8040005e <L1>:
-;     wfi
-8040005e: 10500073     	wfi
-;     jal  x0, L1
-80400062: bff5         	j	0x8040005e <L1>
-
-80400064 <enter_exception>:
-;     addi sp, sp, -4*31
-80400064: f8410113     	addi	sp, sp, -0x7c
-;     sw x1, 4*0(sp)
-80400068: c006         	sw	ra, 0x0(sp)
-;     sw x3, 4*2(sp)
-8040006a: c40e         	sw	gp, 0x8(sp)
-;     sw x4, 4*3(sp)
-8040006c: c612         	sw	tp, 0xc(sp)
-;     sw x5, 4*4(sp)
-8040006e: c816         	sw	t0, 0x10(sp)
-;     sw x6, 4*5(sp)
-80400070: ca1a         	sw	t1, 0x14(sp)
-;     sw x7, 4*6(sp)
-80400072: cc1e         	sw	t2, 0x18(sp)
-;     sw x8, 4*7(sp)
-80400074: ce22         	sw	s0, 0x1c(sp)
-;     sw x9, 4*8(sp)
-80400076: d026         	sw	s1, 0x20(sp)
-;     sw x10, 4*9(sp)
-80400078: d22a         	sw	a0, 0x24(sp)
-;     sw x11, 4*10(sp)
-8040007a: d42e         	sw	a1, 0x28(sp)
-;     sw x12, 4*11(sp)
-8040007c: d632         	sw	a2, 0x2c(sp)
-;     sw x13, 4*12(sp)
-8040007e: d836         	sw	a3, 0x30(sp)
-;     sw x14, 4*13(sp)
-80400080: da3a         	sw	a4, 0x34(sp)
-;     sw x15, 4*14(sp)
-80400082: dc3e         	sw	a5, 0x38(sp)
-;     sw x16, 4*15(sp)
-80400084: de42         	sw	a6, 0x3c(sp)
-;     sw x17, 4*16(sp)
-80400086: c0c6         	sw	a7, 0x40(sp)
-;     sw x18, 4*17(sp)
-80400088: c2ca         	sw	s2, 0x44(sp)
-;     sw x19, 4*18(sp)
-8040008a: c4ce         	sw	s3, 0x48(sp)
-;     sw x20, 4*19(sp)
-8040008c: c6d2         	sw	s4, 0x4c(sp)
-;     sw x21, 4*20(sp)
-8040008e: c8d6         	sw	s5, 0x50(sp)
-;     sw x22, 4*21(sp)
-80400090: cada         	sw	s6, 0x54(sp)
-;     sw x23, 4*22(sp)
-80400092: ccde         	sw	s7, 0x58(sp)
-;     sw x24, 4*23(sp)
-80400094: cee2         	sw	s8, 0x5c(sp)
-;     sw x25, 4*24(sp)
-80400096: d0e6         	sw	s9, 0x60(sp)
-;     sw x26, 4*25(sp)
-80400098: d2ea         	sw	s10, 0x64(sp)
-;     sw x27, 4*26(sp)
-8040009a: d4ee         	sw	s11, 0x68(sp)
-;     sw x28, 4*27(sp)
-8040009c: d6f2         	sw	t3, 0x6c(sp)
-;     sw x29, 4*28(sp)
-8040009e: d8f6         	sw	t4, 0x70(sp)
-;     sw x30, 4*29(sp)
-804000a0: dafa         	sw	t5, 0x74(sp)
-;     sw x31, 4*30(sp)
-804000a2: dcfe         	sw	t6, 0x78(sp)
-;     addi a0, sp, 4*31 # original sp in a0
-804000a4: 18e8         	addi	a0, sp, 0x7c
-;     sw a0, 4*1(sp)
-804000a6: c22a         	sw	a0, 0x4(sp)
-;     jal ra, handle_trap
-804000a8: 2091         	jal	0x804000ec <handle_trap>
-;     lw x1, 4*0(sp)
-804000aa: 4082         	lw	ra, 0x0(sp)
-; 	lw x3, 4*2(sp)
-804000ac: 41a2         	lw	gp, 0x8(sp)
-; 	lw x4, 4*3(sp)
-804000ae: 4232         	lw	tp, 0xc(sp)
-; 	lw x5, 4*4(sp)
-804000b0: 42c2         	lw	t0, 0x10(sp)
-; 	lw x6, 4*5(sp)
-804000b2: 4352         	lw	t1, 0x14(sp)
-; 	lw x7, 4*6(sp)
-804000b4: 43e2         	lw	t2, 0x18(sp)
-; 	lw x8, 4*7(sp)
-804000b6: 4472         	lw	s0, 0x1c(sp)
-; 	lw x9, 4*8(sp)
-804000b8: 5482         	lw	s1, 0x20(sp)
-; 	lw x10, 4*9(sp)
-804000ba: 5512         	lw	a0, 0x24(sp)
-; 	lw x11, 4*10(sp)
-804000bc: 55a2         	lw	a1, 0x28(sp)
-; 	lw x12, 4*11(sp)
-804000be: 5632         	lw	a2, 0x2c(sp)
-; 	lw x13, 4*12(sp)
-804000c0: 56c2         	lw	a3, 0x30(sp)
-; 	lw x14, 4*13(sp)
-804000c2: 5752         	lw	a4, 0x34(sp)
-; 	lw x15, 4*14(sp)
-804000c4: 57e2         	lw	a5, 0x38(sp)
-; 	lw x16, 4*15(sp)
-804000c6: 5872         	lw	a6, 0x3c(sp)
-; 	lw x17, 4*16(sp)
-804000c8: 4886         	lw	a7, 0x40(sp)
-; 	lw x18, 4*17(sp)
-804000ca: 4916         	lw	s2, 0x44(sp)
-; 	lw x19, 4*18(sp)
-804000cc: 49a6         	lw	s3, 0x48(sp)
-; 	lw x20, 4*19(sp)
-804000ce: 4a36         	lw	s4, 0x4c(sp)
-; 	lw x21, 4*20(sp)
-804000d0: 4ac6         	lw	s5, 0x50(sp)
-; 	lw x22, 4*21(sp)
-804000d2: 4b56         	lw	s6, 0x54(sp)
-; 	lw x23, 4*22(sp)
-804000d4: 4be6         	lw	s7, 0x58(sp)
-; 	lw x24, 4*23(sp)
-804000d6: 4c76         	lw	s8, 0x5c(sp)
-; 	lw x25, 4*24(sp)
-804000d8: 5c86         	lw	s9, 0x60(sp)
-; 	lw x26, 4*25(sp)
-804000da: 5d16         	lw	s10, 0x64(sp)
-; 	lw x27, 4*26(sp)
-804000dc: 5da6         	lw	s11, 0x68(sp)
-; 	lw x28, 4*27(sp)
-804000de: 5e36         	lw	t3, 0x6c(sp)
-; 	lw x29, 4*28(sp)
-804000e0: 5ec6         	lw	t4, 0x70(sp)
-; 	lw x30, 4*29(sp)
-804000e2: 5f56         	lw	t5, 0x74(sp)
-; 	lw x31, 4*30(sp)
-804000e4: 5fe6         	lw	t6, 0x78(sp)
-; 	lw x2, 4*1(sp)
-804000e6: 4112         	lw	sp, 0x4(sp)
-;     sret
-804000e8: 10200073     	sret
-
-804000ec <handle_trap>:
-;     addi sp, sp, -4
-804000ec: 1171         	addi	sp, sp, -0x4
-;     sw ra, 0(sp)
-804000ee: c006         	sw	ra, 0x0(sp)
-;     addi a0, x0, 69
-804000f0: 04500513     	li	a0, 0x45
-;     jal ra, write_byte
-804000f4: 062000ef     	jal	0x80400156 <write_byte>
-;     la a0, EXCEPTION
-804000f8: 00000517     	auipc	a0, 0x0
-804000fc: 3fc50513     	addi	a0, a0, 0x3fc
-;     la a1, FILE_NAME
-80400100: 00000597     	auipc	a1, 0x0
-80400104: 40558593     	addi	a1, a1, 0x405
-;     addi a2, x0, 100
-80400108: 06400613     	li	a2, 0x64
-;     jal ra, panic
-8040010c: 00a000ef     	jal	0x80400116 <panic>
-;     lw ra, 0(sp)
-80400110: 4082         	lw	ra, 0x0(sp)
-;     addi sp, sp, 4
-80400112: 0111         	addi	sp, sp, 0x4
-;     jalr x0, 0(ra)
-80400114: 8082         	ret
-
-80400116 <panic>:
-;     addi sp,sp,-16
-80400116: 1141         	addi	sp, sp, -0x10
-;     sw a0,0(sp)
-80400118: c02a         	sw	a0, 0x0(sp)
-;     sw a1,4(sp)
-8040011a: c22e         	sw	a1, 0x4(sp)
-;     sw a2,8(sp)
-8040011c: c432         	sw	a2, 0x8(sp)
-;     sw ra,12(sp)
-8040011e: c606         	sw	ra, 0xc(sp)
-;     la a0,m1
-80400120: 00000517     	auipc	a0, 0x0
-80400124: 37c50513     	addi	a0, a0, 0x37c
-;     jal ra, write_string
-80400128: 06a000ef     	jal	0x80400192 <write_string>
-;     lw a0,0(sp)
-8040012c: 4502         	lw	a0, 0x0(sp)
-;     jal ra, write_string
-8040012e: 064000ef     	jal	0x80400192 <write_string>
-;     la a0,m2
-80400132: 00000517     	auipc	a0, 0x0
-80400136: 37950513     	addi	a0, a0, 0x379
-;     jal ra, write_string
-8040013a: 058000ef     	jal	0x80400192 <write_string>
-;     lw a0,4(sp)
-8040013e: 4512         	lw	a0, 0x4(sp)
-;     jal ra, write_string
-80400140: 052000ef     	jal	0x80400192 <write_string>
-;     la a0,m3
-80400144: 00000517     	auipc	a0, 0x0
-80400148: 37250513     	addi	a0, a0, 0x372
-;     jal ra, write_string
-8040014c: 046000ef     	jal	0x80400192 <write_string>
-;     lw ra, 12(sp)
-80400150: 40b2         	lw	ra, 0xc(sp)
-;     addi sp,sp,16
-80400152: 0141         	addi	sp, sp, 0x10
-;     jalr x0,0(ra)
-80400154: 8082         	ret
-
-80400156 <write_byte>:
-;     li      a7, 0x4442434E
-80400156: 444248b7     	lui	a7, 0x44424
-8040015a: 34e88893     	addi	a7, a7, 0x34e
-;     li      a6,     2
-8040015e: 4809         	li	a6, 0x2
-;     ecall
-80400160: 00000073     	ecall
-;     jalr    zero, 0(ra)
-80400164: 8082         	ret
-
-80400166 <read_byte>:
-;     addi    a7, zero, 2
-80400166: 4889         	li	a7, 0x2
-;     addi    t1, zero, -1
-80400168: 537d         	li	t1, -0x1
-
-8040016a <repeat_read>:
-;         ecall
-8040016a: 00000073     	ecall
-;         beq     a0, t1, repeat_read
-8040016e: fe650ee3     	beq	a0, t1, 0x8040016a <repeat_read>
-;     addi    a7, zero, 1
-80400172: 4885         	li	a7, 0x1
-;     ecall
-80400174: 00000073     	ecall
-;     jalr    zero, 0(ra)
-80400178: 8082         	ret
-
-8040017a <remove_byte>:
-;     addi    a7, zero, 1
-8040017a: 4885         	li	a7, 0x1
-;     addi    a0, zero, 8 // backspace - go one letter left
-8040017c: 4521         	li	a0, 0x8
-;     ecall
-8040017e: 00000073     	ecall
-;     addi    a0, zero, 32 // space - to clear it
-80400182: 02000513     	li	a0, 0x20
-;     ecall
-80400186: 00000073     	ecall
-;     addi    a0, zero, 8 // go back again
-8040018a: 4521         	li	a0, 0x8
-;     ecall
-8040018c: 00000073     	ecall
-;     jalr    zero, 0(ra)
-80400190: 8082         	ret
-
-80400192 <write_string>:
-;     li  a7, 0x4442434E
-80400192: 444248b7     	lui	a7, 0x44424
-80400196: 34e88893     	addi	a7, a7, 0x34e
-;     li  a6,     0
-8040019a: 4801         	li	a6, 0x0
-;     li a2,  0
-8040019c: 4601         	li	a2, 0x0
-;     ecall
-8040019e: 00000073     	ecall
-;     jalr    zero, 0(ra)
-804001a2: 8082         	ret
-
-804001a4 <read_string>:
-;     li  a7, 0x4442434E
-804001a4: 444248b7     	lui	a7, 0x44424
-804001a8: 34e88893     	addi	a7, a7, 0x34e
-;     li  a6, 1
-804001ac: 4805         	li	a6, 0x1
-;     li a2,0
-804001ae: 4601         	li	a2, 0x0
-;     ecall
-804001b0: 00000073     	ecall
-;     jalr zero, 0(ra)
-804001b4: 8082         	ret
-
-804001b6 <trap_dispatch>:
-;     csrr t0,sepc
-804001b6: 141022f3     	csrr	t0, sepc
-;     csrr t1,sstatus
-804001ba: 10002373     	csrr	t1, sstatus
-;     csrr t2,scause
-804001be: 142023f3     	csrr	t2, scause
-;     csrr t3,stval
-804001c2: 14302e73     	csrr	t3, stval
-;     csrr t4, sie
-804001c6: 10402ef3     	csrr	t4, sie
-;     srli t5,t2,31
-804001ca: 01f3df13     	srli	t5, t2, 0x1f
-;     li a0,1
-804001ce: 4505         	li	a0, 0x1
-;     slli a0,a0,31
-804001d0: 057e         	slli	a0, a0, 0x1f
-;     addi a0,a0,-1
-804001d2: 157d         	addi	a0, a0, -0x1
-;     and t6, t2, a0
-804001d4: 00a3ffb3     	and	t6, t2, a0
-;     li a1,8
-804001d8: 45a1         	li	a1, 0x8
-;     beq t2,a1,env_u
-804001da: 00b38c63     	beq	t2, a1, 0x804001f2 <env_u>
-;     li a0,1
-804001de: 4505         	li	a0, 0x1
-;     slli a0,a0,30
-804001e0: 057a         	slli	a0, a0, 0x1e
-;     addi a0,a0,5
-804001e2: 0515         	addi	a0, a0, 0x5
-;     beq a0,t2,timer
-804001e4: 00750563     	beq	a0, t2, 0x804001ee <timer>
-;     li a0,2
-804001e8: 4509         	li	a0, 0x2
-;     beq t2,a0,illegal_inst
-804001ea: 00a38363     	beq	t2, a0, 0x804001f0 <illegal_inst>
-
-804001ee <timer>:
-;     jalr zero,0(ra)
-804001ee: 8082         	ret
-
-804001f0 <illegal_inst>:
-;     jalr zero,0(ra)
-804001f0: 8082         	ret
-
-804001f2 <env_u>:
-;     jalr zero,0(ra)
-804001f2: 8082         	ret
-
-804001f4 <trap_entry>:
-804001f4: 7135         	addi	sp, sp, -0xa0
-;     sw ra,   0(sp)
-804001f6: c006         	sw	ra, 0x0(sp)
-;     sw t0,  16(sp)
-804001f8: c816         	sw	t0, 0x10(sp)
-;     addi t0, sp, 160
-804001fa: 0a010293     	addi	t0, sp, 0xa0
-;     sw t0,   4(sp)
-804001fe: c216         	sw	t0, 0x4(sp)
-;     sw gp,   8(sp)
-80400200: c40e         	sw	gp, 0x8(sp)
-;     sw tp,  12(sp)
-80400202: c612         	sw	tp, 0xc(sp)
-;     sw t1,  20(sp)
-80400204: ca1a         	sw	t1, 0x14(sp)
-;     sw t2,  24(sp)
-80400206: cc1e         	sw	t2, 0x18(sp)
-;     sw s0,  28(sp)
-80400208: ce22         	sw	s0, 0x1c(sp)
-;     sw s1,  32(sp)
-8040020a: d026         	sw	s1, 0x20(sp)
-;     sw a0,  36(sp)
-8040020c: d22a         	sw	a0, 0x24(sp)
-;     sw a1,  40(sp)
-8040020e: d42e         	sw	a1, 0x28(sp)
-;     sw a2,  44(sp)
-80400210: d632         	sw	a2, 0x2c(sp)
-;     sw a3,  48(sp)
-80400212: d836         	sw	a3, 0x30(sp)
-;     sw a4,  52(sp)
-80400214: da3a         	sw	a4, 0x34(sp)
-;     sw a5,  56(sp)
-80400216: dc3e         	sw	a5, 0x38(sp)
-;     sw a6,  60(sp)
-80400218: de42         	sw	a6, 0x3c(sp)
-;     sw a7,  64(sp)
-8040021a: c0c6         	sw	a7, 0x40(sp)
-;     sw s2,  68(sp)
-8040021c: c2ca         	sw	s2, 0x44(sp)
-;     sw s3,  72(sp)
-8040021e: c4ce         	sw	s3, 0x48(sp)
-;     sw s4,  76(sp)
-80400220: c6d2         	sw	s4, 0x4c(sp)
-;     sw s5,  80(sp)
-80400222: c8d6         	sw	s5, 0x50(sp)
-;     sw s6,  84(sp)
-80400224: cada         	sw	s6, 0x54(sp)
-;     sw s7,  88(sp)
-80400226: ccde         	sw	s7, 0x58(sp)
-;     sw s8,  92(sp)
-80400228: cee2         	sw	s8, 0x5c(sp)
-;     sw s9,  96(sp)
-8040022a: d0e6         	sw	s9, 0x60(sp)
-;     sw s10, 100(sp)
-8040022c: d2ea         	sw	s10, 0x64(sp)
-;     sw s11, 104(sp)
-8040022e: d4ee         	sw	s11, 0x68(sp)
-;     sw t3, 108(sp)
-80400230: d6f2         	sw	t3, 0x6c(sp)
-;     sw t4, 112(sp)
-80400232: d8f6         	sw	t4, 0x70(sp)
-;     sw t5, 116(sp)
-80400234: dafa         	sw	t5, 0x74(sp)
-;     sw t6, 120(sp)
-80400236: dcfe         	sw	t6, 0x78(sp)
-;     csrr t0, sepc
-80400238: 141022f3     	csrr	t0, sepc
-;     sw t0, 124(sp)
-8040023c: de96         	sw	t0, 0x7c(sp)
-;     csrr t0, sstatus
-8040023e: 100022f3     	csrr	t0, sstatus
-;     sw t0, 128(sp)
-80400242: c116         	sw	t0, 0x80(sp)
-;     csrr t0, scause
-80400244: 142022f3     	csrr	t0, scause
-;     sw t0, 132(sp)
-80400248: c316         	sw	t0, 0x84(sp)
-;     csrr t0, stval
-8040024a: 143022f3     	csrr	t0, stval
-;     sw t0, 136(sp)
-8040024e: c516         	sw	t0, 0x88(sp)
-;     mv a0, sp
-80400250: 850a         	mv	a0, sp
-;     jal ra, trap_dispatch
-80400252: f65ff0ef     	jal	0x804001b6 <trap_dispatch>
-;     mv sp, a0
-80400256: 812a         	mv	sp, a0
-;     lw t0, 124(sp)
-80400258: 52f6         	lw	t0, 0x7c(sp)
-;     csrw sepc, t0
-8040025a: 14129073     	csrw	sepc, t0
-;     lw t0, 128(sp)
-8040025e: 428a         	lw	t0, 0x80(sp)
-;     csrw sstatus, t0
-80400260: 10029073     	csrw	sstatus, t0
-;     lw ra,   0(sp)
-80400264: 4082         	lw	ra, 0x0(sp)
-;     lw gp,   8(sp)
-80400266: 41a2         	lw	gp, 0x8(sp)
-;     lw tp,  12(sp)
-80400268: 4232         	lw	tp, 0xc(sp)
-;     lw t1,  20(sp)
-8040026a: 4352         	lw	t1, 0x14(sp)
-;     lw t2,  24(sp)
-8040026c: 43e2         	lw	t2, 0x18(sp)
-;     lw s0,  28(sp)
-8040026e: 4472         	lw	s0, 0x1c(sp)
-;     lw s1,  32(sp)
-80400270: 5482         	lw	s1, 0x20(sp)
-;     lw a0,  36(sp)
-80400272: 5512         	lw	a0, 0x24(sp)
-;     lw a1,  40(sp)
-80400274: 55a2         	lw	a1, 0x28(sp)
-;     lw a2,  44(sp)
-80400276: 5632         	lw	a2, 0x2c(sp)
-;     lw a3,  48(sp)
-80400278: 56c2         	lw	a3, 0x30(sp)
-;     lw a4,  52(sp)
-8040027a: 5752         	lw	a4, 0x34(sp)
-;     lw a5,  56(sp)
-8040027c: 57e2         	lw	a5, 0x38(sp)
-;     lw a6,  60(sp)
-8040027e: 5872         	lw	a6, 0x3c(sp)
-;     lw a7,  64(sp)
-80400280: 4886         	lw	a7, 0x40(sp)
-;     lw s2,  68(sp)
-80400282: 4916         	lw	s2, 0x44(sp)
-;     lw s3,  72(sp)
-80400284: 49a6         	lw	s3, 0x48(sp)
-;     lw s4,  76(sp)
-80400286: 4a36         	lw	s4, 0x4c(sp)
-;     lw s5,  80(sp)
-80400288: 4ac6         	lw	s5, 0x50(sp)
-;     lw s6,  84(sp)
-8040028a: 4b56         	lw	s6, 0x54(sp)
-;     lw s7,  88(sp)
-8040028c: 4be6         	lw	s7, 0x58(sp)
-;     lw s8,  92(sp)
-8040028e: 4c76         	lw	s8, 0x5c(sp)
-;     lw s9,  96(sp)
-80400290: 5c86         	lw	s9, 0x60(sp)
-;     lw s10, 100(sp)
-80400292: 5d16         	lw	s10, 0x64(sp)
-;     lw s11, 104(sp)
-80400294: 5da6         	lw	s11, 0x68(sp)
-;     lw t3, 108(sp)
-80400296: 5e36         	lw	t3, 0x6c(sp)
-;     lw t4, 112(sp)
-80400298: 5ec6         	lw	t4, 0x70(sp)
-;     lw t5, 116(sp)
-8040029a: 5f56         	lw	t5, 0x74(sp)
-;     lw t6, 120(sp)
-8040029c: 5fe6         	lw	t6, 0x78(sp)
-;     lw t0,  16(sp)
-8040029e: 42c2         	lw	t0, 0x10(sp)
-;     lw sp, 4(sp)
-804002a0: 4112         	lw	sp, 0x4(sp)
-;     sret
-804002a2: 10200073     	sret
-
-804002a6 <proc_create>:
-;     la t0, process_table        
-804002a6: 00000297     	auipc	t0, 0x0
-804002aa: 29a28293     	addi	t0, t0, 0x29a
-;     li t2, proc_max    
-804002ae: 43a1         	li	t2, 0x8
-;     li t3, 0  #t3=pid of new process          
-804002b0: 4e01         	li	t3, 0x0
-
-804002b2 <check>:
-;     beq t2,zero,full
-804002b2: 04038a63     	beqz	t2, 0x80400306 <full>
-;     lw t1, proc_state(t0)
-804002b6: 0042a303     	lw	t1, 0x4(t0)
-;     beq t1,zero, create               
-804002ba: 00030663     	beqz	t1, 0x804002c6 <create>
-;     addi t0, t0, proc_size
-804002be: 02c1         	addi	t0, t0, 0x10
-;     addi t3, t3, 1
-804002c0: 0e05         	addi	t3, t3, 0x1
-;     addi t2, t2, -1
-804002c2: 13fd         	addi	t2, t2, -0x1
-;     jal x0, check
-804002c4: b7fd         	j	0x804002b2 <check>
-
-804002c6 <create>:
-;     sw t3, proc_pid(t0)
-804002c6: 01c2a023     	sw	t3, 0x0(t0)
-;     li t1, proc_ready
-804002ca: 4305         	li	t1, 0x1
-;     sw t1, proc_state(t0)     
-804002cc: 0062a223     	sw	t1, 0x4(t0)
-;     la t1, proc_stacks
-804002d0: 00000317     	auipc	t1, 0x0
-804002d4: 2f030313     	addi	t1, t1, 0x2f0
-;     addi t4, t3, 1
-804002d8: 001e0e93     	addi	t4, t3, 0x1
-;     li t5, stack_size
-804002dc: 6f09         	lui	t5, 0x2
-;     mul t4, t4, t5
-804002de: 03ee8eb3     	mul	t4, t4, t5
-;     add t1, t1, t4
-804002e2: 9376         	add	t1, t1, t4
-;     sw t1, proc_sp(t0)
-804002e4: 0062a423     	sw	t1, 0x8(t0)
-;     mv t5, t1
-804002e8: 8f1a         	mv	t5, t1
-
-804002ea <zero_frame>:
-;     sw zero, 0(t5)
-804002ea: 000f2023     	sw	zero, 0x0(t5)
-;     addi t5, t5, 4
-804002ee: 0f11         	addi	t5, t5, 0x4
-;     addi t4, t4, -1
-804002f0: 1efd         	addi	t4, t4, -0x1
-;     bnez t4, zero_frame
-804002f2: fe0e9ce3     	bnez	t4, 0x804002ea <zero_frame>
-;     sw a0, 0(t1)
-804002f6: 00a32023     	sw	a0, 0x0(t1)
-;     sw t1, proc_sp(t0)
-804002fa: 0062a423     	sw	t1, 0x8(t0)
-;     mv a1, t1
-804002fe: 859a         	mv	a1, t1
-;     mv a0, t3
-80400300: 8572         	mv	a0, t3
-;     mv a1, t1
-80400302: 859a         	mv	a1, t1
-;     jalr zero, 0(ra)
-80400304: 8082         	ret
-
-80400306 <full>:
-;     addi sp, sp, -8
-80400306: 1161         	addi	sp, sp, -0x8
-;     sw ra, 0(sp)
-80400308: c006         	sw	ra, 0x0(sp)
-;     li a0, len
-8040030a: 02000513     	li	a0, 0x20
-;     la a1, m
-8040030e: 00000597     	auipc	a1, 0x0
-80400312: 1b558593     	addi	a1, a1, 0x1b5
-;     jal ra, write_string
-80400316: e7dff0ef     	jal	0x80400192 <write_string>
-;     li a0, -1
-8040031a: 557d         	li	a0, -0x1
-;     lw ra, 0(sp)
-8040031c: 4082         	lw	ra, 0x0(sp)
-;     addi sp, sp, 8
-8040031e: 0121         	addi	sp, sp, 0x8
-;     jalr zero, 0(ra)
-80400320: 8082         	ret
-
-80400322 <sbi_timer>:
-; rdtime t0
-80400322: c01022f3     	rdtime	t0
-; rdtimeh t1
-80400326: c8102373     	rdtimeh	t1
-; li t2, cycles
-8040032a: 3e800393     	li	t2, 0x3e8
-; add t0, t0, t2
-8040032e: 929e         	add	t0, t0, t2
-; sltu t3, t0, t2 
-80400330: 0072be33     	sltu	t3, t0, t2
-; add t1, t1, t3   # Carry into upper 32 bits
-80400334: 9372         	add	t1, t1, t3
-; mv a0, t0
-80400336: 8516         	mv	a0, t0
-; mv a1, t1
-80400338: 859a         	mv	a1, t1
-; li a6,time_fid
-8040033a: 4801         	li	a6, 0x0
-; li a7,time_eid
-8040033c: 544958b7     	lui	a7, 0x54495
-80400340: d4588893     	addi	a7, a7, -0x2bb
-; ecall
-80400344: 00000073     	ecall
-; jalr zero,0(ra)
-80400348: 8082         	ret
-
-8040034a <scheduler>:
-;     la t0,proc_stacks
-8040034a: 00000297     	auipc	t0, 0x0
-8040034e: 27628293     	addi	t0, t0, 0x276
-;     li t2, proc_max
-80400352: 43a1         	li	t2, 0x8
-
-80400354 <outer_loop>:
-;     beqz t2, outer_end   # t2==0
-80400354: 02038463     	beqz	t2, 0x8040037c <switch_context>
-;     lw t3, proc_state(t0)
-80400358: 0042ae03     	lw	t3, 0x4(t0)
-;     li t4, proc_ready
-8040035c: 4e85         	li	t4, 0x1
-;     bne t3,t4,resume
-8040035e: 01de0463     	beq	t3, t4, 0x80400366 <outer_loop+0x12>
-80400362: 0140006f     	j	0x80400376 <resume>
-;     lw a0, proc_sp(t0)
-80400366: 0082a503     	lw	a0, 0x8(t0)
-;     jal ra, switch_context
-8040036a: 012000ef     	jal	0x8040037c <switch_context>
-;     li t1, cycles    #reset, t1=cycles
-8040036e: 3e800313     	li	t1, 0x3e8
-;     jal ra,sbi_timer
-80400372: fb1ff0ef     	jal	0x80400322 <sbi_timer>
-
-80400376 <resume>:
-;     addi t0,t0,proc_size
-80400376: 02c1         	addi	t0, t0, 0x10
-;     addi t2, t2, -1    # t2--
-80400378: 13fd         	addi	t2, t2, -0x1
-;     j outer_loop            
-8040037a: bfe9         	j	0x80400354 <outer_loop>
-
-8040037c <switch_context>:
-;         addi sp, sp, -13 * 4 
-8040037c: fcc10113     	addi	sp, sp, -0x34
-;         sw ra,  0  * 4(sp)
-80400380: c006         	sw	ra, 0x0(sp)
-;         sw s0,  1  * 4(sp)
-80400382: c222         	sw	s0, 0x4(sp)
-;         sw s1,  2  * 4(sp)
-80400384: c426         	sw	s1, 0x8(sp)
-;         sw s2,  3  * 4(sp)
-80400386: c64a         	sw	s2, 0xc(sp)
-;         sw s3,  4  * 4(sp)
-80400388: c84e         	sw	s3, 0x10(sp)
-;         sw s4,  5  * 4(sp)
-8040038a: ca52         	sw	s4, 0x14(sp)
-;         sw s5,  6  * 4(sp)
-8040038c: cc56         	sw	s5, 0x18(sp)
-;         sw s6,  7  * 4(sp)
-8040038e: ce5a         	sw	s6, 0x1c(sp)
-;         sw s7,  8  * 4(sp)
-80400390: d05e         	sw	s7, 0x20(sp)
-;         sw s8,  9  * 4(sp)
-80400392: d262         	sw	s8, 0x24(sp)
-;         sw s9,  10 * 4(sp)
-80400394: d466         	sw	s9, 0x28(sp)
-;         sw s10, 11 * 4(sp)
-80400396: d66a         	sw	s10, 0x2c(sp)
-;         sw s11, 12 * 4(sp)
-80400398: d86e         	sw	s11, 0x30(sp)
-;         sw sp, (a0)       
-8040039a: 00252023     	sw	sp, 0x0(a0)
-;         lw sp, (a1)       
-8040039e: 0005a103     	lw	sp, 0x0(a1)
-;         lw ra,  0  * 4(sp)  
-804003a2: 4082         	lw	ra, 0x0(sp)
-;         lw s0,  1  * 4(sp)
-804003a4: 4412         	lw	s0, 0x4(sp)
-;         lw s1,  2  * 4(sp)
-804003a6: 44a2         	lw	s1, 0x8(sp)
-;         lw s2,  3  * 4(sp)
-804003a8: 4932         	lw	s2, 0xc(sp)
-;         lw s3,  4  * 4(sp)
-804003aa: 49c2         	lw	s3, 0x10(sp)
-;         lw s4,  5  * 4(sp)
-804003ac: 4a52         	lw	s4, 0x14(sp)
-;         lw s5,  6  * 4(sp)
-804003ae: 4ae2         	lw	s5, 0x18(sp)
-;         lw s6,  7  * 4(sp)
-804003b0: 4b72         	lw	s6, 0x1c(sp)
-;         lw s7,  8  * 4(sp)
-804003b2: 5b82         	lw	s7, 0x20(sp)
-;         lw s8,  9  * 4(sp)
-804003b4: 5c12         	lw	s8, 0x24(sp)
-;         lw s9,  10 * 4(sp)
-804003b6: 5ca2         	lw	s9, 0x28(sp)
-;         lw s10, 11 * 4(sp)
-804003b8: 5d32         	lw	s10, 0x2c(sp)
-;         lw s11, 12 * 4(sp)
-804003ba: 5dc2         	lw	s11, 0x30(sp)
-;         addi sp, sp, 13 * 4
-804003bc: 03410113     	addi	sp, sp, 0x34
-;         ret
-804003c0: 8082         	ret
-804003c2: 0000         	unimp
-
-804003c4 <memcpy>:
-;     addi t0, a0, 0           
-804003c4: 00050293     	mv	t0, a0
-
-804003c8 <loop>:
-;     beq a2, zero, exit  
-804003c8: 00060e63     	beqz	a2, 0x804003e4 <exit>
-;     lbu t1, 0(a1)    
-804003cc: 0005c303     	lbu	t1, 0x0(a1)
-;     sb t1, 0(t0)        
-804003d0: 00628023     	sb	t1, 0x0(t0)
-;     addi t0, t0, 1         
-804003d4: 00128293     	addi	t0, t0, 0x1
-;     addi a1, a1, 1       
-804003d8: 00158593     	addi	a1, a1, 0x1
-;     addi a2, a2, -1   
-804003dc: fff60613     	addi	a2, a2, -0x1
-;     jal zero, loop    
-804003e0: fe9ff06f     	j	0x804003c8 <loop>
-
-804003e4 <exit>:
-;     jalr    zero, 0(ra)      
-804003e4: 00008067     	ret
-
-804003e8 <memset0>:
-804003e8: 00050293     	mv	t0, a0
-
-804003ec <loop>:
-;     beq a2,zero,exit
-804003ec: 00060a63     	beqz	a2, 0x80400400 <exit>
-;     sb zero,0(t0)
-804003f0: 00028023     	sb	zero, 0x0(t0)
-;     addi t0,t0,1
-804003f4: 00128293     	addi	t0, t0, 0x1
-;     addi a2,a2,-1
-804003f8: fff60613     	addi	a2, a2, -0x1
-;     beq zero,zero,loop
-804003fc: fe0008e3     	beqz	zero, 0x804003ec <loop>
-
-80400400 <exit>:
-;     jalr zero, 0(ra)
-80400400: 00008067     	ret
-
-80400404 <printIntU>:
-80400404: ffc10113     	addi	sp, sp, -0x4
-;     sw ra, 0(sp)// Saving return address as it is changed
-80400408: 00112023     	sw	ra, 0x0(sp)
-;     addi t0, a0, 0
-8040040c: 00050293     	mv	t0, a0
-;     addi t3, x0, 1
-80400410: 00100e13     	li	t3, 0x1
-;     addi t4, x0, 10 //always 10
-80400414: 00a00e93     	li	t4, 0xa
-;     beq x0, x0, power // bypass negative check
-80400418: 02000463     	beqz	zero, 0x80400440 <power>
-
-8040041c <printInt>:
-;     addi sp, sp, -4
-8040041c: ffc10113     	addi	sp, sp, -0x4
-;     sw ra, 0(sp)// Saving return address as it is changed
-80400420: 00112023     	sw	ra, 0x0(sp)
-;     addi t0, a0, 0
-80400424: 00050293     	mv	t0, a0
-;     addi t3, x0, 1
-80400428: 00100e13     	li	t3, 0x1
-;     addi t4, x0, 10 //always 10
-8040042c: 00a00e93     	li	t4, 0xa
-;     bge t0, x0, power // continue if positive
-80400430: 0002d863     	bgez	t0, 0x80400440 <power>
-;     sub t0, x0, t0
-80400434: 405002b3     	neg	t0, t0
-;     addi a0, x0, 45
-80400438: 02d00513     	li	a0, 0x2d
-;     jal     ra, write_byte
-8040043c: d1bff0ef     	jal	0x80400156 <write_byte>
-
-80400440 <power>:
-;         mul t3, t3, t4
-80400440: 03de0e33     	mul	t3, t3, t4
-;         blt t3, t0, power
-80400444: fe5e4ee3     	blt	t3, t0, 0x80400440 <power>
-;     div t3, t3, t4
-80400448: 03de4e33     	div	t3, t3, t4
-
-8040044c <loop>:
-;         bge x0, t3, exitprintInt
-8040044c: 03c05063     	blez	t3, 0x8040046c <exitprintInt>
-;         div t1, t0, t3 // Divide by 10 power
-80400450: 03c2c333     	div	t1, t0, t3
-;         rem t2, t0, t3 //remainder
-80400454: 03c2e3b3     	rem	t2, t0, t3
-;         div t3, t3, t4
-80400458: 03de4e33     	div	t3, t3, t4
-;         addi t0, t2, 0
-8040045c: 00038293     	mv	t0, t2
-;         addi a0, t1, 48 // Find ascii number
-80400460: 03030513     	addi	a0, t1, 0x30
-;         jal     ra, write_byte
-80400464: cf3ff0ef     	jal	0x80400156 <write_byte>
-;         jal x0, loop
-80400468: fe5ff06f     	j	0x8040044c <loop>
-
-8040046c <exitprintInt>:
-;         lw ra, 0(sp)
-8040046c: 00012083     	lw	ra, 0x0(sp)
-;         addi sp, sp, 4
-80400470: 00410113     	addi	sp, sp, 0x4
-;         jalr x0, 0(ra)
-80400474: 00008067     	ret
-
-80400478 <main>:
-;     addi a0, zero, 201
-80400478: 0c900513     	li	a0, 0xc9
-;     jal ra, printInt
-8040047c: fa1ff0ef     	jal	0x8040041c <printInt>
-;     addi t0, x0, 9
-80400480: 42a5         	li	t0, 0x9
-;     addi t1, x0, 10
-80400482: 4329         	li	t1, 0xa
-;     div t2, t0, t1
-80400484: 0262c3b3     	div	t2, t0, t1
-;     rem t3, t0, t1
-80400488: 0262ee33     	rem	t3, t0, t1
-;     unimp
-8040048c: 0000         	unimp
-;     jal x0, L1
-8040048e: a009         	j	0x80400490 <L1>
-
-80400490 <L1>:
-;     wfi
-80400490: 10500073     	wfi
-;     jal  x0, L1
-80400494: bff5         	j	0x80400490 <L1>
-
-80400496 <sched_loop>:
-;     jal  ra, scheduler 
-80400496: eb5ff0ef     	jal	0x8040034a <scheduler>
-;     j  sched_loop
-8040049a: bff5         	j	0x80400496 <sched_loop>
+Contents of section .text:
+ 80400000 17210500 13010167 97020000 93828215  .!.....g........
+ 80400010 73905210 17050000 1305c55b 81451726  s.R........[.E.&
+ 80400020 01001306 2665098e ef004038 ef008045  ....&e....@8...E
+ 80400030 3da0ef00 001e4145 97050000 9385855a  =.....AE.......Z
+ 80400040 ef00a00c 6df9e5d9 ae821685 97050000  ....m...........
+ 80400050 93854559 ef00c009 2945ef00 a0057300  ..EY....)E....s.
+ 80400060 5010f5bf 41112ac0 2ec232c4 06c67d55  P...A.*...2...}U
+ 80400070 97050000 9385454e ef008007 7d558245  ......EN....}U.E
+ 80400080 ef000007 7d559705 00009385 154eef00  ....}U.......N..
+ 80400090 20067d55 9245ef00 a0057d55 97050000   .}U.E....}U....
+ 804000a0 9385b54d ef00c004 2245ef00 6033b240  ...M...."E..`3.@
+ 804000b0 41018280 b7484244 9388e834 09487300  A....HBD...4.Hs.
+ 804000c0 00008280 89487d53 73000000 e30e65fe  .....H}Ss.....e.
+ 804000d0 85487300 00008280 85482145 73000000  .Hs......H!Es...
+ 804000e0 13050002 73000000 21457300 00008280  ....s...!Es.....
+ 804000f0 b7484244 9388e834 63540500 03a5c5ff  .HBD...4cT......
+ 80400100 01480146 73000000 8280b748 42449388  .H.Fs......HBD..
+ 80400110 e8340548 01467300 00008280 f3221014  .4.H.Fs......"..
+ 80400120 73230010 f3232014 732e3014 f32e4010  s#...# .s.0...@.
+ 80400130 13dff301 05457e05 7d15b3ff a300a145  .....E~.}......E
+ 80400140 638eb300 05457a05 15056305 75000945  c....Ez...c.u..E
+ 80400150 6385a300 6f00c01e 82808280 82800100  c...o...........
+ 80400160 357106c0 16c89302 010a16c2 0ec412c6  5q..............
+ 80400170 1aca1ecc 22ce26d0 2ad22ed4 32d636d8  ....".&.*...2.6.
+ 80400180 3ada3edc 42dec6c0 cac2cec4 d2c6d6c8  :.>.B...........
+ 80400190 dacadecc e2cee6d0 ead2eed4 f2d6f6d8  ................
+ 804001a0 fadafedc f3221014 96def322 001016c1  ....."....."....
+ 804001b0 f3222014 16c3f322 301416c5 0a85eff0  ." ...."0.......
+ 804001c0 fff52a81 f6527390 12148a42 73900210  ..*..Rs....Bs...
+ 804001d0 8240a241 32425243 e2437244 82541255  .@.A2BRC.CrD.T.U
+ 804001e0 a2553256 c2565257 e2577258 86481649  .U2V.VRW.WrX.H.I
+ 804001f0 a649364a c64a564b e64b764c 865c165d  .I6J.JVK.KvL.\.]
+ 80400200 a65d365e c65e565f e65fc242 12417300  .]6^.^V_._.B.As.
+ 80400210 20109702 00009382 e23da143 014e638a   ........=.C.Nc.
+ 80400220 030403a3 42006306 0300c102 050efd13  ....B.c.........
+ 80400230 fdb723a0 c2010543 23a26200 17030000  ..#....C#.b.....
+ 80400240 13034343 930e1e00 096fb38e ee037693  ..CC.....o....v.
+ 80400250 23a46200 1a8f2320 0f00110f fd1ee39c  #.b...# ........
+ 80400260 0efe2320 a30023a4 62009a85 72859a85  ..# ..#.b...r...
+ 80400270 82806111 06c01305 00029705 00009385  ..a.............
+ 80400280 b530eff0 ffe67d55 82402101 8280f322  .0....}U.@!...."
+ 80400290 10c07323 10c89303 803e9e92 33be7200  ..s#.....>..3.r.
+ 804002a0 72931685 9a850148 b7584954 938858d4  r......H.XIT..X.
+ 804002b0 73000000 82807370 01105111 06c022c2  s.....sp..Q...".
+ 804002c0 26c41704 00001304 e432a144 99e06ff0  &........2.D..o.
+ 804002d0 9ffe032e 4400854e 6304de01 6f008003  ....D..Nc...o...
+ 804002e0 97020000 9382422f 23a08200 894e2322  ......B/#....N#"
+ 804002f0 d4011705 00001305 e52d9305 8400ef00  .........-......
+ 80400300 20049702 000083a2 222d23a0 0200854e   ......."-#....N
+ 80400310 23a2d201 4104fd14 55bf9702 00009382  #...A...U.......
+ 80400320 a22b83a2 02001385 82009705 00009385  .+..............
+ 80400330 652aef00 e0008240 1244a244 31018280  e*.....@.D.D1...
+ 80400340 1301c1fc 06c022c2 26c44ac6 4ec852ca  ......".&.J.N.R.
+ 80400350 56cc5ace 5ed062d2 66d46ad6 6ed82320  V.Z.^.b.f.j.n.# 
+ 80400360 250003a1 05008240 1244a244 3249c249  %......@.D.D2I.I
+ 80400370 524ae24a 724b825b 125ca25c 325dc25d  RJ.JrK.[.\.\2].]
+ 80400380 13014103 82800000 93020500 630e0600  ..A.........c...
+ 80400390 03c30500 23806200 93821200 93851500  ....#.b.........
+ 804003a0 1306f6ff 6ff09ffe 67800000 93020500  ....o...g.......
+ 804003b0 630a0600 23800200 93821200 1306f6ff  c...#...........
+ 804003c0 e30800fe 67800000 1301c1ff 23201100  ....g.......# ..
+ 804003d0 93020500 130e1000 930ea000 63040002  ............c...
+ 804003e0 1301c1ff 23201100 93020500 130e1000  ....# ..........
+ 804003f0 930ea000 63d80200 b3025040 1305d002  ....c.....P@....
+ 80400400 eff05fcb 330ede03 e3dec2ff 334ede03  .._.3.......3N..
+ 80400410 6350c003 33c3c203 b3e3c203 334ede03  cP..3.......3N..
+ 80400420 93820300 13050303 eff0dfc8 6ff05ffe  ............o._.
+ 80400430 83200100 13014100 67800000 1301c1ff  . ....A.g.......
+ 80400440 23201100 13030500 93020002 13050003  # ..............
+ 80400450 eff05fc6 13058507 eff0dfc5 e38a02fc  .._.............
+ 80400460 9382c2ff 33555300 1375f500 130565ff  ....3US..u....e.
+ 80400470 63440500 13057502 1305a503 eff09fc3  cD....u.........
+ 80400480 6ff0dffd ef004002 0545ef00 a006aa82  o.....@..E......
+ 80400490 eff0dffa 13053004 eff0dfc1 73005010  ......0.....s.P.
+ 804004a0 f5bfeff0 5fe1f5bf 711106c0 17350500  ...._...q....5..
+ 804004b0 130545b5 eff09ff8 13050002 eff09fbf  ..E.............
+ 804004c0 17050000 1305850e 97320500 938282b3  .........2......
+ 804004d0 23205500 1685eff0 7ff61305 0002eff0  # U.............
+ 804004e0 7fbd1735 05041305 e5b1eff0 3ff58240  ...5........?..@
+ 804004f0 11018280 611106c0 06c29702 00009382  ....a...........
+ 80400500 e20a1685 eff09ff3 83ae0200 05633305  .............c3.
+ 80400510 6502768e aa9e9733 05049383 a3ae7285  e.v....3......r.
+ 80400520 eff0dff1 63d57e00 21017285 82801705  ....c.~.!.r.....
+ 80400530 00001305 25089705 00009385 b5081306  ....%...........
+ 80400540 4003eff0 3fb28240 21017285 8280      @...?..@!.r...
+Contents of section .rodata:
+ 80400550 0f000000 50616e69 635f6d65 73736167  ....Panic_messag
+ 80400560 653a200c 00000020 46696c65 5f6e616d  e: .... File_nam
+ 80400570 653a200e 00000020 4c696e65 5f6e756d  e: .... Line_num
+ 80400580 6265723a 206f7574 206f6620 73706163  ber: out of spac
+ 80400590 6520666f 7220616e 6f746865 72207072  e for another pr
+ 804005a0 6f636573 73                          ocess
+Contents of section .data:
+ 804005a8 00000000 0d000000 4f757420 6f72206d  ........Out or m
+ 804005b8 656d6f72 790d0000 004d656d 6f72792f  emory....Memory/
+ 804005c8 6d61696e 2e73                        main.s
+Contents of section .bss:
+<skipping contents of bss section at [804005d0, 80412670)>
+Contents of section .riscv.attributes:
+ 0000 41540000 00726973 63760001 4a000000  AT...riscv..J...
+ 0010 05727633 32693270 315f6d32 70305f61  .rv32i2p1_m2p0_a
+ 0020 3270315f 63327030 5f7a6963 73723270  2p1_c2p0_zicsr2p
+ 0030 305f7a6d 6d756c31 70305f7a 61616d6f  0_zmmul1p0_zaamo
+ 0040 3170305f 7a616c72 73633170 305f7a63  1p0_zalrsc1p0_zc
+ 0050 61317030 00                          a1p0.
+Contents of section .debug_info:
+ 0000 70000000 05000104 00000000 01000000  p...............
+ 0010 00640040 80b40040 8070616e 69632e73  .d.@...@.panic.s
+ 0020 002f686f 6d652f63 68616b72 692f5072  ./home/chakri/Pr
+ 0030 6f6a6563 74732f72 69764f53 2f6b6572  ojects/rivOS/ker
+ 0040 6e656c2f 436f7265 00636c61 6e672076  nel/Core.clang v
+ 0050 65727369 6f6e2032 322e312e 38000180  ersion 22.1.8...
+ 0060 0270616e 69630000 0000000e 00000064  .panic.........d
+ 0070 00408000 0c010000 05000104 21000000  .@..........!...
+ 0080 01990000 00b40040 801c0140 80746572  .......@...@.ter
+ 0090 6d696e61 6c2e7300 2f686f6d 652f6368  minal.s./home/ch
+ 00a0 616b7269 2f50726f 6a656374 732f7269  akri/Projects/ri
+ 00b0 764f532f 6b65726e 656c2f43 6f726500  vOS/kernel/Core.
+ 00c0 636c616e 67207665 7273696f 6e203232  clang version 22
+ 00d0 2e312e38 00018002 77726974 655f6279  .1.8....write_by
+ 00e0 74650000 0000000c 000000b4 00408002  te...........@..
+ 00f0 72656164 5f627974 65000000 00001200  read_byte.......
+ 0100 0000c400 40800272 65706561 745f7265  ....@..repeat_re
+ 0110 61640000 00000015 000000c8 00408002  ad...........@..
+ 0120 72656d6f 76655f62 79746500 00000000  remove_byte.....
+ 0130 1b000000 d8004080 02777269 74655f73  ......@..write_s
+ 0140 7472696e 67000000 00002900 0000f000  tring.....).....
+ 0150 4080026c 656e5f69 6e5f7265 67000000  @..len_in_reg...
+ 0160 00002d00 00000001 40800272 6561645f  ..-.....@..read_
+ 0170 73747269 6e670000 00000038 0000000a  string.....8....
+ 0180 01408000 c0000000 05000104 42000000  .@..........B...
+ 0190 01150100 001c0140 805e0140 80747261  .......@.^.@.tra
+ 01a0 705f6469 73706174 63682e73 002f686f  p_dispatch.s./ho
+ 01b0 6d652f63 68616b72 692f5072 6f6a6563  me/chakri/Projec
+ 01c0 74732f72 69764f53 2f6b6572 6e656c2f  ts/rivOS/kernel/
+ 01d0 436f7265 00636c61 6e672076 65727369  Core.clang versi
+ 01e0 6f6e2032 322e312e 38000180 02747261  on 22.1.8....tra
+ 01f0 705f6469 73706174 63680000 0000000c  p_dispatch......
+ 0200 0000001c 01408002 74696d65 72000000  .....@..timer...
+ 0210 00002100 00005401 40800269 6c6c6567  ..!...T.@..illeg
+ 0220 616c5f69 6e737400 00000000 28000000  al_inst.....(...
+ 0230 5a014080 02656e76 5f750000 0000002c  Z.@..env_u.....,
+ 0240 0000005c 01408000 74000000 05000104  ...\.@..t.......
+ 0250 63000000 01920100 00600140 80120240  c........`.@...@
+ 0260 80747261 702e7300 2f686f6d 652f6368  .trap.s./home/ch
+ 0270 616b7269 2f50726f 6a656374 732f7269  akri/Projects/ri
+ 0280 764f532f 6b65726e 656c2f43 6f726500  vOS/kernel/Core.
+ 0290 636c616e 67207665 7273696f 6e203232  clang version 22
+ 02a0 2e312e38 00018002 74726170 5f656e74  .1.8....trap_ent
+ 02b0 72790000 00000018 00000060 01408000  ry.........`.@..
+ 02c0 d0000000 05000104 84000000 013a0200  .............:..
+ 02d0 00120240 808e0240 8070726f 635f6372  ...@...@.proc_cr
+ 02e0 65617465 2e73002f 686f6d65 2f636861  eate.s./home/cha
+ 02f0 6b72692f 50726f6a 65637473 2f726976  kri/Projects/riv
+ 0300 4f532f6b 65726e65 6c2f5072 6f636573  OS/kernel/Proces
+ 0310 7300636c 616e6720 76657273 696f6e20  s.clang version 
+ 0320 32322e31 2e380001 80027072 6f635f63  22.1.8....proc_c
+ 0330 72656174 65000000 00000d00 00001202  reate...........
+ 0340 40800263 6865636b 00000000 00120000  @..check........
+ 0350 001e0240 80026372 65617465 00000000  ...@..create....
+ 0360 001b0000 00320240 80027a65 726f5f66  .....2.@..zero_f
+ 0370 72616d65 00000000 00290000 00560240  rame.....)...V.@
+ 0380 80026675 6c6c0000 00000037 00000072  ..full.....7...r
+ 0390 02408000 7b000000 05000104 a5000000  .@..{...........
+ 03a0 01dc0200 008e0240 80b60240 80736269  .......@...@.sbi
+ 03b0 5f74696d 65722e73 002f686f 6d652f63  _timer.s./home/c
+ 03c0 68616b72 692f5072 6f6a6563 74732f72  hakri/Projects/r
+ 03d0 69764f53 2f6b6572 6e656c2f 50726f63  ivOS/kernel/Proc
+ 03e0 65737300 636c616e 67207665 7273696f  ess.clang versio
+ 03f0 6e203232 2e312e38 00018002 7362695f  n 22.1.8....sbi_
+ 0400 74696d65 72000000 00000500 00008e02  timer...........
+ 0410 408000d8 00000005 000104c6 00000001  @...............
+ 0420 39030000 b6024080 40034080 73636865  9.....@.@.@.sche
+ 0430 64756c65 722e7300 2f686f6d 652f6368  duler.s./home/ch
+ 0440 616b7269 2f50726f 6a656374 732f7269  akri/Projects/ri
+ 0450 764f532f 6b65726e 656c2f50 726f6365  vOS/kernel/Proce
+ 0460 73730063 6c616e67 20766572 73696f6e  ss.clang version
+ 0470 2032322e 312e3800 01800273 63686564   22.1.8....sched
+ 0480 756c6572 00000000 000b0000 00b60240  uler...........@
+ 0490 80026f75 7465725f 6c6f6f70 00000000  ..outer_loop....
+ 04a0 00150000 00cc0240 80027265 73756d65  .......@..resume
+ 04b0 00000000 002a0000 00140340 80027363  .....*.....@..sc
+ 04c0 6865645f 73776974 63680000 00000030  hed_switch.....0
+ 04d0 0000001a 03408002 6f757465 725f656e  .....@..outer_en
+ 04e0 64000000 00003700 00003603 40800085  d.....7...6.@...
+ 04f0 00000005 000104e7 00000001 e6030000  ................
+ 0500 40034080 86034080 73776974 63685f63  @.@...@.switch_c
+ 0510 6f6e7465 78742e73 002f686f 6d652f63  ontext.s./home/c
+ 0520 68616b72 692f5072 6f6a6563 74732f72  hakri/Projects/r
+ 0530 69764f53 2f6b6572 6e656c2f 50726f63  ivOS/kernel/Proc
+ 0540 65737300 636c616e 67207665 7273696f  ess.clang versio
+ 0550 6e203232 2e312e38 00018002 73776974  n 22.1.8....swit
+ 0560 63685f63 6f6e7465 78740000 00000006  ch_context......
+ 0570 00000040 03408000 96000000 05000104  ...@.@..........
+ 0580 08010000 01560400 00880340 80ac0340  .....V.....@...@
+ 0590 806d656d 5f637079 2e73002f 686f6d65  .mem_cpy.s./home
+ 05a0 2f636861 6b72692f 50726f6a 65637473  /chakri/Projects
+ 05b0 2f726976 4f532f6b 65726e65 6c2f6c69  /rivOS/kernel/li
+ 05c0 6200636c 616e6720 76657273 696f6e20  b.clang version 
+ 05d0 32322e31 2e380001 80026d65 6d637079  22.1.8....memcpy
+ 05e0 00000000 000a0000 00880340 80026c6f  ...........@..lo
+ 05f0 6f700000 0000000d 0000008c 03408002  op...........@..
+ 0600 65786974 00000000 00180000 00a80340  exit...........@
+ 0610 80009700 00000500 01042901 000001bc  ..........).....
+ 0620 040000ae 034080c8 0340806d 656d7365  .....@...@.memse
+ 0630 74302e73 002f686f 6d652f63 68616b72  t0.s./home/chakr
+ 0640 692f5072 6f6a6563 74732f72 69764f53  i/Projects/rivOS
+ 0650 2f6b6572 6e656c2f 6c696200 636c616e  /kernel/lib.clan
+ 0660 67207665 7273696f 6e203232 2e312e38  g version 22.1.8
+ 0670 00018002 6d656d73 65743000 00000000  ....memset0.....
+ 0680 08000000 ac034080 026c6f6f 70000000  ......@..loop...
+ 0690 00000b00 0000b003 40800265 78697400  ........@..exit.
+ 06a0 00000000 12000000 c4034080 00ff0000  ..........@.....
+ 06b0 00050001 044a0100 00011e05 0000cc03  .....J..........
+ 06c0 40808404 40807374 64696f2e 73002f68  @...@.stdio.s./h
+ 06d0 6f6d652f 6368616b 72692f50 726f6a65  ome/chakri/Proje
+ 06e0 6374732f 7269764f 532f6b65 726e656c  cts/rivOS/kernel
+ 06f0 2f6c6962 00636c61 6e672076 65727369  /lib.clang versi
+ 0700 6f6e2032 322e312e 38000180 02707269  on 22.1.8....pri
+ 0710 6e74496e 74550000 00000005 000000c8  ntIntU..........
+ 0720 03408002 7072696e 74496e74 00000000  .@..printInt....
+ 0730 000c0000 00e00340 8002706f 77657200  .......@..power.
+ 0740 00000000 17000000 04044080 026c6f6f  ..........@..loo
+ 0750 70000000 00001d00 00001004 40800265  p...........@..e
+ 0760 78697400 00000000 26000000 30044080  xit.....&...0.@.
+ 0770 02707269 6e744865 78000000 00002b00  .printHex.....+.
+ 0780 00003c04 4080026c 6f6f7048 65780000  ..<.@..loopHex..
+ 0790 00000036 0000005c 04408002 6e756d62  ...6...\.@..numb
+ 07a0 65720000 0000003e 00000078 04408000  er.....>...x.@..
+ 07b0 dd000000 05000104 6b010000 01db0500  ........k.......
+ 07c0 00000040 80640040 80626f6f 742e7300  ...@.d.@.boot.s.
+ 07d0 2f686f6d 652f6368 616b7269 2f50726f  /home/chakri/Pro
+ 07e0 6a656374 732f7269 764f532f 6b65726e  jects/rivOS/kern
+ 07f0 656c0063 6c616e67 20766572 73696f6e  el.clang version
+ 0800 2032322e 312e3800 01800262 6f6f7400   22.1.8....boot.
+ 0810 00000000 16000000 00004080 02627373  ..........@..bss
+ 0820 5f7a6572 6f696e67 00000000 001d0000  _zeroing........
+ 0830 00140040 80026273 735f7a65 726f5f65  ...@..bss_zero_e
+ 0840 6e640000 00000023 0000002c 00408002  nd.....#...,.@..
+ 0850 70726f63 6573735f 63726561 74696f6e  process_creation
+ 0860 00000000 00290000 00320040 8002696e  .....)...2.@..in
+ 0870 70757400 00000000 2e000000 36004080  put.........6.@.
+ 0880 024c3100 00000000 43000000 5e004080  .L1.....C...^.@.
+ 0890 00910000 00050001 048c0100 00019206  ................
+ 08a0 00008404 4080a804 40806d61 696e2e73  ....@...@.main.s
+ 08b0 002f686f 6d652f63 68616b72 692f5072  ./home/chakri/Pr
+ 08c0 6f6a6563 74732f72 69764f53 2f6b6572  ojects/rivOS/ker
+ 08d0 6e656c00 636c616e 67207665 7273696f  nel.clang versio
+ 08e0 6e203232 2e312e38 00018002 6d61696e  n 22.1.8....main
+ 08f0 00000000 00040000 00840440 80024c31  ...........@..L1
+ 0900 00000000 000c0000 009c0440 80027363  ...........@..sc
+ 0910 6865645f 6c6f6f70 00000000 00110000  hed_loop........
+ 0920 00a20440 8000a000 00000500 0104ad01  ...@............
+ 0930 0000010d 070000a8 0440804e 0540806d  .........@.N.@.m
+ 0940 61696e2e 73002f68 6f6d652f 6368616b  ain.s./home/chak
+ 0950 72692f50 726f6a65 6374732f 7269764f  ri/Projects/rivO
+ 0960 532f6b65 726e656c 2f4d656d 6f727900  S/kernel/Memory.
+ 0970 636c616e 67207665 7273696f 6e203232  clang version 22
+ 0980 2e312e38 00018002 7072696e 744d656d  .1.8....printMem
+ 0990 00000000 000b0000 00a80440 8002616c  ...........@..al
+ 09a0 6c6f635f 70616765 73000000 00002200  loc_pages.....".
+ 09b0 0000f404 40800265 72726f72 00000000  ....@..error....
+ 09c0 00390000 002e0540 8000               .9.....@..
+Contents of section .debug_abbrev:
+ 0000 01110110 17110112 0103081b 08250813  .............%..
+ 0010 05000002 0a000308 3a063b06 11010000  ........:.;.....
+ 0020 00011101 10171101 12010308 1b082508  ..............%.
+ 0030 13050000 020a0003 083a063b 06110100  .........:.;....
+ 0040 00000111 01101711 01120103 081b0825  ...............%
+ 0050 08130500 00020a00 03083a06 3b061101  ..........:.;...
+ 0060 00000001 11011017 11011201 03081b08  ................
+ 0070 25081305 0000020a 0003083a 063b0611  %..........:.;..
+ 0080 01000000 01110110 17110112 0103081b  ................
+ 0090 08250813 05000002 0a000308 3a063b06  .%..........:.;.
+ 00a0 11010000 00011101 10171101 12010308  ................
+ 00b0 1b082508 13050000 020a0003 083a063b  ..%..........:.;
+ 00c0 06110100 00000111 01101711 01120103  ................
+ 00d0 081b0825 08130500 00020a00 03083a06  ...%..........:.
+ 00e0 3b061101 00000001 11011017 11011201  ;...............
+ 00f0 03081b08 25081305 0000020a 0003083a  ....%..........:
+ 0100 063b0611 01000000 01110110 17110112  .;..............
+ 0110 0103081b 08250813 05000002 0a000308  .....%..........
+ 0120 3a063b06 11010000 00011101 10171101  :.;.............
+ 0130 12010308 1b082508 13050000 020a0003  ......%.........
+ 0140 083a063b 06110100 00000111 01101711  .:.;............
+ 0150 01120103 081b0825 08130500 00020a00  .......%........
+ 0160 03083a06 3b061101 00000001 11011017  ..:.;...........
+ 0170 11011201 03081b08 25081305 0000020a  ........%.......
+ 0180 0003083a 063b0611 01000000 01110110  ...:.;..........
+ 0190 17110112 0103081b 08250813 05000002  .........%......
+ 01a0 0a000308 3a063b06 11010000 00011101  ....:.;.........
+ 01b0 10171101 12010308 1b082508 13050000  ..........%.....
+ 01c0 020a0003 083a063b 06110100 0000      .....:.;......
+Contents of section .debug_aranges:
+ 0000 1c000000 02000000 00000400 00000000  ................
+ 0010 64004080 50000000 00000000 00000000  d.@.P...........
+ 0020 1c000000 02007400 00000400 00000000  ......t.........
+ 0030 b4004080 68000000 00000000 00000000  ..@.h...........
+ 0040 1c000000 02008401 00000400 00000000  ................
+ 0050 1c014080 42000000 00000000 00000000  ..@.B...........
+ 0060 1c000000 02004802 00000400 00000000  ......H.........
+ 0070 60014080 b2000000 00000000 00000000  `.@.............
+ 0080 1c000000 0200c002 00000400 00000000  ................
+ 0090 12024080 7c000000 00000000 00000000  ..@.|...........
+ 00a0 1c000000 02009403 00000400 00000000  ................
+ 00b0 8e024080 28000000 00000000 00000000  ..@.(...........
+ 00c0 1c000000 02001304 00000400 00000000  ................
+ 00d0 b6024080 8a000000 00000000 00000000  ..@.............
+ 00e0 1c000000 0200ef04 00000400 00000000  ................
+ 00f0 40034080 46000000 00000000 00000000  @.@.F...........
+ 0100 1c000000 02007805 00000400 00000000  ......x.........
+ 0110 88034080 24000000 00000000 00000000  ..@.$...........
+ 0120 1c000000 02001206 00000400 00000000  ................
+ 0130 ae034080 1a000000 00000000 00000000  ..@.............
+ 0140 1c000000 0200ad06 00000400 00000000  ................
+ 0150 cc034080 b8000000 00000000 00000000  ..@.............
+ 0160 1c000000 0200b007 00000400 00000000  ................
+ 0170 00004080 64000000 00000000 00000000  ..@.d...........
+ 0180 1c000000 02009108 00000400 00000000  ................
+ 0190 84044080 24000000 00000000 00000000  ..@.$...........
+ 01a0 1c000000 02002609 00000400 00000000  ......&.........
+ 01b0 a8044080 a6000000 00000000 00000000  ..@.............
+Contents of section .debug_line:
+ 0000 95000000 05000400 37000000 010101fb  ........7.......
+ 0010 0e0d0001 01010100 00000100 00010101  ................
+ 0020 1f019600 00000301 1f020f05 1e012d00  ..............-.
+ 0030 000000ef 5a9267f0 cb1e974a 2c2e1594  ....Z.g....J,...
+ 0040 6c204604 00000502 64004080 030e012f  l F.....d.@..../
+ 0050 2f2f2f30 2f030109 08000103 02090400  ///0/...........
+ 0060 012f2f03 02090400 012f0301 09080001  .//....../......
+ 0070 03020904 00012f2f 03020904 00012f03  ......//....../.
+ 0080 01090800 01030209 0400012f 03010904  .........../....
+ 0090 00012f2f 02020001 01780000 00050004  ..//.....x......
+ 00a0 00370000 00010101 fb0e0d00 01010101  .7..............
+ 00b0 00000001 00000101 011f0196 00000003  ................
+ 00c0 011f020f 051e016f 00000000 1861d0e1  .......o.....a..
+ 00d0 ce56c4ab a4cab6d0 4cc08fb6 04000005  .V......L.......
+ 00e0 02b40040 80030c01 832f4b31 2f304b03  ...@...../K1/0K.
+ 00f0 01090400 012f4b30 2f2f4b4b 4b2f4b35  ...../K0//KKK/K5
+ 0100 83030109 0400014c 2f2f4b36 832f2f4b  .......L//K6.//K
+ 0110 02020001 01790000 00050004 00370000  .....y.......7..
+ 0120 00010101 fb0e0d00 01010101 00000001  ................
+ 0130 00000101 011f0196 00000003 011f020f  ................
+ 0140 051e017a 00000000 02b89d17 654f6d48  ...z........eOmH
+ 0150 63707077 5b514123 04000005 021c0140  cppw[QA#.......@
+ 0160 80030c01 4b4b4b4b 4c4b2f2f 2f4b2f03  ....KKKKLK///K/.
+ 0170 01090400 012f2f2f 03010904 00012f03  .....///....../.
+ 0180 06090400 01030109 04000132 32020200  ...........22...
+ 0190 0101a400 00000500 04003700 00000101  ..........7.....
+ 01a0 01fb0e0d 00010101 01000000 01000001  ................
+ 01b0 01011f01 96000000 03011f02 0f051e01  ................
+ 01c0 4b010000 00804728 61d6477c c2f89bf4  K.....G(a.G|....
+ 01d0 8f316501 62040000 05026001 40800319  .1e.b.....`.@...
+ 01e0 01312f31 4b302f30 2f2f2f30 2f2f2f2f  .1/1K0/0///0////
+ 01f0 2f2f2f30 2f2f2f2f 2f2f2f2f 2f302f2f  ///0/////////0//
+ 0200 2f314b30 4b304b30 4b312f03 05090400  /1K0K0K0K1/.....
+ 0210 01312f4c 2f4d2f2f 302f2f2f 302f2f2f  .1/L/M//0///0///
+ 0220 2f2f2f2f 302f2f2f 2f2f2f2f 2f2f302f  ////0/////////0/
+ 0230 2f2f2f31 30020400 01019e00 00000500  ///10...........
+ 0240 04003700 00000101 01fb0e0d 00010101  ..7.............
+ 0250 01000000 01000001 01011f01 f9000000  ................
+ 0260 03011f02 0f051e01 3d010000 00506d4b  ........=....PmK
+ 0270 7ebe8810 264990f3 bbaa1bd0 17040000  ~...&I..........
+ 0280 05021202 4080030d 01030109 0800012f  ....@........../
+ 0290 31030109 0400014b 03010904 00012f2f  1......K......//
+ 02a0 2f030309 0200014b 2f4d0301 09080001  /......K/M......
+ 02b0 4b2f4b2f 4b314b2f 2f030109 0400014c  K/K/K1K//......L
+ 02c0 4b2f2f30 312f2f4b 03010908 00010301  K//01//K........
+ 02d0 09040001 2f2f2f02 02000101 59000000  ....///.....Y...
+ 02e0 05000400 37000000 010101fb 0e0d0001  ....7...........
+ 02f0 01010100 00000100 00010101 1f01f900  ................
+ 0300 00000301 1f020f05 1e018a00 0000003c  ...............<
+ 0310 d14e0a39 91a5d642 608927ab 68090c04  .N.9...B`.'.h...
+ 0320 00000502 8e024080 184b4e4b 2f4b312f  ......@..KNK/K1/
+ 0330 302f844c 02020001 01a90000 00050004  0/.L............
+ 0340 00370000 00010101 fb0e0d00 01010101  .7..............
+ 0350 00000001 00000101 011f01f9 00000003  ................
+ 0360 011f020f 051e015c 00000000 12d8abde  .......\........
+ 0370 8294890e 9bf60e81 8d275474 04000005  .........'Tt....
+ 0380 02b60240 80030b01 4b2f2f2f 30030109  ...@....K///0...
+ 0390 08000131 03010906 00014b2f 03020908  ...1......K/....
+ 03a0 00010301 09080001 4b2f4c03 01090800  ........K/L.....
+ 03b0 014b0303 09040001 03010908 00014b2f  .K............K/
+ 03c0 4d2f2f03 04090200 01030109 0800014b  M//............K
+ 03d0 4b030109 08000103 03090400 012f2f2f  K............///
+ 03e0 2f020200 01016c00 00000500 04003700  /.....l.......7.
+ 03f0 00000101 01fb0e0d 00010101 01000000  ................
+ 0400 01000001 01011f01 f9000000 03011f02  ................
+ 0410 0f051e01 2c010000 004dd4d6 48b2c988  ....,....M..H...
+ 0420 0f8d6ab0 05781f7f 78040000 05024003  ..j..x..x.....@.
+ 0430 4080184b 2f2f2f2f 2f2f2f2f 2f2f2f2f  @..K////////////
+ 0440 304b4d2f 2f2f2f2f 2f2f2f2f 2f2f2f2f  0KM/////////////
+ 0450 4b020200 01016200 00000500 04003700  K.....b.......7.
+ 0460 00000101 01fb0e0d 00010101 01000000  ................
+ 0470 01000001 01011f01 35000000 03011f02  ........5.......
+ 0480 0f051e01 ef000000 004d12f4 80fb8c37  .........M.....7
+ 0490 dc47b32e 8c5bc441 1b040000 05028803  .G...[.A........
+ 04a0 4080030a 014d0302 09040001 4b4c4b4b  @....M......KLKK
+ 04b0 4b030309 04000102 04000101 5e000000  K...........^...
+ 04c0 05000400 37000000 010101fb 0e0d0001  ....7...........
+ 04d0 01010100 00000100 00010101 1f013500  ..............5.
+ 04e0 00000301 1f020f05 1e010000 0000009e  ................
+ 04f0 5bd833f8 adf132f6 83e3435f 0ebff904  [.3...2...C_....
+ 0500 00000502 ac034080 1a4d0301 09040001  ......@..M......
+ 0510 4b4b4b03 03090400 01020400 0101b900  KKK.............
+ 0520 00000500 04003700 00000101 01fb0e0d  ......7.........
+ 0530 00010101 01000000 01000001 01011f01  ................
+ 0540 35000000 03011f02 0f051e01 24010000  5...........$...
+ 0550 0074739c 7aff4607 d73476e8 8fa5d1d0  .ts.z.F..4v.....
+ 0560 83040000 0502c803 4080174b 4b4b4b4b  ........@..KKKKK
+ 0570 03020904 00014b4b 4b4b4b03 01090400  ......KKKKK.....
+ 0580 014b4b03 03090400 014b0301 09040001  .KK......K......
+ 0590 4e030109 0400014b 4b4b4b4b 03010904  N......KKKKK....
+ 05a0 00010302 09040001 4b4b4d4b 4b4b4c4b  ........KKMKKKLK
+ 05b0 03010904 00014b03 03090400 01030109  ......K.........
+ 05c0 0400014b 4b4b4b03 01090400 014c4b03  ...KKKK......LK.
+ 05d0 01090400 01090400 000101b3 00000005  ................
+ 05e0 00040037 00000001 0101fb0e 0d000101  ...7............
+ 05f0 01010000 00010000 0101011f 010a0000  ................
+ 0600 0003011f 020f051e 01e80000 0000fe6c  ...............l
+ 0610 80b1b0c2 bb9a08b1 f31c8bd2 1cb40400  ................
+ 0620 00050200 00408003 16010303 09080001  .....@..........
+ 0630 03010908 00014d03 01090800 012f0301  ......M....../..
+ 0640 09080001 2f030409 04000103 01090400  ..../...........
+ 0650 01030309 02000103 05090400 012f0301  ............./..
+ 0660 09080001 03050904 00010301 09020001  ................
+ 0670 03030902 00012f2f 03010908 00010302  ......//........
+ 0680 09040001 2f030409 0400014b 09020000  ..../......K....
+ 0690 01017700 00000500 04003700 00000101  ..w.......7.....
+ 06a0 01fb0e0d 00010101 01000000 01000001  ................
+ 06b0 01011f01 0a000000 03011f02 0f051e01  ................
+ 06c0 68000000 008c1834 5054ef6a 8e3927e8  h......4PT.j.9'.
+ 06d0 5e72f937 9d040000 05028404 40801603  ^r.7........@...
+ 06e0 01090400 012f0301 09040001 2f030109  ...../....../...
+ 06f0 0400014b 03020904 00014b03 04090200  ...K......K.....
+ 0700 01030109 04000109 02000001 01d00000  ................
+ 0710 00050004 00370000 00010101 fb0e0d00  .....7..........
+ 0720 01010101 00000001 00000101 011f01be  ................
+ 0730 00000003 011f020f 051e0168 00000000  ...........h....
+ 0740 4189ec3b 8355a3ce 0c7b113f fcd60e31  A..;.U...{.?...1
+ 0750 04000005 02a80440 80030b01 2f300301  .......@..../0..
+ 0760 09080001 03010904 00014b03 01090400  ..........K.....
+ 0770 01030109 08000103 01090800 014b2f03  .............K/.
+ 0780 01090400 014b0301 09040001 03010908  .....K..........
+ 0790 00010302 09040001 2f2f322f 2f2f0301  ........//2///..
+ 07a0 09080001 2f030109 0400014b 304b2f2f  ..../......K0K//
+ 07b0 03020908 00012f03 01090400 01030209  ....../.........
+ 07c0 0400012f 2f310301 09080001 03010908  ...//1..........
+ 07d0 00014c03 01090400 012f2f2f 02020001  ..L......///....
+ 07e0 01                                   .
+Contents of section .debug_line_str:
+ 0000 6d656d73 6574302e 73002f68 6f6d652f  memset0.s./home/
+ 0010 6368616b 72692f50 726f6a65 6374732f  chakri/Projects/
+ 0020 7269764f 532f6b65 726e656c 0070616e  rivOS/kernel.pan
+ 0030 69632e73 002f686f 6d652f63 68616b72  ic.s./home/chakr
+ 0040 692f5072 6f6a6563 74732f72 69764f53  i/Projects/rivOS
+ 0050 2f6b6572 6e656c2f 6c696200 73636865  /kernel/lib.sche
+ 0060 64756c65 722e7300 6d61696e 2e730074  duler.s.main.s.t
+ 0070 65726d69 6e616c2e 73007472 61705f64  erminal.s.trap_d
+ 0080 69737061 7463682e 73007362 695f7469  ispatch.s.sbi_ti
+ 0090 6d65722e 73002f68 6f6d652f 6368616b  mer.s./home/chak
+ 00a0 72692f50 726f6a65 6374732f 7269764f  ri/Projects/rivO
+ 00b0 532f6b65 726e656c 2f436f72 65002f68  S/kernel/Core./h
+ 00c0 6f6d652f 6368616b 72692f50 726f6a65  ome/chakri/Proje
+ 00d0 6374732f 7269764f 532f6b65 726e656c  cts/rivOS/kernel
+ 00e0 2f4d656d 6f727900 626f6f74 2e73006d  /Memory.boot.s.m
+ 00f0 656d5f63 70792e73 002f686f 6d652f63  em_cpy.s./home/c
+ 0100 68616b72 692f5072 6f6a6563 74732f72  hakri/Projects/r
+ 0110 69764f53 2f6b6572 6e656c2f 50726f63  ivOS/kernel/Proc
+ 0120 65737300 73746469 6f2e7300 73776974  ess.stdio.s.swit
+ 0130 63685f63 6f6e7465 78742e73 0070726f  ch_context.s.pro
+ 0140 635f6372 65617465 2e730074 7261702e  c_create.s.trap.
+ 0150 7300                                 s.
+Contents of section .comment:
+ 0000 4c696e6b 65723a20 4c4c4420 32322e31  Linker: LLD 22.1
+ 0010 2e3800                               .8.
+Contents of section .symtab:
+ 0000 00000000 00000000 00000000 00000000  ................
+ 0010 01000000 50054080 00000000 00000200  ....P.@.........
+ 0020 04000000 54054080 00000000 00000200  ....T.@.........
+ 0030 07000000 67054080 00000000 00000200  ....g.@.........
+ 0040 0a000000 77054080 00000000 00000200  ....w.@.........
+ 0050 0d000000 64004080 00000000 00000100  ....d.@.........
+ 0060 10000000 00000000 00000000 0000f1ff  ................
+ 0070 13000000 00000000 00000000 00000800  ................
+ 0080 16000000 00000000 00000000 00000700  ................
+ 0090 19000000 00000000 00000000 00000600  ................
+ 00a0 1c000000 00000000 00000000 00000900  ................
+ 00b0 1f000000 96000000 00000000 00000a00  ................
+ 00c0 22000000 b4004080 00000000 00000100  ".....@.........
+ 00d0 25000000 c8004080 00000000 00000100  %.....@.........
+ 00e0 31000000 00014080 00000000 00000100  1.....@.........
+ 00f0 3c000000 00000000 00000000 0000f1ff  <...............
+ 0100 3f000000 20000000 00000000 00000800  ?... ...........
+ 0110 42000000 21000000 00000000 00000700  B...!...........
+ 0120 45000000 74000000 00000000 00000600  E...t...........
+ 0130 48000000 99000000 00000000 00000900  H...............
+ 0140 4b000000 96000000 00000000 00000a00  K...............
+ 0150 4e000000 1c014080 00000000 00000100  N.....@.........
+ 0160 51000000 5c014080 00000000 00000100  Q...\.@.........
+ 0170 57000000 54014080 00000000 00000100  W...T.@.........
+ 0180 5d000000 5a014080 00000000 00000100  ]...Z.@.........
+ 0190 6a000000 00000000 00000000 0000f1ff  j...............
+ 01a0 6d000000 40000000 00000000 00000800  m...@...........
+ 01b0 70000000 42000000 00000000 00000700  p...B...........
+ 01c0 73000000 84010000 00000000 00000600  s...............
+ 01d0 76000000 15010000 00000000 00000900  v...............
+ 01e0 79000000 96000000 00000000 00000a00  y...............
+ 01f0 7c000000 00200000 00000000 0000f1ff  |.... ..........
+ 0200 87000000 08000000 00000000 0000f1ff  ................
+ 0210 90000000 00100000 00000000 0000f1ff  ................
+ 0220 9a000000 00000000 00000000 0000f1ff  ................
+ 0230 a3000000 04000000 00000000 0000f1ff  ................
+ 0240 ae000000 08000000 00000000 0000f1ff  ................
+ 0250 b6000000 0c000000 00000000 0000f1ff  ................
+ 0260 c0000000 10000000 00000000 0000f1ff  ................
+ 0270 ca000000 00000000 00000000 0000f1ff  ................
+ 0280 d6000000 01000000 00000000 0000f1ff  ................
+ 0290 e1000000 02000000 00000000 0000f1ff  ................
+ 02a0 ee000000 03000000 00000000 0000f1ff  ................
+ 02b0 fb000000 e8030000 00000000 0000f1ff  ................
+ 02c0 02010000 454d4954 00000000 0000f1ff  ....EMIT........
+ 02d0 0b010000 00000000 00000000 0000f1ff  ................
+ 02e0 14010000 60014080 00000000 00000100  ....`.@.........
+ 02f0 17010000 00000000 00000000 0000f1ff  ................
+ 0300 1a010000 60000000 00000000 00000800  ....`...........
+ 0310 1d010000 63000000 00000000 00000700  ....c...........
+ 0320 20010000 48020000 00000000 00000600   ...H...........
+ 0330 23010000 92010000 00000000 00000900  #...............
+ 0340 26010000 96000000 00000000 00000a00  &...............
+ 0350 29010000 00200000 00000000 0000f1ff  ).... ..........
+ 0360 34010000 08000000 00000000 0000f1ff  4...............
+ 0370 3d010000 00100000 00000000 0000f1ff  =...............
+ 0380 47010000 00000000 00000000 0000f1ff  G...............
+ 0390 50010000 04000000 00000000 0000f1ff  P...............
+ 03a0 5b010000 08000000 00000000 0000f1ff  [...............
+ 03b0 63010000 0c000000 00000000 0000f1ff  c...............
+ 03c0 6d010000 10000000 00000000 0000f1ff  m...............
+ 03d0 77010000 00000000 00000000 0000f1ff  w...............
+ 03e0 83010000 01000000 00000000 0000f1ff  ................
+ 03f0 8e010000 02000000 00000000 0000f1ff  ................
+ 0400 9b010000 03000000 00000000 0000f1ff  ................
+ 0410 a8010000 e8030000 00000000 0000f1ff  ................
+ 0420 af010000 454d4954 00000000 0000f1ff  ....EMIT........
+ 0430 b8010000 00000000 00000000 0000f1ff  ................
+ 0440 c1010000 85054080 00000000 00000200  ......@.........
+ 0450 c3010000 85054080 00000000 00000200  ......@.........
+ 0460 c6010000 20000000 00000000 0000f1ff  .... ...........
+ 0470 ca010000 12024080 00000000 00000100  ......@.........
+ 0480 cd010000 1e024080 00000000 00000100  ......@.........
+ 0490 d3010000 72024080 00000000 00000100  ....r.@.........
+ 04a0 d8010000 32024080 00000000 00000100  ....2.@.........
+ 04b0 df010000 56024080 00000000 00000100  ....V.@.........
+ 04c0 ea010000 00000000 00000000 0000f1ff  ................
+ 04d0 ed010000 80000000 00000000 00000800  ................
+ 04e0 f0010000 84000000 00000000 00000700  ................
+ 04f0 f3010000 c0020000 00000000 00000600  ................
+ 0500 f6010000 3a020000 00000000 00000900  ....:...........
+ 0510 f9010000 f9000000 00000000 00000a00  ................
+ 0520 fc010000 00200000 00000000 0000f1ff  ..... ..........
+ 0530 07020000 08000000 00000000 0000f1ff  ................
+ 0540 10020000 00100000 00000000 0000f1ff  ................
+ 0550 1a020000 00000000 00000000 0000f1ff  ................
+ 0560 23020000 04000000 00000000 0000f1ff  #...............
+ 0570 2e020000 08000000 00000000 0000f1ff  ................
+ 0580 36020000 0c000000 00000000 0000f1ff  6...............
+ 0590 40020000 10000000 00000000 0000f1ff  @...............
+ 05a0 4a020000 00000000 00000000 0000f1ff  J...............
+ 05b0 56020000 01000000 00000000 0000f1ff  V...............
+ 05c0 61020000 02000000 00000000 0000f1ff  a...............
+ 05d0 6e020000 03000000 00000000 0000f1ff  n...............
+ 05e0 7b020000 e8030000 00000000 0000f1ff  {...............
+ 05f0 82020000 454d4954 00000000 0000f1ff  ....EMIT........
+ 0600 8b020000 00000000 00000000 0000f1ff  ................
+ 0610 94020000 8e024080 00000000 00000100  ......@.........
+ 0620 97020000 00000000 00000000 0000f1ff  ................
+ 0630 9a020000 a0000000 00000000 00000800  ................
+ 0640 9d020000 a5000000 00000000 00000700  ................
+ 0650 a0020000 94030000 00000000 00000600  ................
+ 0660 a3020000 dc020000 00000000 00000900  ................
+ 0670 a6020000 f9000000 00000000 00000a00  ................
+ 0680 a9020000 00200000 00000000 0000f1ff  ..... ..........
+ 0690 b4020000 08000000 00000000 0000f1ff  ................
+ 06a0 bd020000 00100000 00000000 0000f1ff  ................
+ 06b0 c7020000 00000000 00000000 0000f1ff  ................
+ 06c0 d0020000 04000000 00000000 0000f1ff  ................
+ 06d0 db020000 08000000 00000000 0000f1ff  ................
+ 06e0 e3020000 0c000000 00000000 0000f1ff  ................
+ 06f0 ed020000 10000000 00000000 0000f1ff  ................
+ 0700 f7020000 00000000 00000000 0000f1ff  ................
+ 0710 03030000 01000000 00000000 0000f1ff  ................
+ 0720 0e030000 02000000 00000000 0000f1ff  ................
+ 0730 1b030000 03000000 00000000 0000f1ff  ................
+ 0740 28030000 e8030000 00000000 0000f1ff  (...............
+ 0750 2f030000 454d4954 00000000 0000f1ff  /...EMIT........
+ 0760 38030000 00000000 00000000 0000f1ff  8...............
+ 0770 41030000 d0054080 00000000 00000400  A.....@.........
+ 0780 4a030000 d0054080 00000000 00000400  J.....@.........
+ 0790 4d030000 d4054080 00000000 00000400  M.....@.........
+ 07a0 5a030000 b6024080 00000000 00000100  Z.....@.........
+ 07b0 5d030000 cc024080 00000000 00000100  ].....@.........
+ 07c0 68030000 1a034080 00000000 00000100  h.....@.........
+ 07d0 75030000 36034080 00000000 00000100  u...6.@.........
+ 07e0 7f030000 00000000 00000000 0000f1ff  ................
+ 07f0 82030000 c0000000 00000000 00000800  ................
+ 0800 85030000 c6000000 00000000 00000700  ................
+ 0810 88030000 13040000 00000000 00000600  ................
+ 0820 8b030000 39030000 00000000 00000900  ....9...........
+ 0830 8e030000 f9000000 00000000 00000a00  ................
+ 0840 91030000 40034080 00000000 00000100  ....@.@.........
+ 0850 94030000 00000000 00000000 0000f1ff  ................
+ 0860 97030000 e0000000 00000000 00000800  ................
+ 0870 9a030000 e7000000 00000000 00000700  ................
+ 0880 9d030000 ef040000 00000000 00000600  ................
+ 0890 a0030000 e6030000 00000000 00000900  ................
+ 08a0 a3030000 f9000000 00000000 00000a00  ................
+ 08b0 a6030000 88034080 00000000 00000100  ......@.........
+ 08c0 a9030000 8c034080 00000000 00000100  ......@.........
+ 08d0 ae030000 a8034080 00000000 00000100  ......@.........
+ 08e0 b3030000 00000000 00000000 0000f1ff  ................
+ 08f0 b6030000 00010000 00000000 00000800  ................
+ 0900 b9030000 08010000 00000000 00000700  ................
+ 0910 bc030000 78050000 00000000 00000600  ....x...........
+ 0920 bf030000 56040000 00000000 00000900  ....V...........
+ 0930 c2030000 35000000 00000000 00000a00  ....5...........
+ 0940 c5030000 ac034080 00000000 00000100  ......@.........
+ 0950 c8030000 b0034080 00000000 00000100  ......@.........
+ 0960 cd030000 c4034080 00000000 00000100  ......@.........
+ 0970 d2030000 00000000 00000000 0000f1ff  ................
+ 0980 d5030000 20010000 00000000 00000800  .... ...........
+ 0990 d8030000 29010000 00000000 00000700  ....)...........
+ 09a0 db030000 12060000 00000000 00000600  ................
+ 09b0 de030000 bc040000 00000000 00000900  ................
+ 09c0 e1030000 35000000 00000000 00000a00  ....5...........
+ 09d0 e4030000 c8034080 00000000 00000100  ......@.........
+ 09e0 e7030000 04044080 00000000 00000100  ......@.........
+ 09f0 ed030000 10044080 00000000 00000100  ......@.........
+ 0a00 f2030000 30044080 00000000 00000100  ....0.@.........
+ 0a10 f7030000 5c044080 00000000 00000100  ....\.@.........
+ 0a20 ff030000 78044080 00000000 00000100  ....x.@.........
+ 0a30 06040000 00000000 00000000 0000f1ff  ................
+ 0a40 09040000 40010000 00000000 00000800  ....@...........
+ 0a50 0c040000 4a010000 00000000 00000700  ....J...........
+ 0a60 0f040000 ad060000 00000000 00000600  ................
+ 0a70 12040000 1e050000 00000000 00000900  ................
+ 0a80 15040000 35000000 00000000 00000a00  ....5...........
+ 0a90 18040000 00200000 00000000 0000f1ff  ..... ..........
+ 0aa0 23040000 08000000 00000000 0000f1ff  #...............
+ 0ab0 2c040000 00100000 00000000 0000f1ff  ,...............
+ 0ac0 36040000 00000000 00000000 0000f1ff  6...............
+ 0ad0 3f040000 04000000 00000000 0000f1ff  ?...............
+ 0ae0 4a040000 08000000 00000000 0000f1ff  J...............
+ 0af0 52040000 0c000000 00000000 0000f1ff  R...............
+ 0b00 5c040000 10000000 00000000 0000f1ff  \...............
+ 0b10 66040000 00000000 00000000 0000f1ff  f...............
+ 0b20 72040000 01000000 00000000 0000f1ff  r...............
+ 0b30 7d040000 02000000 00000000 0000f1ff  }...............
+ 0b40 8a040000 03000000 00000000 0000f1ff  ................
+ 0b50 97040000 e8030000 00000000 0000f1ff  ................
+ 0b60 9e040000 454d4954 00000000 0000f1ff  ....EMIT........
+ 0b70 a7040000 00000000 00000000 0000f1ff  ................
+ 0b80 b0040000 e0054080 00000000 00000400  ......@.........
+ 0b90 b9040000 e0054080 00000000 00000400  ......@.........
+ 0ba0 bc040000 00004080 00000000 00000100  ......@.........
+ 0bb0 bf040000 14004080 00000000 00000100  ......@.........
+ 0bc0 cb040000 2c004080 00000000 00000100  ....,.@.........
+ 0bd0 d8040000 5e004080 00000000 00000100  ....^.@.........
+ 0be0 db040000 32004080 00000000 00000100  ....2.@.........
+ 0bf0 ec040000 36004080 00000000 00000100  ....6.@.........
+ 0c00 f2040000 00000000 00000000 0000f1ff  ................
+ 0c10 f5040000 60010000 00000000 00000800  ....`...........
+ 0c20 f8040000 6b010000 00000000 00000700  ....k...........
+ 0c30 fb040000 b0070000 00000000 00000600  ................
+ 0c40 fe040000 db050000 00000000 00000900  ................
+ 0c50 01050000 0a000000 00000000 00000a00  ................
+ 0c60 04050000 84044080 00000000 00000100  ......@.........
+ 0c70 07050000 9c044080 00000000 00000100  ......@.........
+ 0c80 0a050000 a2044080 00000000 00000100  ......@.........
+ 0c90 15050000 00000000 00000000 0000f1ff  ................
+ 0ca0 18050000 80010000 00000000 00000800  ................
+ 0cb0 1b050000 8c010000 00000000 00000700  ................
+ 0cc0 1e050000 91080000 00000000 00000600  ................
+ 0cd0 21050000 92060000 00000000 00000900  !...............
+ 0ce0 24050000 0a000000 00000000 00000a00  $...............
+ 0cf0 27050000 00100000 00000000 0000f1ff  '...............
+ 0d00 31050000 a8054080 00000000 00000300  1.....@.........
+ 0d10 40050000 a8054080 00000000 00000300  @.....@.........
+ 0d20 43050000 b0054080 00000000 00000300  C.....@.........
+ 0d30 51050000 c1054080 00000000 00000300  Q.....@.........
+ 0d40 5b050000 a8044080 00000000 00000100  [.....@.........
+ 0d50 5e050000 2e054080 00000000 00000100  ^.....@.........
+ 0d60 64050000 00000000 00000000 0000f1ff  d...............
+ 0d70 67050000 a0010000 00000000 00000800  g...............
+ 0d80 6a050000 ad010000 00000000 00000700  j...............
+ 0d90 6d050000 26090000 00000000 00000600  m...&...........
+ 0da0 70050000 0d070000 00000000 00000900  p...............
+ 0db0 73050000 be000000 00000000 00000a00  s...............
+ 0dc0 76050000 64004080 00000000 10000100  v...d.@.........
+ 0dd0 7c050000 f0004080 00000000 10000100  |.....@.........
+ 0de0 89050000 e0034080 00000000 10000100  ......@.........
+ 0df0 92050000 b4004080 00000000 10000100  ......@.........
+ 0e00 9d050000 c4004080 00000000 10000100  ......@.........
+ 0e10 a7050000 d8004080 00000000 10000100  ......@.........
+ 0e20 b3050000 0a014080 00000000 10000100  ......@.........
+ 0e30 bf050000 1c014080 00000000 10000100  ......@.........
+ 0e40 cd050000 40034080 00000000 10000100  ....@.@.........
+ 0e50 dc050000 60014080 00000000 10000100  ....`.@.........
+ 0e60 e7050000 12024080 00000000 10000100  ......@.........
+ 0e70 f3050000 f0054080 00000000 10000400  ......@.........
+ 0e80 01060000 70064080 00000000 10000400  ....p.@.........
+ 0e90 0d060000 8e024080 00000000 10000100  ......@.........
+ 0ea0 17060000 b6024080 00000000 10000100  ......@.........
+ 0eb0 21060000 14034080 00000000 10000100  !.....@.........
+ 0ec0 28060000 88034080 00000000 10000100  (.....@.........
+ 0ed0 2f060000 ac034080 00000000 10000100  /.....@.........
+ 0ee0 37060000 c8034080 00000000 10000100  7.....@.........
+ 0ef0 41060000 3c044080 00000000 10000100  A...<.@.........
+ 0f00 4a060000 00004080 00000000 10000100  J.....@.........
+ 0f10 4f060000 70264580 00000000 10000400  O...p&E.........
+ 0f20 5b060000 d0054080 00000000 10000400  [.....@.........
+ 0f30 61060000 70264180 00000000 10000400  a...p&A.........
+ 0f40 6b060000 84044080 00000000 10000100  k.....@.........
+ 0f50 70060000 a8044080 00000000 10000100  p.....@.........
+ 0f60 79060000 f4044080 00000000 10000100  y.....@.........
+ 0f70 85060000 00304580 00000000 10000400  .....0E.........
+ 0f80 90060000 00304584 00000000 10000400  .....0E.........
+Contents of section .shstrtab:
+ 0000 002e7465 7874002e 726f6461 7461002e  ..text..rodata..
+ 0010 64617461 002e6273 73002e72 69736376  data..bss..riscv
+ 0020 2e617474 72696275 74657300 2e646562  .attributes..deb
+ 0030 75675f69 6e666f00 2e646562 75675f61  ug_info..debug_a
+ 0040 62627265 76002e64 65627567 5f617261  bbrev..debug_ara
+ 0050 6e676573 002e6465 6275675f 6c696e65  nges..debug_line
+ 0060 002e6465 6275675f 6c696e65 5f737472  ..debug_line_str
+ 0070 002e636f 6d6d656e 74002e73 796d7461  ..comment..symta
+ 0080 62002e73 68737472 74616200 2e737472  b..shstrtab..str
+ 0090 74616200                             tab.
+Contents of section .strtab:
+ 0000 00246400 6d31006d 32006d33 00247800  .$d.m1.m2.m3.$x.
+ 0010 24640024 64002464 00246400 24640024  $d.$d.$d.$d.$d.$
+ 0020 64002478 00726570 6561745f 72656164  d.$x.repeat_read
+ 0030 006c656e 5f696e5f 72656700 24640024  .len_in_reg.$d.$
+ 0040 64002464 00246400 24640024 64002478  d.$d.$d.$d.$d.$x
+ 0050 00656e76 5f750074 696d6572 00696c6c  .env_u.timer.ill
+ 0060 6567616c 5f696e73 74002464 00246400  egal_inst.$d.$d.
+ 0070 24640024 64002464 00246400 73746163  $d.$d.$d.$d.stac
+ 0080 6b5f7369 7a650070 726f635f 6d617800  k_size.proc_max.
+ 0090 70616765 5f73697a 65007072 6f635f70  page_size.proc_p
+ 00a0 69640070 726f635f 73746174 65007072  id.proc_state.pr
+ 00b0 6f635f73 70007072 6f635f73 61747000  oc_sp.proc_satp.
+ 00c0 70726f63 5f73697a 65007072 6f635f75  proc_size.proc_u
+ 00d0 6e757365 64007072 6f635f72 65616479  nused.proc_ready
+ 00e0 0070726f 635f7275 6e6e696e 67007072  .proc_running.pr
+ 00f0 6f635f62 6c6f636b 65640063 79636c65  oc_blocked.cycle
+ 0100 73007469 6d655f65 69640074 696d655f  s.time_eid.time_
+ 0110 66696400 24780024 64002464 00246400  fid.$x.$d.$d.$d.
+ 0120 24640024 64002464 00737461 636b5f73  $d.$d.$d.stack_s
+ 0130 697a6500 70726f63 5f6d6178 00706167  ize.proc_max.pag
+ 0140 655f7369 7a650070 726f635f 70696400  e_size.proc_pid.
+ 0150 70726f63 5f737461 74650070 726f635f  proc_state.proc_
+ 0160 73700070 726f635f 73617470 0070726f  sp.proc_satp.pro
+ 0170 635f7369 7a650070 726f635f 756e7573  c_size.proc_unus
+ 0180 65640070 726f635f 72656164 79007072  ed.proc_ready.pr
+ 0190 6f635f72 756e6e69 6e670070 726f635f  oc_running.proc_
+ 01a0 626c6f63 6b656400 6379636c 65730074  blocked.cycles.t
+ 01b0 696d655f 65696400 74696d65 5f666964  ime_eid.time_fid
+ 01c0 006d0024 64006c65 6e002478 00636865  .m.$d.len.$x.che
+ 01d0 636b0066 756c6c00 63726561 7465007a  ck.full.create.z
+ 01e0 65726f5f 6672616d 65002464 00246400  ero_frame.$d.$d.
+ 01f0 24640024 64002464 00246400 73746163  $d.$d.$d.$d.stac
+ 0200 6b5f7369 7a650070 726f635f 6d617800  k_size.proc_max.
+ 0210 70616765 5f73697a 65007072 6f635f70  page_size.proc_p
+ 0220 69640070 726f635f 73746174 65007072  id.proc_state.pr
+ 0230 6f635f73 70007072 6f635f73 61747000  oc_sp.proc_satp.
+ 0240 70726f63 5f73697a 65007072 6f635f75  proc_size.proc_u
+ 0250 6e757365 64007072 6f635f72 65616479  nused.proc_ready
+ 0260 0070726f 635f7275 6e6e696e 67007072  .proc_running.pr
+ 0270 6f635f62 6c6f636b 65640063 79636c65  oc_blocked.cycle
+ 0280 73007469 6d655f65 69640074 696d655f  s.time_eid.time_
+ 0290 66696400 24780024 64002464 00246400  fid.$x.$d.$d.$d.
+ 02a0 24640024 64002464 00737461 636b5f73  $d.$d.$d.stack_s
+ 02b0 697a6500 70726f63 5f6d6178 00706167  ize.proc_max.pag
+ 02c0 655f7369 7a650070 726f635f 70696400  e_size.proc_pid.
+ 02d0 70726f63 5f737461 74650070 726f635f  proc_state.proc_
+ 02e0 73700070 726f635f 73617470 0070726f  sp.proc_satp.pro
+ 02f0 635f7369 7a650070 726f635f 756e7573  c_size.proc_unus
+ 0300 65640070 726f635f 72656164 79007072  ed.proc_ready.pr
+ 0310 6f635f72 756e6e69 6e670070 726f635f  oc_running.proc_
+ 0320 626c6f63 6b656400 6379636c 65730074  blocked.cycles.t
+ 0330 696d655f 65696400 74696d65 5f666964  ime_eid.time_fid
+ 0340 00736368 65645f73 70002464 00637572  .sched_sp.$d.cur
+ 0350 72656e74 5f70726f 63002478 006f7574  rent_proc.$x.out
+ 0360 65725f6c 6f6f7000 73636865 645f7377  er_loop.sched_sw
+ 0370 69746368 006f7574 65725f65 6e640024  itch.outer_end.$
+ 0380 64002464 00246400 24640024 64002464  d.$d.$d.$d.$d.$d
+ 0390 00247800 24640024 64002464 00246400  .$x.$d.$d.$d.$d.
+ 03a0 24640024 64002478 006c6f6f 70006578  $d.$d.$x.loop.ex
+ 03b0 69740024 64002464 00246400 24640024  it.$d.$d.$d.$d.$
+ 03c0 64002464 00247800 6c6f6f70 00657869  d.$d.$x.loop.exi
+ 03d0 74002464 00246400 24640024 64002464  t.$d.$d.$d.$d.$d
+ 03e0 00246400 24780070 6f776572 006c6f6f  .$d.$x.power.loo
+ 03f0 70006578 6974006c 6f6f7048 6578006e  p.exit.loopHex.n
+ 0400 756d6265 72002464 00246400 24640024  umber.$d.$d.$d.$
+ 0410 64002464 00246400 73746163 6b5f7369  d.$d.$d.stack_si
+ 0420 7a650070 726f635f 6d617800 70616765  ze.proc_max.page
+ 0430 5f73697a 65007072 6f635f70 69640070  _size.proc_pid.p
+ 0440 726f635f 73746174 65007072 6f635f73  roc_state.proc_s
+ 0450 70007072 6f635f73 61747000 70726f63  p.proc_satp.proc
+ 0460 5f73697a 65007072 6f635f75 6e757365  _size.proc_unuse
+ 0470 64007072 6f635f72 65616479 0070726f  d.proc_ready.pro
+ 0480 635f7275 6e6e696e 67007072 6f635f62  c_running.proc_b
+ 0490 6c6f636b 65640063 79636c65 73007469  locked.cycles.ti
+ 04a0 6d655f65 69640074 696d655f 66696400  me_eid.time_fid.
+ 04b0 7365635f 636f6465 00246400 24780062  sec_code.$d.$x.b
+ 04c0 73735f7a 65726f69 6e670062 73735f7a  ss_zeroing.bss_z
+ 04d0 65726f5f 656e6400 4c310070 726f6365  ero_end.L1.proce
+ 04e0 73735f63 72656174 696f6e00 696e7075  ss_creation.inpu
+ 04f0 74002464 00246400 24640024 64002464  t.$d.$d.$d.$d.$d
+ 0500 00246400 2478004c 31007363 6865645f  .$d.$x.L1.sched_
+ 0510 6c6f6f70 00246400 24640024 64002464  loop.$d.$d.$d.$d
+ 0520 00246400 24640050 4147455f 53495a45  .$d.$d.PAGE_SIZE
+ 0530 00667265 6552616d 506f696e 74657200  .freeRamPointer.
+ 0540 2464004f 55545f4f 465f4d45 4d4f5259  $d.OUT_OF_MEMORY
+ 0550 0046494c 455f4e41 4d450024 78006572  .FILE_NAME.$x.er
+ 0560 726f7200 24640024 64002464 00246400  ror.$d.$d.$d.$d.
+ 0570 24640024 64007061 6e696300 77726974  $d.$d.panic.writ
+ 0580 655f7374 72696e67 00707269 6e74496e  e_string.printIn
+ 0590 74007772 6974655f 62797465 00726561  t.write_byte.rea
+ 05a0 645f6279 74650072 656d6f76 655f6279  d_byte.remove_by
+ 05b0 74650072 6561645f 73747269 6e670074  te.read_string.t
+ 05c0 7261705f 64697370 61746368 00737769  rap_dispatch.swi
+ 05d0 7463685f 636f6e74 65787400 74726170  tch_context.trap
+ 05e0 5f656e74 72790070 726f635f 63726561  _entry.proc_crea
+ 05f0 74650070 726f6365 73735f74 61626c65  te.process_table
+ 0600 0070726f 635f7374 61636b73 00736269  .proc_stacks.sbi
+ 0610 5f74696d 65720073 63686564 756c6572  _timer.scheduler
+ 0620 00726573 756d6500 6d656d63 7079006d  .resume.memcpy.m
+ 0630 656d7365 74300070 72696e74 496e7455  emset0.printIntU
+ 0640 00707269 6e744865 7800626f 6f74005f  .printHex.boot._
+ 0650 5f737461 636b5f74 6f70005f 5f627373  _stack_top.__bss
+ 0660 005f5f62 73735f65 6e64006d 61696e00  .__bss_end.main.
+ 0670 7072696e 744d656d 00616c6c 6f635f70  printMem.alloc_p
+ 0680 61676573 005f5f66 7265655f 72616d00  ages.__free_ram.
+ 0690 5f5f6672 65655f72 616d5f65 6e6400    __free_ram_end.

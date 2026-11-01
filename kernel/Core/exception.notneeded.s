@@ -100,9 +100,11 @@ handle_trap:
     la a1, FILE_NAME
     addi a2, x0, 100
     jal ra, panic
+
     csrr t0, sepc
     addi t0, t0, 4
     csrw sepc, t0
+    
     lw ra, 0(sp)
     addi sp, sp, 4
     jalr x0, 0(ra)

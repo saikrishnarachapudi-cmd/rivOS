@@ -3,11 +3,11 @@
 ##line number integer in  a2
 .section .rodata
 .word 15
-m1: .ascii "panic_message: "
+m1: .ascii "Panic_message: "
 .word 12
-m2:  .ascii " file_name: "
+m2:  .ascii " File_name: "
 .word 14
-m3:.ascii " line_number: "
+m3:.ascii " Line_number: "
 
 .section .text
 .global panic

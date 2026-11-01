@@ -5,7 +5,7 @@ CFLAGS  := -std=c11 -g3 -Wall -Wextra \
            -march=rv32imac_zicsr -Iinclude\
            #-O2 -fno-stack-protector -ffreestanding
 build: assembleEach combine
-assembleEach: exception.s panic.s terminal.s trap_dispatch.s trap.s
+assembleEach: panic.s terminal.s trap_dispatch.s trap.s
 	$(CC) -c $(CFLAGS) $^
-combine: exception.o panic.o terminal.o trap_dispatch.o trap.o
+combine: panic.o terminal.o trap_dispatch.o trap.o
 	$(CC) $(CFLAGS) -fuse-ld=lld -r $^ -o core.o
