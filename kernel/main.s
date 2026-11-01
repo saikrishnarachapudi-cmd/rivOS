@@ -2,6 +2,7 @@
 .global main
 
 main:
+    ebreak
     
     la a0, first_proc
     jal ra, proc_create

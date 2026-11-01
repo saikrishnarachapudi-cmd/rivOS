@@ -1,13 +1,14 @@
-.section .text
-.global trap_dispatch
-.data
+.section .rodata
 .word 3
 ILLEGAL_INST: .ascii ":An Illegal ins"
 .word 3
 FILE_NAME: .ascii "trap_dispatch.s"
-.word 29
-m7: .ascii "This exception is not considered"
-.text
+.word 34
+m7: .ascii "This exception is not considered\n"
+
+.section .text
+.global trap_dispatch
+
 #scause: Why did the trap happen?
 #sepc: At which instruction did it happen?
 #stval: What additional trap-specific information is available?
@@ -43,11 +44,22 @@ trap_dispatch:
     beq t2,a0,illegal_inst
 
 else:
-    #other exception
+    ##if last 2 bits are 11 then it is a 4byte else it is a 2byte instruction
+    lw   t0, 124(s0)
+    lhu  t1, 0(t0)
+    andi t1, t1, 3
+    li   t2, 3
+    li   t3, 2 
+    bne  t1, t2, two_byte
+    li   t3, 4 
+two_byte:
+    add  t0, t0, t3
+    sw   t0, 124(s0)
+
     addi a0, x0, -1
     la a1,m7
     jal ra, write_string
-    jal zero, done    
+    jal ra, done    
 
 timer:
     jal ra, sbi_timer
