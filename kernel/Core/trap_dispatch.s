@@ -41,11 +41,15 @@ timer:
     jal ra, done
     
 illegal_inst:
-
+    lw t0, 124(s0)
+    addi t0, t0, 4
+    sw t0, 124(s0)
     j done
     
 env_u:
-
+    lw t0, 124(s0)
+    addi t0, t0, 4
+    sw t0, 124(s0)
     j done
 
 done:
