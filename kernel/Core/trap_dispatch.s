@@ -1,11 +1,14 @@
-.section .text
-.global trap_dispatch
-.data
+.section .rodata
 .word 3
 ILLEGAL_INST: .ascii ":An Illegal ins"
 .word 3
 FILE_NAME: .ascii "trap_dispatch.s"
-.text
+.word 34
+m7: .ascii "This exception is not considered\n"
+
+.section .text
+.global trap_dispatch
+
 #scause: Why did the trap happen?
 #sepc: At which instruction did it happen?
 #stval: What additional trap-specific information is available?

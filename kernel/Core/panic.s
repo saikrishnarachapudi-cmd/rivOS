@@ -18,23 +18,23 @@ panic:
     sw a2,8(sp)
     sw ra,12(sp)
     
-    addi a0, x0, -1;
+    addi a0, x0, -1
     la a1,m1
     jal ra, write_string
     
-    addi a0, x0, -1;
+    addi a0, x0, -1
     lw a1,0(sp)
     jal ra, write_string
     
-    addi a0, x0, -1;
+    addi a0, x0, -1
     la a1,m2
     jal ra, write_string
     
-    addi a0, x0, -1;
+    addi a0, x0, -1
     lw a1,4(sp)
     jal ra, write_string
 
-    addi a0, x0, -1;
+    addi a0, x0, -1
     la a1,m3
     jal ra, write_string
     
