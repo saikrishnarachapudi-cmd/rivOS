@@ -27,11 +27,11 @@ ecall
 jalr zero,0(ra)
 
 timer_init:
-    addi sp, sp, -16
+    addi sp, sp, -4
     sw  ra, 0(sp)
     jal ra, sbi_timer
     li  t0, 0x20
     csrs sie, t0
     lw  ra, 0(sp)
-    addi sp, sp, 16
+    addi sp, sp, 4
     ret

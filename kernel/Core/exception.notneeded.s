@@ -52,7 +52,7 @@ for(var i=1;i<32;i++){
     csrr a0, sscratch
     sw a0, 4*1(sp)
 
-    jal ra, handle_trap
+    jal ra, trap_dispatch
     /*
     Regenerate it with
 logO = ""
@@ -93,21 +93,21 @@ for(var i=1;i<32;i++){
 	lw x2, 4*1(sp)
     sret
 
-handle_trap:
-    addi sp, sp, -4
-    sw ra, 0(sp)
-    la a0, EXCEPTION
-    la a1, FILE_NAME
-    addi a2, x0, 100
-    jal ra, panic
+# handle_trap:
+#     addi sp, sp, -4
+#     sw ra, 0(sp)
+#     la a0, EXCEPTION
+#     la a1, FILE_NAME
+#     addi a2, x0, 100
+#     jal ra, panic
 
-    csrr t0, sepc
-    addi t0, t0, 4
-    csrw sepc, t0
+#     csrr t0, sepc
+#     addi t0, t0, 4
+#     csrw sepc, t0
     
-    lw ra, 0(sp)
-    addi sp, sp, 4
-    jalr x0, 0(ra)
+#     lw ra, 0(sp)
+#     addi sp, sp, 4
+#     jalr x0, 0(ra)
 
 
 

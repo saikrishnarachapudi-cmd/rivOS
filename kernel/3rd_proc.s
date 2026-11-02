@@ -1,6 +1,6 @@
 .section .rodata
-mm3: .ascii "my_third_process"
-    .equ mm3_len ,16
+mm3: .ascii "my_third_process\n"
+    .equ mm3_len ,17
 .section .text
 .global third_proc
 

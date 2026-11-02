@@ -1,6 +1,6 @@
 .section .rodata
-mm2: .ascii "my_second_process"
-    .equ mm2_len ,17
+mm2: .ascii "my_second_process\n"
+    .equ mm2_len ,18
 .section .text
 .global second_proc
 

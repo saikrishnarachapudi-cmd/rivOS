@@ -37,4 +37,4 @@ switch_context:
         lw s10, 11 * 4(sp)
         lw s11, 12 * 4(sp)
         addi sp, sp, 52
-        ret
+        jalr x0, 0(ra)

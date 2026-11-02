@@ -7,7 +7,7 @@
 
 .section .bss
     sched_sp: .space 4
-    next_proc: .space 4   ##current iteration
+    next_proc: .space 4   ##current iteration (next process control block)
 
 .section .text
     
@@ -18,40 +18,40 @@ scheduler:
     sw s0, 4(sp) 
     sw s1, 8(sp)  
 
-new_loop:
-    la s0, process_table  ##current_proc_number
-    li s1, proc_max    ##no.of processes that are not yet seen
+    new_loop:
+        la s0, process_table  ##current_proc_number
+        li s1, proc_max    ##no.of processes that are not yet seen
 
-outer_loop:
-    beqz s1, new_loop   # t2==0
-    lw t3, proc_state(s0)
-    li t4, proc_ready
-    bne t3,t4,resume
+        outer_loop:
+            beq s1, x0, new_loop   # t2==0
+            lw t3, proc_state(s0)
+            li t4, proc_ready
+            bne t3,t4,resume
 
-    sfence.vma
-    lw a0, proc_satp(s0)
-    csrw satp, a0
-    sfence.vma
-    
-    la t0, next_proc
-    sw s0, 0(t0)
-    li t4, proc_running
-    sw t4, proc_state(s0)
-#context switching from scheduler to process
-    la a0, sched_sp
-    addi a1, s0, proc_sp
-    jal  ra, switch_context
-    
-    #back
-    lw t0, next_proc
-    li t4, proc_ready
-    sw t4, proc_state(t0)
+            sfence.vma
+            lw a0, proc_satp(s0)
+            csrw satp, a0
+            sfence.vma
+            
+            la t0, next_proc
+            sw s0, 0(t0)
+            li t4, proc_running
+            sw t4, proc_state(s0)
+        #context switching from scheduler to process
+            la a0, sched_sp
+            addi a1, s0, proc_sp
+            jal  ra, switch_context
+            
+            #back
+            lw t0, next_proc
+            li t4, proc_ready
+            sw t4, proc_state(t0)
 
-resume:
-    li t0, proc_size
-    add s0,s0,t0
-    addi s1, s1, -1    # t2--
-    j outer_loop
+    resume:
+        li t0, proc_size
+        add s0,s0,t0
+        addi s1, s1, -1    # t2--
+        j outer_loop
 
 #context switching from process to scheduler
 sched_switch:
@@ -64,7 +64,7 @@ sched_switch:
     jal ra, switch_context
     lw ra, 0(sp)
     addi sp, sp, 4
-    ret
+    jalr x0, 0(ra)
 
 
 

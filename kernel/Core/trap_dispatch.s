@@ -12,8 +12,6 @@ FILE_NAME: .ascii "trap_dispatch.s"
 #sstatus: What was the CPU's privilege and interrupt state?
 #sie / sip: Which supervisor interrupts are enabled or pending?
 
-#t5-interrupt,  scause >> 31;
-#t6 - code , scause & 0x7fffffffU;
 trap_dispatch:
     addi sp, sp, -8
     sw   ra, 0(sp)
@@ -26,20 +24,17 @@ trap_dispatch:
     csrr t3,stval
     csrr t4, sie
 
-    srli t5,t2,31
-    li a0,1
-    slli a0,a0,31
-    addi a0,a0,-1
-    and t6, t2, a0
     li a1,8
     beq t2,a1,env_u
     li a0,1
-    slli a0,a0,30
+    slli a0,a0,31
     addi a0,a0,5
     beq a0,t2,timer
     li a0,2
     beq t2,a0,illegal_inst
-
+    loop:
+        wfi
+        jal x0, loop
 timer:
     jal ra, sbi_timer
     jal ra, sched_switch
@@ -56,10 +51,11 @@ illegal_inst:
     # jal ra, panic
     addi a0, x0, 67
     jal ra, write_byte
-    loop: 
+    loop2: 
         wfi
-        jal x0, loop
+        jal x0, loop2
 env_u:
+    # syscall from usermode here
     lw t0, 124(s0)
     addi t0, t0, 4
     sw t0, 124(s0)

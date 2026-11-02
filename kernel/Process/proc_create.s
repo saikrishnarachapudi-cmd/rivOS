@@ -13,22 +13,21 @@
 #pid = 0,1,2...max-1
 # returns a0 = pid  or -1 if the process table is full
 proc_create:
-    la t0, process_table        
-    li t2, proc_max    
-    li t3, 0  #t3=pid of new process          
-
-check:
-    beq t2,zero,full
-    lw t1, proc_state(t0)
-    beq t1,zero, create     
-    li t5, proc_size          
-    add t0, t0, t5
-    addi t3, t3, 1
-    addi t2, t2, -1
-    jal x0, check
+    la t0, process_table
+    li t2, proc_max # counter for process tables
+    li t3, 0  #t3=pid of new process
+    check:
+        beq t2,zero,full # t2 is zero so no process empty
+        lw t1, proc_state(t0)
+        beq t1,zero, create # t1 is empty go there
+        li t5, proc_size          
+        add t0, t0, t5
+        addi t3, t3, 1
+        addi t2, t2, -1
+        jal x0, check
 
     create:
-        sw t3, proc_pid(t0)
+        sw t3, proc_pid(t0) # store as new pid
         li t1, proc_ready
         sw t1, proc_state(t0)     
         //---------------------------
@@ -66,11 +65,11 @@ check:
     srli t4, t4, 2 
     mv t5, t1       
 
-zero_frame:
-    addi t5, t5, -4 
-    sw zero, 0(t5) 
-    addi t4, t4, -1  
-    bnez t4, zero_frame
+    zero_frame:# clear the stack into zeros
+        addi t5, t5, -4 
+        sw zero, 0(t5) 
+        addi t4, t4, -1  
+        bnez t4, zero_frame
 
     #switch_context frame
     addi t1, t1, -52
@@ -78,7 +77,7 @@ zero_frame:
     sw t2, 0(t1)      #ra = proc_start
     sw a0, 4(t1)      #s0 = entry point
     sw t1, proc_sp(t0)
-      
+    
     
     mv a0, t3 
     mv a1, t1 
