@@ -41,6 +41,10 @@ proc_create:
         sw a0, 24(sp)
         sw ra, 28(sp)
         jal ra, map_kernel_pages
+        srli a0, a0, 12
+        addi t1, x0, 1
+        slli t1, t1, 31# and with the top bit set to one to enable sv32
+        or a0, t1, a0
         lw t0, 0(sp)
         sw a0, proc_satp(t0)
         lw t1, 4(sp)
@@ -50,7 +54,7 @@ proc_create:
         lw t5, 20(sp)
         lw a0, 24(sp)
         lw ra, 28(sp)
-        addi sp, sp, 28
+        addi sp, sp, 32
     //---------------------------
 
 #stack top: proc_stacks + (pid + 1) * stack_size
@@ -99,7 +103,7 @@ proc_start:
     jalr zero, (s0)
 
 //maps all kernel pages for a process
-// returns satp value in a0
+// returns process table address value in a0
 map_kernel_pages:
     addi sp, sp, -4
     sw ra, 0(sp)
@@ -136,15 +140,62 @@ map_kernel_pages:
         jal x0, start_mapping
     
     done_map:
-    // calculate satp value for this process
+    // copy process address table to t2
     addi a0, t2, 0
-    addi t1, x0, 1
-    slli t1, t1, 31
-    srli a0, a0, 12
-    or a0, a0, t1
     lw ra, 0(sp)
     addi sp, sp, 4
     jalr x0, 0(ra)
 
+
+#a0 - start of image
+#a1 - end of image
+#a2 - size of image
+#a3 - processPageTableAddress
 map_user_pages:
-    
+    addi sp, sp, -24
+    sw s0, 0(sp)
+    sw s1, 4(sp)
+    sw s2, 8(sp)
+    sw s3, 12(sp)
+    sw s4, 16(sp)
+    sw ra, 20(sp)
+    li s3, PAGE_SIZE # fixed
+    addi s4, x0, 0
+    ori s4, s4, PAGE_V
+    ori s4, s4, PAGE_X
+    ori s4, s4, PAGE_R
+    ori s4, s4, PAGE_W
+    ori s4, s4, PAGE_U
+    addi s0, s3, 0 # end of currently allocated storage
+    addi s1, a2, 0 # max size
+    addi s2, a3, 0
+    map_loop:
+        bge s0, s1, compltedFullPages
+        addi a0, x0, 1
+        jal ra, alloc_pages
+        addi a2, a0, 0
+        addi a0, s2, 0
+        addi a3, s4, 0
+        addi a1, s0, 0 # start of current page
+        jal ra, map_pages
+        add s0, s0, s3
+        jal x0, map_loop
+    compltedFullPages:
+        sub s0, s0, s3
+        blt s0, s1, return
+            addi a0, x0, 1
+            jal ra, alloc_pages
+            addi a2, a0, 0
+            addi a0, s2, 0
+            addi a3, s4, 0
+            addi a1, s0, 0 # start of current page
+            jal ra, map_pages
+    return:
+        lw s0, 0(sp)
+        lw s1, 4(sp)
+        lw s2, 8(sp)
+        lw s3, 12(sp)
+        lw s4, 16(sp)
+        lw ra, 20(sp)
+        addi sp, sp, 24
+        jalr x0, 0(ra)
