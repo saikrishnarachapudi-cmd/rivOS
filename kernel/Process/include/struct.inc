@@ -33,3 +33,4 @@
 .equ PAGE_W, 0x4
 .equ PAGE_X, 0x8
 .equ PAGE_U, 0x10
+.equ USER_BASE, 0x1000000

@@ -26,7 +26,11 @@ boot:
     la t0, trap_entry
     csrw stvec, t0
     
-bss_zeroing:    
+bss_zeroing:
+    la a0, _binary_shell_bin_start
+    jal ra, printHex
+    la a0, _binary_shell_bin_end
+    jal ra, printHex
     la a0, __bss
     li a1, 0 
     la a2, __bss_end

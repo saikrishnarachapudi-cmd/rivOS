@@ -1,0 +1,367 @@
+qemu-system-riscv32 -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel kernel.elf
+
+OpenSBI v1.8.1
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name               : riscv-virtio,qemu
+Platform Features           : medeleg
+Platform HART Count         : 1
+Platform HART Protection    : pmp
+Platform IPI Device         : aclint-mswi
+Platform Timer Device       : aclint-mtimer @ 10000000Hz
+Platform Console Device     : uart8250
+Platform HSM Device         : ---
+Platform PMU Device         : ---
+Platform Reboot Device      : syscon-reboot
+Platform Shutdown Device    : syscon-poweroff
+Platform Suspend Device     : ---
+Platform CPPC Device        : ---
+Firmware Base               : 0x80000000
+Firmware Size               : 317 KB
+Firmware RW Offset          : 0x40000
+Firmware RW Size            : 61 KB
+Firmware Heap Offset        : 0x46000
+Firmware Heap Size          : 37 KB (total), 0 KB (reserved), 11 KB (used), 25 KB (free)
+Firmware Scratch Size       : 4096 B (total), 1404 B (used), 2692 B (free)
+Runtime SBI Version         : 3.0
+Standard SBI Extensions     : time,rfnc,ipi,base,hsm,srst,pmu,dbcn,fwft,legacy,dbtr,sse
+Experimental SBI Extensions : none
+
+Domain0 Name                : root
+Domain0 Boot HART           : 0
+Domain0 HARTs               : 0*
+Domain0 Region00            : 0x80040000-0x8004ffff M: (F,R,W) S/U: ()
+Domain0 Region01            : 0x80000000-0x8003ffff M: (F,R,X) S/U: ()
+Domain0 Region02            : 0x00100000-0x00100fff M: (I,R,W) S/U: (R,W)
+Domain0 Region03            : 0x10000000-0x10000fff M: (I,R,W) S/U: (R,W)
+Domain0 Region04            : 0x02000000-0x0200ffff M: (I,R,W) S/U: ()
+Domain0 Region05            : 0x0c400000-0x0c5fffff M: (I,R,W) S/U: (R,W)
+Domain0 Region06            : 0x0c000000-0x0c3fffff M: (I,R,W) S/U: (R,W)
+Domain0 Region07            : 0x00000000-0xffffffff M: () S/U: (R,W,X)
+Domain0 Next Address        : 0x80400000
+Domain0 Next Arg1           : 0x87e00000
+Domain0 Next Mode           : S-mode
+Domain0 SysReset            : yes
+Domain0 SysSuspend          : yes
+
+Boot HART ID                : 0
+Boot HART Domain            : root
+Boot HART Priv Version      : v1.12
+Boot HART Base ISA          : rv32imafdch
+Boot HART ISA Extensions    : sstc,zicntr,zihpm,zicboz,zicbom,sdtrig,svadu
+Boot HART PMP Count         : 16
+Boot HART PMP Granularity   : 2 bits
+Boot HART PMP Address Bits  : 32
+Boot HART MHPM Info         : 16 (0x0007fff8)
+Boot HART Debug Triggers    : 2 triggers
+Boot HART MIDELEG           : 0x00001666
+Boot HART MEDELEG           : 0x00f4b509
+0x8045b000 0x8045b000 0x8445b000my_second_process
+my_third_process
+1my_first_process
+1100my_second_process
+99my_second_process
+00my_third_process
+99my_third_process
+00my_first_process
+99my_first_process
+98my_second_process
+97my_second_process
+96my_second_process
+98my_third_process
+97my_third_process
+96my_third_process
+95my_third_process
+98my_first_process
+97my_first_process
+96my_first_process
+95my_second_process
+94my_second_process
+93my_second_process
+94my_third_process
+93my_third_process
+92my_third_process
+95my_first_process
+94my_first_process
+93my_first_process
+992my_second_process
+91my_second_process
+90my_second_process
+91my_third_process
+90my_third_process
+89my_third_process
+2my_first_process
+91my_first_process
+90my_first_process
+89my_second_process
+88my_second_process
+87my_second_process
+88my_third_process
+87my_third_process
+86my_third_process
+89my_first_process
+88my_first_process
+87my_first_process
+886my_second_process
+85my_second_process
+84my_second_process
+85my_third_process
+84my_third_process
+83my_third_process
+6my_first_process
+85my_first_process
+84my_first_process
+83my_second_process
+82my_second_process
+81my_second_process
+82my_third_process
+81my_third_process
+80my_third_process
+83my_first_process
+82my_first_process
+81my_first_process
+80my_second_process
+79my_second_process
+78my_second_process
+79my_third_process
+78my_third_process
+77my_third_process
+80my_first_process
+79my_first_process
+78my_first_process
+77my_second_process
+76my_second_process
+75my_second_process
+76my_third_process
+75my_third_process
+74my_third_process
+77my_first_process
+76my_first_process
+75my_first_process
+7474my_second_process
+73my_second_process
+72my_second_process
+73my_third_process
+72my_third_process
+71my_third_process
+my_first_process
+73my_first_process
+72my_first_process
+71my_second_process
+70my_second_process
+69my_second_process
+70my_third_process
+69my_third_process
+68my_third_process
+71my_first_process
+70my_first_process
+69my_first_process
+668my_second_process
+67my_second_process
+66my_second_process
+67my_third_process
+66my_third_process
+65my_third_process
+8my_first_process
+67my_first_process
+66my_first_process
+65my_second_process
+64my_second_process
+63my_second_process
+64my_third_process
+63my_third_process
+62my_third_process
+65my_first_process
+662my_second_process
+61my_second_process
+6061my_third_process
+60my_third_process
+59my_third_process
+4my_first_process
+63my_first_process
+62my_first_process
+my_second_process
+59my_second_process
+58my_second_process
+558my_third_process
+57my_third_process
+56my_third_process
+5561my_first_process
+60my_first_process
+59my_first_process
+57my_second_process
+56my_second_process
+55my_second_process
+my_third_process
+54my_third_process
+53my_third_process
+8my_first_process
+57my_first_process
+56my_first_process
+54my_second_process
+53my_second_process
+52my_second_process
+552my_third_process
+51my_third_process
+50my_third_process
+55my_first_process
+54my_first_process
+53my_first_process
+1my_second_process
+50my_second_process
+49my_second_process
+49my_third_process
+48my_third_process
+47my_third_process
+52my_first_process
+51my_first_process
+50my_first_process
+48my_second_process
+47my_second_process
+46my_second_process
+446my_third_process
+45my_third_process
+44my_third_process
+49my_first_process
+48my_first_process
+47my_first_process
+5my_second_process
+44my_second_process
+43my_second_process
+43my_third_process
+42my_third_process
+41my_third_process
+46my_first_process
+45my_first_process
+44my_first_process
+42my_second_process
+41my_second_process
+40my_second_process
+40my_third_process
+39my_third_process
+38my_third_process
+43my_first_process
+42my_first_process
+41my_first_process
+39my_second_process
+38my_second_process
+37my_second_process
+37my_third_process
+36my_third_process
+35my_third_process
+40my_first_process
+39my_first_process
+38my_first_process
+36my_second_process
+35my_second_process
+34my_second_process
+34my_third_process
+33my_third_process
+32my_third_process
+337my_first_process
+36my_first_process
+35my_first_process
+33my_second_process
+32my_second_process
+31my_second_process
+1my_third_process
+30my_third_process
+29my_third_process
+34my_first_process
+33my_first_process
+32my_first_process
+30my_second_process
+29my_second_process
+28my_second_process
+28my_third_process
+27my_third_process
+26my_third_process
+31my_first_process
+30my_first_process
+29my_first_process
+227my_second_process
+26my_second_process
+25my_second_process
+25my_third_process
+24my_third_process
+23my_third_process
+8my_first_process
+27my_first_process
+26my_first_process
+24my_second_process
+23my_second_process
+22my_second_process
+22my_third_process
+21my_third_process
+20my_third_process
+25my_first_process
+24my_first_process
+23my_first_process
+21my_second_process
+20my_second_process
+19my_second_process
+19my_third_process
+18my_third_process
+17my_third_process
+22my_first_process
+21my_first_process
+20my_first_process
+118my_second_process
+17my_second_process
+16my_second_process
+16my_third_process
+15my_third_process
+14my_third_process
+19my_first_process
+18my_first_process
+17my_first_process
+15my_second_process
+14my_second_process
+13my_second_process
+3my_third_process
+12my_third_process
+11my_third_process
+116my_first_process
+15my_first_process
+14my_first_process
+12my_second_process
+11my_second_process
+10my_second_process
+0my_third_process
+9my_third_process
+8my_third_process
+713my_first_process
+12my_first_process
+11my_first_process
+9my_second_process
+8my_second_process
+7my_second_process
+my_third_process
+6my_third_process
+5my_third_process
+4my_third_process
+10my_first_process
+9my_first_process
+8my_first_process
+76my_second_process
+5my_second_process
+4my_second_process
+3my_third_process
+2my_third_process
+1my_first_process
+6my_first_process
+5my_first_process
+4my_first_process
+3my_second_process
+2my_second_process
+13my_first_process
+2my_first_process
+1QEMU: Terminated
+

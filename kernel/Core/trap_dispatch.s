@@ -41,6 +41,7 @@ trap_dispatch:
 timer:
     jal ra, sbi_timer
     jal ra, sched_switch
+label:
     jal ra, done
     
 illegal_inst:

@@ -145,3 +145,6 @@ map_kernel_pages:
     lw ra, 0(sp)
     addi sp, sp, 4
     jalr x0, 0(ra)
+
+map_user_pages:
+    

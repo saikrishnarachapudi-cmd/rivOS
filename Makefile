@@ -5,7 +5,7 @@ CFLAGS  := -std=c11 -g3 -Wall -Wextra \
            -march=rv32ima_zicsr -Iinclude\
 		   #-O2 -fno-stack-protector -ffreestanding
 #---------------------------
-SUBDIRS = kernel/ kernel/Process/ kernel/Core/ kernel/Memory/ kernel/lib/ kernel/Memory
+SUBDIRS = kernel/ kernel/Process/ kernel/Core/ kernel/Memory/ kernel/lib/ kernel/Memory user/
 .PHONY: libs $(SUBDIRS)
 
 build: libs buildK
@@ -15,8 +15,7 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 # Object files
-OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/boot.o kernel/Memory/memory.o
-
+OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/boot.o kernel/Memory/memory.o user/shell.bin.o
 # Build the kernel
 buildK: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf
