@@ -23,6 +23,8 @@
 
 trap_entry:
     
+    csrrw sp, sscratch, sp
+    
     addi sp, sp, -160
 
     # Save general-purpose registers
@@ -43,9 +45,7 @@ trap_entry:
 
     sw a0,  36(sp)
     csrr t0, sepc
-    jal ra, printHexDebug
     csrr t0, scause
-    jal ra, printHexDebug
     sw a1,  40(sp)
     sw a2,  44(sp)
     sw a3,  48(sp)
@@ -82,6 +82,9 @@ trap_entry:
     csrr t0, stval
     sw t0, 136(sp)
 
+    csrr t0, sscratch
+    sw t0, 144(sp)
+
     # Pass pointer to trap frame to the dispatcher
     mv a0, sp
     jal ra, trap_dispatch
@@ -97,6 +100,9 @@ trap_entry:
 
     lw t0, 128(sp)
     csrw sstatus, t0
+
+    lw t0, 144(sp)
+    csrw sscratch, t0
 
     # Restore registers
     lw ra,   0(sp)
@@ -136,5 +142,9 @@ trap_entry:
 
     
     lw sp, 4(sp)
+    
+    csrrw sp, sscratch, sp
+    
+
 
     sret

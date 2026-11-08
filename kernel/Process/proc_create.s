@@ -16,6 +16,7 @@ proc_create:
     la t0, process_table
     li t2, proc_max # counter for process tables
     li t3, 0  #t3=pid of new process
+
     check:
         beq t2,zero,full # t2 is zero so no process empty
         lw t1, proc_state(t0)
@@ -29,7 +30,8 @@ proc_create:
     create:
         sw t3, proc_pid(t0) # store as new pid
         li t1, proc_ready
-        sw t1, proc_state(t0)     
+        sw t1, proc_state(t0)  
+
         //---------------------------
         addi sp, sp, -32
         sw t0, 0(sp)
@@ -88,6 +90,7 @@ proc_create:
     sw t2, 0(t1)      #ra = proc_start
     sw a0, 4(t1)      #s0 = entry point
     sw t1, proc_sp(t0)
+    
     
     
     mv a0, t3 

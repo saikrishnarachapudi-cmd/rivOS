@@ -66,12 +66,14 @@ printHex:
         jal x0, loopHex
 # Saves all registers
 printHexDebug:
-    addi sp, sp, -20
+    addi sp, sp, -28
     sw ra, 0(sp)
     sw t1, 4(sp)
     sw t0, 8(sp)
     sw a7, 12(sp)
     sw a6, 16(sp)
+    sw a0, 20(sp)
+    sw a1, 24(sp)
     addi t1, a0, 0
     addi t0, x0, 32
 
@@ -98,5 +100,7 @@ printHexDebug:
         lw t0, 8(sp)
         lw a7, 12(sp)
         lw a6, 16(sp)
-        addi sp, sp, 4
+        lw a0, 20(sp)
+        lw a1, 24(sp)
+        addi sp, sp, 28
         jalr x0, 0(ra)

@@ -40,6 +40,8 @@ scheduler:
         #context switching from scheduler to process
             la a0, sched_sp
             addi a1, s0, proc_sp
+            lw t0, proc_sp(s0)
+            csrw sscratch, t0
             jal  ra, switch_context
             
             #back

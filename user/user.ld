@@ -21,8 +21,9 @@ SECTIONS {
 
     /* data that should be zero-filled at startup */
     .bss : ALIGN(4) {
+        __bss = .;
         *(.bss .bss.* .sbss .sbss.*);
-
+        __bss_end = .;
         . = ALIGN(16);
         . += 64 * 1024; /* 64KB */
         __stack_top = .;
