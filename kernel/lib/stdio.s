@@ -1,6 +1,7 @@
 .global     printInt
 .global     printIntU
 .global     printHex
+.global     printHexDebug
 .text
 printIntU:
     addi sp, sp, -4
@@ -63,3 +64,39 @@ printHex:
         addi a0, a0, 58
         jal ra, write_byte
         jal x0, loopHex
+# Saves all registers
+printHexDebug:
+    addi sp, sp, -20
+    sw ra, 0(sp)
+    sw t1, 4(sp)
+    sw t0, 8(sp)
+    sw a7, 12(sp)
+    sw a6, 16(sp)
+    addi t1, a0, 0
+    addi t0, x0, 32
+
+    addi a0, x0, 48
+    jal ra, write_byte
+    addi a0, a0, 120
+    jal ra, write_byte
+    
+    loopHexD:
+        beq t0, x0, exitD
+        addi t0, t0, -4
+        srl a0, t1, t0
+        andi a0, a0, 0xf
+        addi a0, a0, -10
+        blt a0, x0, numberD
+        addi a0, a0, 39
+        numberD:
+        addi a0, a0, 58
+        jal ra, write_byte
+        jal x0, loopHexD
+    exitD:
+        lw ra, 0(sp)
+        lw t1, 4(sp)
+        lw t0, 8(sp)
+        lw a7, 12(sp)
+        lw a6, 16(sp)
+        addi sp, sp, 4
+        jalr x0, 0(ra)

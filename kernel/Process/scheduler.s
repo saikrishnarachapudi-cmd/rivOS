@@ -27,7 +27,7 @@ scheduler:
             lw t3, proc_state(s0)
             li t4, proc_ready
             bne t3,t4,resume
-
+            satpDebug:
             sfence.vma
             lw a0, proc_satp(s0)
             csrw satp, a0

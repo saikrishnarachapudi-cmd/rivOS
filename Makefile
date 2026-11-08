@@ -19,6 +19,7 @@ OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/b
 # Build the kernel
 buildK: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf
+	llvm-objdump -S kernel.elf > source.txt
 run: kernel.elf
 	$(QEMU) -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel kernel.elf
 host: kernel.elf

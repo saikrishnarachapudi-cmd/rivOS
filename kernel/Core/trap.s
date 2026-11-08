@@ -42,6 +42,10 @@ trap_entry:
     sw s1,  32(sp)
 
     sw a0,  36(sp)
+    csrr t0, sepc
+    jal ra, printHexDebug
+    csrr t0, scause
+    jal ra, printHexDebug
     sw a1,  40(sp)
     sw a2,  44(sp)
     sw a3,  48(sp)
@@ -69,7 +73,6 @@ trap_entry:
     # Save trap CSRs
     csrr t0, sepc
     sw t0, 124(sp)
-
     csrr t0, sstatus
     sw t0, 128(sp)
 

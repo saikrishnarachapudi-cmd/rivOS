@@ -16,18 +16,18 @@ printMem:
     sw ra, 0(sp)
 
     la a0, __free_ram
-    jal ra, printHex
+    #jal ra, printHex
     addi a0, x0, 32
-    jal ra, write_byte
+    //jal ra, write_byte
     la a0, freeRamPointer
     la t0, __free_ram
     sw t0, 0(a0)
     addi a0, t0, 0
-    jal ra, printHex
+    #jal ra, printHex
     addi a0, x0, 32
-    jal ra, write_byte
+    //jal ra, write_byte
     la a0, __free_ram_end
-    jal ra, printHex
+    #jal ra, printHex
 
     lw ra, 0(sp)
     addi sp, sp, 4
@@ -48,7 +48,7 @@ alloc_pages:
     add t2, t0, t2 # end address in t2
     la t5, __free_ram_end
 
-    bge t2, t5, error# error if end is out of limit
+    blt t5, t2, error# error if end is out of limit
 
     lw ra, 0(sp)
     addi sp, sp, 4

@@ -41,12 +41,18 @@ proc_create:
         sw a0, 24(sp)
         sw ra, 28(sp)
         jal ra, map_kernel_pages
-        srli a0, a0, 12
+        addi a3, a0, 0
+        la a0, _binary_shell_bin_start
+        la a1, _binary_shell_bin_end
+        la a2, _binary_shell_bin_size
+        checkBinarySizes:
+        jal ra, map_user_pages
+        srli a3, a3, 12
         addi t1, x0, 1
         slli t1, t1, 31# and with the top bit set to one to enable sv32
-        or a0, t1, a0
+        or a3, t1, a3
         lw t0, 0(sp)
-        sw a0, proc_satp(t0)
+        sw a3, proc_satp(t0)
         lw t1, 4(sp)
         lw t2, 8(sp)
         lw t3, 12(sp)
@@ -77,6 +83,7 @@ proc_create:
 
     #switch_context frame
     addi t1, t1, -52
+    li a0, USER_BASE
     la t2, proc_start
     sw t2, 0(t1)      #ra = proc_start
     sw a0, 4(t1)      #s0 = entry point
@@ -99,8 +106,16 @@ full:
     jalr zero, 0(ra)
 
 proc_start:
+    li t0, 0x20
+    li t1, 0x40000
+    or t0, t0, t1
+    csrw sstatus, t0
     csrsi sstatus, 2
-    jalr zero, (s0)
+    #lw t0, 0(s0)
+    csrw sepc, s0
+    sret
+
+
 
 //maps all kernel pages for a process
 // returns process table address value in a0
@@ -150,15 +165,17 @@ map_kernel_pages:
 #a0 - start of image
 #a1 - end of image
 #a2 - size of image
-#a3 - processPageTableAddress
+#a3 - processPageTableAddress (a3 not edited)
 map_user_pages:
-    addi sp, sp, -24
+    addi sp, sp, -28
     sw s0, 0(sp)
     sw s1, 4(sp)
     sw s2, 8(sp)
     sw s3, 12(sp)
     sw s4, 16(sp)
     sw ra, 20(sp)
+    sw s5, 24(sp)
+    li s5, 0x1000000 # virtual addresses
     li s3, PAGE_SIZE # fixed
     addi s4, x0, 0
     ori s4, s4, PAGE_V
@@ -166,36 +183,49 @@ map_user_pages:
     ori s4, s4, PAGE_R
     ori s4, s4, PAGE_W
     ori s4, s4, PAGE_U
-    addi s0, s3, 0 # end of currently allocated storage
-    addi s1, a2, 0 # max size
+    add s0, s3, a0 # end of currently being allocated storage
+    addi s1, a1, 0 # max size
     addi s2, a3, 0
     map_loop:
         bge s0, s1, compltedFullPages
         addi a0, x0, 1
         jal ra, alloc_pages
+        allocatedPagesDebug:
+        #a0 is already the required destination
+        sub a1, s0, s3 # source of page start
+        addi a2, s3, 0 # copy size
+        jal ra, memcpy
         addi a2, a0, 0
         addi a0, s2, 0
         addi a3, s4, 0
-        addi a1, s0, 0 # start of current page
+        addi a1, s5, 0
+        // wrong sub a1, s0, s3 # start of current page
         jal ra, map_pages
         add s0, s0, s3
+        add s5, s5, s3
         jal x0, map_loop
     compltedFullPages:
         sub s0, s0, s3
-        blt s0, s1, return
+        beq s0, s1, return
             addi a0, x0, 1
             jal ra, alloc_pages
+            #a0 is already the required destination
+            addi a1, s0, 0
+            sub a2, s1, s0
+            jal ra, memcpy
+            addi a1, s5, 0
             addi a2, a0, 0
             addi a0, s2, 0
             addi a3, s4, 0
-            addi a1, s0, 0 # start of current page
             jal ra, map_pages
     return:
+        addi a3, s2, 0
         lw s0, 0(sp)
         lw s1, 4(sp)
         lw s2, 8(sp)
         lw s3, 12(sp)
         lw s4, 16(sp)
         lw ra, 20(sp)
-        addi sp, sp, 24
+        lw s5, 24(sp)
+        addi sp, sp, 28
         jalr x0, 0(ra)

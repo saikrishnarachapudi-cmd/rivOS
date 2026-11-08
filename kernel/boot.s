@@ -27,10 +27,16 @@ boot:
     csrw stvec, t0
     
 bss_zeroing:
-    # la a0, _binary_shell_bin_start
-    # jal ra, printHex
-    # la a0, _binary_shell_bin_end
-    # jal ra, printHex
+    addi a0, x0, 10
+    //jal ra, write_byte
+    la a0, _binary_shell_bin_start
+    //jal ra, printHex
+    addi a0, x0, 10
+    //jal ra, write_byte
+    la a0, _binary_shell_bin_end
+    //jal ra, printHex
+    addi a0, x0, 10
+    //jal ra, write_byte
     la a0, __bss
     li a1, 0 
     la a2, __bss_end
