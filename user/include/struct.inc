@@ -1,1 +1,3 @@
-#define USER_BASE 0x1000000 # start of user program
+.equ USER_BASE, 0x1000000
+.equ SYS_PUTCHAR, 0
+.equ SYS_PUTSTRING, 1

@@ -1,3 +1,4 @@
+.include "struct.inc"
 .section .rodata
 .word 3
 ILLEGAL_INST: .ascii ":An Illegal ins"
@@ -60,9 +61,23 @@ illegal_inst:
         jal x0, loop2
 env_u:
     # syscall from usermode here
-    lw t0, 124(s0)
+    lw a3, (48)(s0)
+    lw a0, (36)(s0)
+
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    addi t0, x0, SYS_PUTCHAR
+    beq a3, t0, putChar
+    putChar:
+        jal ra, write_byte
+        jal x0, sysCallEnd
+    sysCallEnd:
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    lw t0, (124)(s0)
     addi t0, t0, 4
-    sw t0, 124(s0)
+    sw t0, (124)(s0)
     j done
 
 done:
