@@ -43,6 +43,7 @@ bss_zeroing:
     sub a2, a2, a0
     jal ra, memset0
 bss_zero_end:
+    jal ra, ui_splash
     jal ra, printMem
     jal ra, main ##main function
 

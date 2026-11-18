@@ -61,6 +61,7 @@ illegal_inst:
         jal x0, loop2
 env_u:
     # syscall from usermode here
+    # number in a3, argument in a0 (saved in trap frame)
     lw a3, (48)(s0)
     lw a0, (36)(s0)
 
@@ -69,9 +70,60 @@ env_u:
 
     addi t0, x0, SYS_PUTCHAR
     beq a3, t0, putChar
+    addi t0, x0, SYS_GETCHAR
+    beq a3, t0, getChar
+    addi t0, x0, SYS_SHUTDOWN
+    beq a3, t0, shutdown
+    addi t0, x0, SYS_TICKS
+    beq a3, t0, ticks
+    addi t0, x0, SYS_PROCINFO
+    beq a3, t0, procinfo
+    jal x0, sysCallEnd          # unknown syscall: ignore
+
+    # returns the low 32 bits of the time counter (10 MHz on QEMU virt)
+    ticks:
+        rdtime t0
+        sw t0, (36)(s0)
+        jal x0, sysCallEnd
+
+    # a0 = process slot index -> returns its state (0 unused,1 ready,2 running,3 blocked)
+    # or -1 if the index is out of range
+    procinfo:
+        li t0, proc_max
+        bgeu a0, t0, procinfo_bad
+        li t0, proc_size
+        mul t0, t0, a0
+        la t1, process_table
+        add t1, t1, t0
+        lw t0, proc_state(t1)
+        sw t0, (36)(s0)
+        jal x0, sysCallEnd
+    procinfo_bad:
+        li t0, -1
+        sw t0, (36)(s0)
+        jal x0, sysCallEnd
+
     putChar:
         jal ra, write_byte
         jal x0, sysCallEnd
+
+    # non-blocking: returns the byte in a0, or -1 if no input is pending.
+    # result goes into the saved a0 of the trap frame
+    getChar:
+        addi a7, x0, 2          # SBI legacy console_getchar
+        ecall
+        sw a0, (36)(s0)
+        jal x0, sysCallEnd
+
+    # SBI SRST: system reset (shutdown)
+    shutdown:
+        li a7, 0x53525354
+        li a6, 0
+        li a0, 0
+        li a1, 0
+        ecall
+        jal x0, shutdown
+
     sysCallEnd:
     lw ra, 0(sp)
     addi sp, sp, 4

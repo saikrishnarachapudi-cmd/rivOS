@@ -31,7 +31,7 @@ printMem:
 
     lw ra, 0(sp)
     addi sp, sp, 4
-    jalr x0, (ra)
+    jalr x0, 0(ra)
 
 # number of pages in a0
 # final address in a0

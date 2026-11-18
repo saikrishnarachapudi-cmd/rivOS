@@ -23,3 +23,11 @@
 .equ cycles, 1000
 .equ time_eid, 0x54494D45
 .equ time_fid, 0
+
+#sys call
+.equ SYS_PUTCHAR, 0
+.equ SYS_PUTSTRING, 1
+.equ SYS_GETCHAR, 2
+.equ SYS_SHUTDOWN, 3
+.equ SYS_TICKS, 4
+.equ SYS_PROCINFO, 5
