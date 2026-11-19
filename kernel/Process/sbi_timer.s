@@ -1,0 +1,37 @@
+.include "struct.inc"
+.section .text
+.global sbi_timer
+.global timer_init
+
+sbi_timer:
+#  current 64-bit time counter into t1:t0
+rdtime t0
+rdtimeh t1
+
+###addition in parts
+
+li t2, cycles
+add t0, t0, t2
+sltu t3, t0, t2 
+add t1, t1, t3   # Carry into upper 32 bits
+
+# Pass the absolute timer value in a1:a0
+mv a0, t0
+mv a1, t1
+
+li a6,time_fid
+li a7,time_eid
+
+ecall
+
+jalr zero,0(ra)
+
+timer_init:
+    addi sp, sp, -4
+    sw  ra, 0(sp)
+    jal ra, sbi_timer
+    li  t0, 0x20
+    csrs sie, t0
+    lw  ra, 0(sp)
+    addi sp, sp, 4
+    ret

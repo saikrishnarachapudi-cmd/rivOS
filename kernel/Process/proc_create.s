@@ -1,0 +1,321 @@
+.include "struct.inc"
+###returns the new process sp in a1.
+#ra = proc_start 
+#s0 = entry point
+.section .rodata
+    m:
+    .ascii "out of space for another process"
+    .equ len, 32
+
+.section .text 
+    .global proc_create
+
+#pid = 0,1,2...max-1
+# returns a0 = pid  or -1 if the process table is full
+proc_create:
+    la t0, process_table
+    li t2, proc_max # counter for process tables
+    li t3, 0  #t3=pid of new process
+
+    check:
+        beq t2,zero,full # t2 is zero so no process empty
+        lw t1, proc_state(t0)
+        beq t1,zero, create # t1 is empty go there
+        li t5, proc_size          
+        add t0, t0, t5
+        addi t3, t3, 1
+        addi t2, t2, -1
+        jal x0, check
+
+    create:
+        # Preserve the caller's entry address across page-table setup.
+        # The initial context frame will restore it into s0.
+        addi sp, sp, -16
+        sw ra, 0(sp)
+        sw t0, 4(sp)       # PCB address
+        sw t3, 8(sp)       # PID
+        sw a0, 12(sp)      # supervisor task entry PC
+
+        jal ra, map_kernel_pages
+        srli a0, a0, 12
+        li t1, SATP_SV32
+        or a0, a0, t1
+
+        lw t0, 4(sp)
+        lw t3, 8(sp)
+        sw a0, proc_satp(t0)
+        lw t2, 12(sp)      # requested entry PC
+        lw ra, 0(sp)
+        addi sp, sp, 16
+
+        sw t3, proc_pid(t0)
+        li t1, proc_ready
+        sw t1, proc_state(t0)
+
+    //---------------------------
+
+#stack top: proc_stacks + (pid + 1) * stack_size
+    la t1, proc_stacks
+    addi t4, t3, 1
+    li t5, stack_size
+    mul t4, t4, t5
+    add t1, t1, t4        # t1 = top of stack
+
+    #t4-stack size
+    li t4, stack_size
+    srli t4, t4, 2 
+    mv t5, t1       
+
+    zero_frame:# clear the stack into zeros
+        addi t5, t5, -4 
+        sw zero, 0(t5) 
+        addi t4, t4, -1  
+        bnez t4, zero_frame
+
+    #switch_context frame
+    addi t1, t1, -52
+    la t4, proc_start
+    sw t4, 0(t1)      # switch_context restores ra = proc_start
+    sw t2, 4(t1)      # switch_context restores s0 = entry PC
+    li t4, 1
+    sw t4, 8(t1)      # s1=1: supervisor-mode demo process
+    sw t1, proc_sp(t0)
+    
+    
+    
+    mv a0, t3 
+    mv a1, t1 
+    jalr zero, 0(ra)         
+
+full:
+    addi sp, sp, -8
+    sw ra, 0(sp)
+    li a0, len
+    la a1, m
+    jal ra, write_string
+    li a0, -1
+    lw ra, 0(sp)
+    addi sp, sp, 8
+    jalr zero, 0(ra)
+
+proc_start:
+    # Return to the supplied entry PC in supervisor mode (SPP=1).
+    # SPIE=1 makes timer interrupts active after sret.
+    csrr t0, sstatus
+    li t1, 0x120         # SPP (bit 8) | SPIE (bit 5)
+    or t0, t0, t1
+    beqz s1, start_user
+    j set_entry
+start_user:
+    li t1, 0x100         # clear SPP so sret enters U-mode
+    not t1, t1
+    and t0, t0, t1
+    li t1, 0x20
+    or t0, t0, t1
+set_entry:
+    csrw sstatus, t0
+    csrw sepc, s0
+    sret
+
+
+
+//maps all kernel pages for a process
+// returns process table address value in a0
+map_kernel_pages:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+    addi a0, x0, 1
+    jal ra, alloc_pages
+    addi t2, a0, 0 // process adress table in t2
+    la t0, __kernel_base
+    la t1, __free_ram_end
+    addi t3, x0, 1
+    slli t3, t3, 12//Page size in t3
+
+    start_mapping:
+        bge t0, t1, done_map
+        addi a0, t2, 0
+        addi a1, t0, 0
+        addi a2, t0, 0
+        addi a3, x0, 0
+        ori a3, a3, PAGE_R
+        ori a3, a3, PAGE_X
+        ori a3, a3, PAGE_W
+        addi sp, sp, -16
+        sw t0, 0(sp)
+        sw t1, 4(sp)
+        sw t2, 8(sp)
+        sw t3, 12(sp)
+
+        jal ra, map_pages
+        lw t0, 0(sp)
+        lw t1, 4(sp)
+        lw t2, 8(sp)
+        lw t3, 12(sp)
+        addi sp, sp, 16
+        add t0, t0, t3
+        jal x0, start_mapping
+    
+    done_map:
+    // copy process address table to t2
+    addi a0, t2, 0
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    jalr x0, 0(ra)
+
+
+#a0 - start of image
+#a1 - end of image
+#a2 - size of image
+#a3 - processPageTableAddress (a3 not edited)
+map_user_pages:
+    addi sp, sp, -28
+    sw s0, 0(sp)
+    sw s1, 4(sp)
+    sw s2, 8(sp)
+    sw s3, 12(sp)
+    sw s4, 16(sp)
+    sw ra, 20(sp)
+    sw s5, 24(sp)
+    li s5, 0x1000000 # virtual addresses
+    li s3, PAGE_SIZE # fixed
+    addi s4, x0, 0
+    ori s4, s4, PAGE_V
+    ori s4, s4, PAGE_X
+    ori s4, s4, PAGE_R
+    ori s4, s4, PAGE_W
+    ori s4, s4, PAGE_U
+    add s0, s3, a0 # end of currently being allocated storage
+    addi s1, a1, 0 # max size
+    addi s2, a3, 0
+    map_loop:
+        bge s0, s1, compltedFullPages
+        addi a0, x0, 1
+        jal ra, alloc_pages
+        allocatedPagesDebug:
+        #a0 is already the required destination
+        sub a1, s0, s3 # source of page start
+        addi a2, s3, 0 # copy size
+        jal ra, memcpy
+        addi a2, a0, 0
+        addi a0, s2, 0
+        addi a3, s4, 0
+        addi a1, s5, 0
+        // wrong sub a1, s0, s3 # start of current page
+        jal ra, map_pages
+        add s0, s0, s3
+        add s5, s5, s3
+        jal x0, map_loop
+    compltedFullPages:
+        sub s0, s0, s3
+        beq s0, s1, return
+            addi a0, x0, 1
+            jal ra, alloc_pages
+            #a0 is already the required destination
+            addi a1, s0, 0
+            sub a2, s1, s0
+            jal ra, memcpy
+            addi a1, s5, 0
+            addi a2, a0, 0
+            addi a0, s2, 0
+            addi a3, s4, 0
+            jal ra, map_pages
+    return:
+        addi a3, s2, 0
+        lw s0, 0(sp)
+        lw s1, 4(sp)
+        lw s2, 8(sp)
+        lw s3, 12(sp)
+        lw s4, 16(sp)
+        lw ra, 20(sp)
+        lw s5, 24(sp)
+        addi sp, sp, 28
+        jalr x0, 0(ra)
+
+# Create the user shell (PID 0) and populate its U-mode image mapping.
+.global proc_create_shell
+proc_create_shell:
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    li a0, USER_BASE
+    jal ra, proc_create
+    bltz a0, shell_create_done
+
+    # Mark shell as U-mode: initial context s1=0.
+    mv t0, a0
+    li t1, proc_size
+    mul t0, t0, t1
+    la t1, process_table
+    add t0, t0, t1
+    lw t1, proc_sp(t0)
+    sw zero, 8(t1)
+
+    # Convert SATP PPN to physical root page table pointer.
+    lw a0, proc_satp(t0)
+    slli a0, a0, 1
+    srli a0, a0, 1
+    slli a0, a0, 12
+    jal ra, map_shell_pages
+shell_create_done:
+    lw ra, 0(sp)
+    addi sp, sp, 16
+    ret
+
+# a0 = root page table physical address
+# Map the embedded shell binary into U-mode virtual addresses at USER_BASE.
+# The binary includes the 64KiB user stack and zero-filled .bss.
+map_shell_pages:
+    addi sp, sp, -28
+    sw ra, 0(sp)
+    sw s0, 4(sp)
+    sw s1, 8(sp)
+    sw s2, 12(sp)
+    sw s3, 16(sp)
+    sw s4, 20(sp)
+    sw s5, 24(sp)
+
+    mv s0, a0              # root page table
+    la s1, _binary_shell_bin_start
+    la s2, _binary_shell_bin_end
+    li s3, USER_BASE       # next virtual page
+    li s4, PAGE_SIZE
+
+shell_page_loop:
+    bgeu s1, s2, shell_pages_done
+    li a0, 1
+    jal ra, alloc_pages
+    mv s5, a0
+
+    # Fill this physical page. Copy exact image bytes; zero the rest.
+    mv t0, s5
+    li t1, PAGE_SIZE
+shell_copy_byte:
+    bgeu s1, s2, shell_zero_byte
+    lbu t2, 0(s1)
+    addi s1, s1, 1
+    j shell_store_byte
+shell_zero_byte:
+    li t2, 0
+shell_store_byte:
+    sb t2, 0(t0)
+    addi t0, t0, 1
+    addi t1, t1, -1
+    bnez t1, shell_copy_byte
+
+    mv a0, s0
+    mv a1, s3
+    mv a2, s5
+    li a3, PAGE_V | PAGE_R | PAGE_W | PAGE_X | PAGE_U
+    jal ra, map_pages
+    add s3, s3, s4
+    j shell_page_loop
+shell_pages_done:
+    lw ra, 0(sp)
+    lw s0, 4(sp)
+    lw s1, 8(sp)
+    lw s2, 12(sp)
+    lw s3, 16(sp)
+    lw s4, 20(sp)
+    lw s5, 24(sp)
+    addi sp, sp, 28
+    ret
