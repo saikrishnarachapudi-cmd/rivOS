@@ -33,7 +33,7 @@ proc_create:
         sw t1, proc_state(t0)  
 
         //---------------------------
-        addi sp, sp, -32
+        addi sp, sp, -36
         sw t0, 0(sp)
         sw t1, 4(sp)
         sw t2, 8(sp)
@@ -42,12 +42,13 @@ proc_create:
         sw t5, 20(sp)
         sw a0, 24(sp)
         sw ra, 28(sp)
+        sw s0, 32(sp)
         jal ra, map_kernel_pages
         addi a3, a0, 0
         la a0, _binary_shell_bin_start
         la a1, _binary_shell_bin_end
         la a2, _binary_shell_bin_size
-        checkBinarySizes:
+        #checkBinarySizes:
         jal ra, map_user_pages
         srli a3, a3, 12
         addi t1, x0, 1
@@ -62,7 +63,8 @@ proc_create:
         lw t5, 20(sp)
         lw a0, 24(sp)
         lw ra, 28(sp)
-        addi sp, sp, 32
+        lw s0, 32(sp)
+        addi sp, sp, 36
     //---------------------------
 
 #stack top: proc_stacks + (pid + 1) * stack_size

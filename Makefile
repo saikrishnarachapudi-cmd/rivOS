@@ -5,7 +5,7 @@ CFLAGS  := -std=c11 -g3 -Wall -Wextra \
            -march=rv32ima_zicsr -Iinclude\
 		   #-O2 -fno-stack-protector -ffreestanding
 #---------------------------
-SUBDIRS = kernel/ kernel/Process/ kernel/Core/ kernel/Memory/ kernel/lib/ kernel/Memory user/
+SUBDIRS = kernel/ kernel/Process/ kernel/Core/ kernel/Memory/ kernel/lib/ kernel/Memory user/ kernel/Disk
 .PHONY: libs $(SUBDIRS)
 
 build: libs buildK
@@ -15,15 +15,15 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 # Object files
-OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/boot.o kernel/Memory/memory.o user/shell.bin.o
+OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/boot.o kernel/Memory/memory.o user/shell.bin.o kernel/Disk/disk.o
 # Build the kernel
 buildK: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf
 	llvm-objdump -S kernel.elf > source.txt
 run: kernel.elf
-	$(QEMU) -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel kernel.elf
+	$(QEMU) -machine virt -bios default -nographic -serial mon:stdio --no-reboot -semihosting -semihosting-config enable=on,target=native,userspace=on -kernel kernel.elf
 host: kernel.elf
-	$(QEMU) -gdb tcp::9000 -S -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel kernel.elf
+	$(QEMU) -gdb tcp::9000 -S -machine virt -bios default -nographic -serial mon:stdio --no-reboot -semihosting -semihosting-config enable=on,target=native,userspace=on  -kernel kernel.elf
 
 clean:
 	rm -f kernel.elf kernel.map

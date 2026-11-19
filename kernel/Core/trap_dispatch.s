@@ -37,6 +37,11 @@ trap_dispatch:
     li a0,2
     beq t2,a0,illegal_inst
     loop:
+        addi a0, x0, 3
+        addi a1, x0, 67
+        slli x0, x0, 0x1f
+        ebreak
+        srai x0, x0, 7
         wfi
         jal x0, loop
 timer:

@@ -2,11 +2,10 @@
 .global boot
 
     .section .rodata
-
-
+.data
+letter: .ascii "C"
 .section .bss
     .align 4
-
     sec_code:
         .space 16    
 
@@ -46,7 +45,3 @@ bss_zero_end:
     jal ra, ui_splash
     jal ra, printMem
     jal ra, main ##main function
-
-
-
-
