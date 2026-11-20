@@ -1,7 +1,7 @@
 # Shared kernel-only constants. Included by all kernel subdirectories.
 
 # Process configuration
-.equ stack_size, 8*1024
+.equ stack_size, 1024
 .equ proc_max, 8
 .equ page_size, 4*1024
 
