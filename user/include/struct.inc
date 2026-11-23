@@ -7,3 +7,11 @@
 .equ SYS_SHUTDOWN, 3
 .equ SYS_TICKS, 4
 .equ SYS_PROCINFO, 5
+.equ SYS_OPEN, 0x01
+.equ SYS_CLOSE, 0x02
+.equ SYS_WRITEC, 0x03
+.equ SYS_WRITE0, 0x04
+.equ SYS_WRITE, 0x05
+.equ SYS_READ, 0x06
+.equ SYS_READC, 0x07
+.equ SYS_SEEK, 0x0A

@@ -15,7 +15,7 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 # Object files
-OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/boot.o kernel/Memory/memory.o user/shell.bin.o kernel/Disk/disk.o
+OBJS    := kernel/Core/core.o kernel/Process/process.o kernel/lib/lib.o kernel/boot.o kernel/Memory/memory.o user/shell.bin.o user/count_up.bin.o user/count_down.bin.o user/echo_storage.bin.o kernel/Disk/disk.o
 # Build the kernel
 buildK: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf

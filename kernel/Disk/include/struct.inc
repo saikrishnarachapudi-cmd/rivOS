@@ -1,52 +1,8 @@
-.equ SECTOR_SIZE,       512
-.equ VIRTQ_ENTRY_NUM,   16
-.equ VIRTIO_DEVICE_BLK, 2
-.equ VIRTIO_BLK_PADDR,  0x10001000
-.equ VIRTIO_REG_MAGIC,         0x00
-.equ VIRTIO_REG_VERSION,       0x04
-.equ VIRTIO_REG_DEVICE_ID,     0x08
-.equ VIRTIO_REG_PAGE_SIZE,     0x28
-.equ VIRTIO_REG_QUEUE_SEL,     0x30
-.equ VIRTIO_REG_QUEUE_NUM_MAX, 0x34
-.equ VIRTIO_REG_QUEUE_NUM,     0x38
-.equ VIRTIO_REG_QUEUE_PFN,     0x40
-.equ VIRTIO_REG_QUEUE_READY,   0x44
-.equ VIRTIO_REG_QUEUE_NOTIFY,  0x50
-.equ VIRTIO_REG_DEVICE_STATUS, 0x70
-.equ VIRTIO_REG_DEVICE_CONFIG, 0x100
-.equ VIRTIO_STATUS_ACK,       1
-.equ VIRTIO_STATUS_DRIVER,    2
-.equ VIRTIO_STATUS_DRIVER_OK, 4
-.equ VIRTQ_DESC_F_NEXT,          1
-.equ VIRTQ_DESC_F_WRITE,         2
-.equ VIRTQ_AVAIL_F_NO_INTERRUPT, 1
-.equ VIRTIO_BLK_T_IN,  0
-.equ VIRTIO_BLK_T_OUT, 1
-
-# descriptor table entry
-.equ DESCR_SIZE, 16
-.equ DESCR_T_ADDR, 0
-.equ DESCR_T_LEN, 8
-.equ DESCR_T_FLAGS, 12
-.equ DESCR_T_NEXT, 14
-
-# avaliable ring
-.equ AVAIL_R_SIZE , 4 + 16*2 # beacuse of max 16 rings
-.equ AVAIL_R_FLAGS , 0
-.equ AVAIL_R_INDEX , 2
-.equ AVAIL_R_RING , 4
-
-# used ring entry
-.equ USED_R_SIZE, 8
-.equ USED_R_ID, 0
-.equ USED_R_LEN, 4
-
-# blk request
-.equ BLK_REQ_SIZE, 529
-.equ BLK_REQ_TYPE, 0
-.equ BLK_REQ_RESERVED, 4
-.equ BLK_REQ_SECTOR, 8
-.equ BLK_REQ_DATA, 16
-.equ BLK_REQ_STATUS, 528
-
-.equ PAGE_SIZE, 4096
+.equ SYS_READ, 0x06
+.equ SYS_OPEN, 0x01
+.equ SYS_READC, 0x07
+.equ SYS_SEEK, 0x0A
+.equ SYS_WRITE, 0x05
+.equ SYS_WRITEC, 0x03
+.equ SYS_CLOSE, 0x02
+.equ SYS_WRITE0, 0x04

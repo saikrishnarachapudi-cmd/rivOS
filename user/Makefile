@@ -5,8 +5,15 @@ CFLAGS  := -std=c11 -O2 -g3 -Wall -Wextra \
            -fno-stack-protector -ffreestanding -nostdlib \
            -march=rv32imac_zicsr -Iinclude
 OBJCOPY := llvm-objcopy
-build:
-	$(CC) $(CFLAGS) -Tuser.ld shell.s user.s -o shell.elf
-	$(OBJCOPY) --set-section-flags .bss=alloc,contents -O binary shell.elf shell.bin
-	$(OBJCOPY) -Ibinary -Oelf32-littleriscv shell.bin shell.bin.o
 
+APPS    := shell count_up count_down echo_storage
+
+build:
+	for app in $(APPS); do \
+		$(CC) $(CFLAGS) -Tuser.ld $$app.s user.s -o $$app.elf; \
+		$(OBJCOPY) --set-section-flags .bss=alloc,contents -O binary $$app.elf $$app.bin; \
+		$(OBJCOPY) -Ibinary -Oelf32-littleriscv $$app.bin $$app.bin.o; \
+	done
+
+clean:
+	rm -f *.elf *.bin *.bin.o

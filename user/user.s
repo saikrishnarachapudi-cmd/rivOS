@@ -1,9 +1,11 @@
 .include "struct.inc"
 .global putChar
 .global getChar
+.global exit
 .global getTicks
 .global procInfo
 .section .text.start
+.global start
 start:
     la sp, __stack_top
     jal ra, main
