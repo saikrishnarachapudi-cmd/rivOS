@@ -1,19 +1,35 @@
+# rivOS
+
+A minimal RISC-V (RV32) teaching OS written in assembly: Sv32 paging, one address space per process,
+timer-driven preemptive scheduling, user-mode shell.
+
 ```bash
-make build # to build
-```
-```bash
-make run # to run
+make build      # build kernel.elf (needs clang, lld, llvm-objcopy)
+make disk.img   # 64 KiB virtual disk (16 slots x 4096 bytes) for the file syscalls
+make run        # run in QEMU (qemu-system-riscv32, 32-bit OpenSBI); Ctrl-A X quits, or type `shutdown`
+make demo       # scheduler demo: boots 3 processes (P1,P2,P3) that each print 1..100, then powers off
 ```
 
-## Text UI (added)
-rivOS now has a small text-mode UI over the serial console (ANSI colours):
-- **Boot screen** (`kernel/lib/ui.s`): banner + coloured `[ OK ]` boot log.
-- **Shell** (`user/shell.s`): prompt, line editing (backspace), commands:
-  `help`, `clear`, `banner`, `about`, `echo TEXT`, `colors`, `uptime`, `ps`, `shutdown`.
-- **New syscalls**: `SYS_TICKS` (4), `SYS_PROCINFO` (5), `SYS_GETCHAR` (2, non-blocking read, -1 if no input) and
-  `SYS_SHUTDOWN` (3, SBI SRST). Wrapper `getChar` in `user/user.s` blocks until a key arrives.
-- `kernel/main.s` now starts a single shell process (the other two are commented out).
-- Fixed `jalr x0, (ra)` in `kernel/Memory/main.s` (did not assemble with current clang).
+## Layout
+- `include/struct.inc` - the single shared constants file (PCB layout, paging flags, syscall numbers)
+- `kernel/` boot + main; `Core/` traps and syscalls; `Process/` creation, scheduler, timer;
+  `Memory/` page allocator (bump + free list) and Sv32 mapping; `Disk/` semihosting disk; `lib/` stdio/ui
+- `user/` shell and programs (`count_up`, `count_down`, `echo_storage`, and the demo processes `proc1`-`proc3` built from `counter_common.inc`)
 
-Run with a 32-bit OpenSBI; `-bios default` needs QEMU's `opensbi-riscv32-generic-fw_dynamic.bin`.
-Press `Ctrl-A X` to quit QEMU, or type `shutdown`.
+## Shell commands
+`help clear banner about echo colors uptime ps run NAME demo save N TEXT cat N shutdown`
+(`demo` spawns P1, P2, P3 from the shell; same output as `make demo`.)
+
+## Syscall ABI (ecall; number in a3, args in a0/a1, result in a0)
+0 putchar, 1 putstring, 2 getchar, 3 shutdown, 4 ticks, 5 procinfo, 6 exit, 7 yield,
+8 spawn (program index), 9 file_read (slot, buf), 10 file_write (slot, buf)
+
+## Behaviour notes
+- A user process that faults is killed with a diagnostic; a fault in the kernel panics and halts.
+- Exited processes become zombies; the scheduler frees their pages. When none remain, the machine powers off.
+- The disk is the host file `disk.img` accessed via QEMU semihosting (needs `-semihosting-config enable=on,userspace=on`).
+
+## Known limitations
+- Untested on real clang in this revision; syscalls/exit/spawn/disk were not exercised end to end.
+- User and kernel images are mapped RWX (flat binaries). No blocking wait (shell polls). User pointers are range-checked only.
+- The old virtio-blk driver was removed (see git history).

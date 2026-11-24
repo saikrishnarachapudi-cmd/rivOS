@@ -2,8 +2,12 @@
 .global printMem
 .global alloc_pages
 .global map_pages
+.global free_page
+.global free_address_space
+.global free_list_count
 .data
 freeRamPointer: .word 0
+freeListHead: .word 0
 .word 13
 OUT_OF_MEMORY:.ascii "Out or memory"
 .word 13
@@ -35,36 +39,148 @@ printMem:
 
 # number of pages in a0
 # final address in a0
+# Single pages are recycled from the free list (and zeroed); larger requests
+# and an empty free list are served by the bump pointer.
+# Clobbers only t0-t5 (callers rely on that).
 alloc_pages:
-    addi sp , sp, -4
+    addi sp, sp, -4
     sw ra, 0(sp)
-    addi t0, a0, 0 # number of pages
-    la t1, freeRamPointer # pointer to freeRamPointer
-    lw t2, 0(t1) # freeRamPointer Value
+    la t1, freeRamPointer
+    lw t2, 0(t1)
+    bnez t2, 1f
+    la t2, __free_ram          # lazy init: no longer depends on printMem
+    sw t2, 0(t1)
+1:
+    li t3, 1
+    bne a0, t3, alloc_bump
+    la t4, freeListHead
+    lw t5, 0(t4)
+    beqz t5, alloc_bump
+    lw t0, 0(t5)               # next free page
+    sw t0, 0(t4)
+    mv t0, t5                  # zero the recycled page
     li t3, PAGE_SIZE
-
-    mul t0, t0, t3 # space to alloc in t0
-    addi t4, t2, 0 # return value in t4
-    add t2, t0, t2 # end address in t2
-    la t5, __free_ram_end
-
-    blt t5, t2, error# error if end is out of limit
-
+    add t3, t3, t5
+2:
+    sw zero, 0(t0)
+    addi t0, t0, 4
+    bltu t0, t3, 2b
+    mv a0, t5
     lw ra, 0(sp)
     addi sp, sp, 4
-    addi a0, t4, 0
-    sw t2, 0(t1)
     jalr x0, 0(ra)
-    error:
-        la a0, OUT_OF_MEMORY
-        la a1, FILE_NAME
-        addi a2, x0, 62
+alloc_bump:
+    li t3, PAGE_SIZE
+    mul t0, a0, t3             # bytes requested
+    mv t4, t2                  # return value
+    add t2, t2, t0             # new end
+    la t5, __free_ram_end
+    bltu t5, t2, error         # out of memory
+    sw t2, 0(t1)
+    mv a0, t4
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    jalr x0, 0(ra)
+error:
+    la a0, OUT_OF_MEMORY
+    la a1, FILE_NAME
+    addi a2, x0, 62
+    jal ra, panic
+halt_oom:                      # fatal: never hand out a bogus address
+    wfi
+    j halt_oom
 
-        jal ra, panic
-        lw ra, 0(sp)
-        addi sp, sp, 4
-        addi a0, t4, 0
-        jalr x0, 0(ra)
+# a0 = page-aligned address of a page that came from alloc_pages
+# pushes it on the free list; anything else is ignored
+free_page:
+    slli t0, a0, 20            # low 12 bits must be zero (page aligned)
+    bnez t0, 1f
+    la t0, __free_ram
+    bltu a0, t0, 1f
+    la t0, __free_ram_end
+    bgeu a0, t0, 1f
+    la t1, freeListHead
+    lw t2, 0(t1)
+    sw t2, 0(a0)
+    sw a0, 0(t1)
+1:
+    jalr x0, 0(ra)
+
+# a0 = satp value of a process
+# frees every user page (PAGE_U leaves), every second-level table and the
+# root table. Kernel pages are shared between processes and are never freed.
+free_address_space:
+    addi sp, sp, -24
+    sw ra, 0(sp)
+    sw s0, 4(sp)
+    sw s1, 8(sp)
+    sw s2, 12(sp)
+    sw s3, 16(sp)
+    sw s4, 20(sp)
+    li t0, 0x3fffff
+    and a0, a0, t0
+    slli s0, a0, 12            # root table address
+    li s1, 0                   # level-1 index
+fas_l1:
+    li t0, 1024
+    bgeu s1, t0, fas_done
+    slli t0, s1, 2
+    add t0, t0, s0
+    lw t1, 0(t0)
+    andi t2, t1, PAGE_V
+    beqz t2, fas_l1_next
+    andi t2, t1, 0xE           # R/W/X set = superpage leaf, none are created
+    bnez t2, fas_l1_next
+    srli t1, t1, 10
+    slli s2, t1, 12            # level-2 table address
+    li s3, 0
+fas_l2:
+    li t0, 1024
+    bgeu s3, t0, fas_l2_done
+    slli t0, s3, 2
+    add t0, t0, s2
+    lw t1, 0(t0)
+    andi t2, t1, PAGE_V
+    beqz t2, fas_l2_next
+    andi t2, t1, PAGE_U
+    beqz t2, fas_l2_next       # kernel mapping: shared
+    srli t1, t1, 10
+    slli a0, t1, 12
+    jal ra, free_page
+fas_l2_next:
+    addi s3, s3, 1
+    j fas_l2
+fas_l2_done:
+    mv a0, s2
+    jal ra, free_page
+fas_l1_next:
+    addi s1, s1, 1
+    j fas_l1
+fas_done:
+    mv a0, s0
+    jal ra, free_page
+    lw ra, 0(sp)
+    lw s0, 4(sp)
+    lw s1, 8(sp)
+    lw s2, 12(sp)
+    lw s3, 16(sp)
+    lw s4, 20(sp)
+    addi sp, sp, 24
+    jalr x0, 0(ra)
+
+# returns the number of pages currently sitting on the free list in a0
+free_list_count:
+    la t0, freeListHead
+    lw t0, 0(t0)
+    li a0, 0
+1:
+    beqz t0, 2f
+    addi a0, a0, 1
+    lw t0, 0(t0)
+    j 1b
+2:
+    jalr x0, 0(ra)
+
 # a0 processVirtualAdressTablePointer
 # a1 start virtual address of the page
 # a2 start physical address of the page
@@ -152,11 +268,7 @@ map_pages:
         la a0, UNALIGNED_ADDR
         la a1, FILE_NAME
         addi a2, x0, 154
-
         jal ra, panic
-        lw ra, 0(sp)
-        addi sp, sp, 4
-        addi a0, t4, 0
-        jalr x0, 0(ra)
-
-
+    halt_align:                # fatal: mapping an unaligned page is a kernel bug
+        wfi
+        j halt_align

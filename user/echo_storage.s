@@ -5,15 +5,11 @@ prompt:  .asciz "Enter text to save to slot 2: "
 saved:   .asciz "Saved to slot 2\n"
 nl:      .asciz "\n"
 bs_str:  .asciz "\b \b"
-fileName:.asciz "disk.img"
+failed:  .asciz "Write failed (is disk.img present? run: make disk.img)\n"
 
 .section .bss
 buf:      .space 128
 slotbuf:  .space 4096
-argArr:   .space 12
-writeArgArr: .space 12
-seekArgArr:  .space 8
-closeArgArr: .space 4
 
 .section .text
 .global main
@@ -57,32 +53,6 @@ enter:
     la   a0, nl
     jal  ra, puts
 
-    # open disk.img (mode 3 = r+b)
-    la   a1, argArr
-    la   t0, fileName
-    sw   t0, 0(a1)
-    li   t0, 3
-    sw   t0, 4(a1)
-    li   t0, 8
-    sw   t0, 8(a1)
-    li   a0, SYS_OPEN
-    jal  ra, semihost
-    # a0 = handle
-    la   t0, writeArgArr
-    sw   a0, 0(t0)
-    la   t0, seekArgArr
-    sw   a0, 0(t0)
-    la   t0, closeArgArr
-    sw   a0, 0(t0)
-
-    # seek to slot 2 offset = 4096
-    la   t0, seekArgArr
-    li   t1, 4096
-    sw   t1, 4(t0)
-    la   a1, seekArgArr
-    li   a0, SYS_SEEK
-    jal  ra, semihost
-
     # prepare slotbuf: copy buf then zero rest (bss already zero, but ensure)
     la   t0, slotbuf
     la   t1, buf
@@ -98,34 +68,19 @@ copy_loop:
     blt  t2, t3, copy_loop
 copy_done:
 
-    # write 4096 bytes
-    la   t0, writeArgArr
-    la   t1, seekArgArr
-    lw   t2, 0(t1)
-    sw   t2, 0(t0)          # handle
-    la   t2, slotbuf
-    sw   t2, 4(t0)          # buffer
-    li   t2, 4096
-    sw   t2, 8(t0)          # length
-    la   a1, writeArgArr
-    li   a0, SYS_WRITE
-    jal  ra, semihost
-
-    # close
-    la   a1, closeArgArr
-    li   a0, SYS_CLOSE
-    jal  ra, semihost
+    # write the whole slot through the kernel
+    li   a0, 2
+    la   a1, slotbuf
+    jal  ra, fileWrite
+    bnez a0, write_failed
 
     la   a0, saved
     jal  ra, puts
     jal  ra, exit
-
-# semihosting trap
-semihost:
-    slli x0, x0, 0x1f
-    ebreak
-    srai x0, x0, 7
-    jalr x0, 0(ra)
+write_failed:
+    la   a0, failed
+    jal  ra, puts
+    jal  ra, exit
 
 # a0 = NUL-terminated string
 puts:

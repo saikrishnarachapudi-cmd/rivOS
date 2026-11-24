@@ -1,10 +1,9 @@
-/disk/*
-!/disk/.gitkeep
+/disk.img
 *.map
-*.tar
 *.o
 *.elf
 *.bin
 *.log
 *.pcap
 *.out
+*.tar

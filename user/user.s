@@ -4,6 +4,11 @@
 .global exit
 .global getTicks
 .global procInfo
+.global yield
+.global spawn
+.global fileRead
+.global fileWrite
+.global putString
 .section .text.start
 .global start
 start:
@@ -11,8 +16,41 @@ start:
     jal ra, main
     jal ra, exit
 
+# terminates the process; the kernel frees its memory
 exit:
-    jal x0, exit
+    addi a3, x0, SYS_EXIT
+    ecall
+exit_hang:
+    jal x0, exit_hang
+
+# give up the rest of the time slice
+yield:
+    addi a3, x0, SYS_YIELD
+    ecall
+    jalr x0, 0(ra)
+
+# a0 = program index (0 count_up, 1 count_down, 2 echo_storage) -> a0 = pid or -1
+spawn:
+    addi a3, x0, SYS_SPAWN
+    ecall
+    jalr x0, 0(ra)
+
+# a0 = slot (1..16), a1 = 4096-byte buffer -> a0 = 0 on success
+fileRead:
+    addi a3, x0, SYS_FILE_READ
+    ecall
+    jalr x0, 0(ra)
+
+fileWrite:
+    addi a3, x0, SYS_FILE_WRITE
+    ecall
+    jalr x0, 0(ra)
+
+# a0 = NUL-terminated string (printed by the kernel)
+putString:
+    addi a3, x0, SYS_PUTSTRING
+    ecall
+    jalr x0, 0(ra)
 # letter in a0
 putChar:
     addi a3, x0, SYS_PUTCHAR

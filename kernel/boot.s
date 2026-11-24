@@ -44,4 +44,5 @@ bss_zeroing:
 bss_zero_end:
     jal ra, ui_splash
     jal ra, printMem
+    jal ra, disk_init
     jal ra, main ##main function
